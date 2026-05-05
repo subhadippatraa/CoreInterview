@@ -1,0 +1,188 @@
+[
+  {
+    "questionId": 1,
+    "followUps": [
+      {
+        "question": "When would you use a struct over a class?",
+        "answer": "Use a struct when the type is small (< 16 bytes), immutable, short-lived, and represents a single value like coordinates or money.",
+        "interviewPitch": "I use structs when the type is **small** (under 16 bytes), **immutable**, and represents a **single value** — like `Point(x, y)`, `Color(r, g, b)`, or `Money(amount, currency)`. The value semantics (copy on assignment) should be **desirable**, not accidental. Structs avoid heap allocation and GC pressure, making them great for **high-performance** scenarios like game loops or tight calculation loops. The .NET BCL uses structs for `DateTime`, `TimeSpan`, `Guid`, and `decimal` — all small, immutable value types.",
+        "explanation": "**Use struct when:**\\n• Size < 16 bytes (avoids expensive copy overhead)\\n• Immutable (no mutable fields/properties)\\n• Short-lived (allocated on stack, no GC pressure)\\n• Represents a single logical value\\n• Frequently allocated (thousands per frame in games)\\n\\n**Use class when:**\\n• Need inheritance\\n• Need reference semantics (multiple variables pointing to same object)\\n• Large data (> 16 bytes — copying is expensive)\\n• Long-lived objects (singletons, services)",
+        "example": "// Good struct — small, immutable, value-like\nreadonly struct Money {\n    public decimal Amount { get; }\n    public string Currency { get; }\n    public Money(decimal amount, string currency) {\n        Amount = amount;\n        Currency = currency;\n    }\n}\n\n// Bad struct — too large, mutable\nstruct BadExample {\n    public string Name;     // reference type field = heap anyway\n    public List<int> Items; // mutable collection\n    // This should be a class!\n}",
+        "whyAsked": "Tests if you know the practical guidelines, not just the textbook definition.",
+        "mistakes": [
+          "Making structs with mutable fields — leads to confusing bugs when copies are modified.",
+          "Using structs for large objects — copy overhead negates stack allocation benefits."
+        ]
+      },
+      {
+        "question": "What happens when you pass a struct to a method?",
+        "answer": "A copy of the struct is made. The method works with the copy, so changes inside the method do NOT affect the original.",
+        "interviewPitch": "When you pass a struct to a method, a **complete copy** is made. The method receives its own independent copy, so any modifications inside the method do **not** affect the original. This is because structs are **value types**. If you want the method to modify the original, you must use the `ref` keyword. This copy behavior is the #1 source of bugs with structs — especially when you modify a struct returned from a property or indexer, which creates a temporary copy that's immediately discarded.",
+        "explanation": "**Default (by value):**\\n• Full copy is made → method gets independent copy\\n• Changes don't affect original\\n\\n**With `ref`:**\\n• No copy — method works with original\\n• Changes affect the caller's variable\\n\\n**The property trap:**\\n```\\nstruct Point { public int X; }\\nList<Point> points = new() { new Point { X = 1 } };\\npoints[0].X = 5; // ERROR! Indexer returns a COPY\\n```",
+        "example": "struct Point { public int X; public int Y; }\n\nvoid Move(Point p) {\n    p.X = 99;  // modifies the COPY\n}\n\nvar original = new Point { X = 1, Y = 2 };\nMove(original);\nConsole.WriteLine(original.X);  // Still 1! (copy was modified)\n\n// Fix: pass by reference\nvoid MoveRef(ref Point p) {\n    p.X = 99;  // modifies the ORIGINAL\n}\n\nMoveRef(ref original);\nConsole.WriteLine(original.X);  // Now 99 ✓",
+        "whyAsked": "Tests understanding of value type copy semantics — a frequent source of subtle bugs.",
+        "mistakes": [
+          "Expecting struct modifications inside a method to affect the caller — they don't without ref.",
+          "Not knowing that boxing a struct (casting to object/interface) creates a heap copy."
+        ]
+      },
+      {
+        "question": "Can structs implement interfaces?",
+        "answer": "Yes, structs can implement interfaces. But be careful — casting a struct to an interface type causes boxing, which allocates it on the heap.",
+        "interviewPitch": "Yes, structs **can** implement interfaces. For example, many BCL structs implement `IComparable<T>`, `IEquatable<T>`, etc. However, there's a catch: if you cast a struct to its interface type, **boxing** occurs — the value type is wrapped in an object on the heap, defeating the performance benefit of using a struct. To avoid boxing, use **generic constraints** (`where T : IMyInterface`) instead of interface variables — this way the compiler uses the struct directly without boxing.",
+        "explanation": "**Boxing trap:**\\n• `IComparable c = myStruct;` → boxing! Heap allocation.\\n• The boxed copy is a separate object — modifying it doesn't affect the original.\\n\\n**Avoid boxing with generics:**\\n• `void Process<T>(T item) where T : IMyInterface` → no boxing!\\n• The compiler generates specialized code for the struct type.",
+        "example": "struct MyNumber : IComparable<MyNumber> {\n    public int Value;\n    public int CompareTo(MyNumber other) => Value.CompareTo(other.Value);\n}\n\nvar a = new MyNumber { Value = 5 };\n\n// Boxing — allocates on heap!\nIComparable<MyNumber> boxed = a;  // BOXED copy\n\n// No boxing — generic constraint\nvoid Compare<T>(T x, T y) where T : IComparable<T> {\n    Console.WriteLine(x.CompareTo(y));  // no boxing!\n}\nCompare(a, new MyNumber { Value = 3 });  // ✓ direct call",
+        "whyAsked": "Tests advanced understanding of value types, boxing, and performance implications.",
+        "mistakes": [
+          "Not knowing that interface casting causes boxing — negates the stack benefit.",
+          "Forgetting that generic constraints avoid boxing — this is the recommended pattern."
+        ]
+      }
+    ]
+  },
+  {
+    "questionId": 8,
+    "followUps": [
+      {
+        "question": "When would you choose an abstract class over an interface?",
+        "answer": "Choose an abstract class when related classes need shared state (fields) or common implementation that they all inherit.",
+        "interviewPitch": "I choose an **abstract class** when I have a family of **related classes** that share common **state** (fields) and **behavior** (methods). For example, all `PaymentProcessor` subclasses need a `TransactionLog` field and a shared `Validate()` method. An interface can't hold state. I also use abstract classes when I want to enforce a **template method pattern** — provide the skeleton of an algorithm with some steps implemented and others left abstract. I switch to interfaces when unrelated classes need the same capability (like `IDisposable`) or when I need **multiple inheritance**.",
+        "explanation": "**Choose abstract class when:**\\n• Shared fields/state across derived classes\\n• Common method implementations (DRY)\\n• Template method pattern\\n• Need constructors for initialization\\n• Versioning — adding a new method with a default implementation doesn't break derived classes\\n\\n**Choose interface when:**\\n• Unrelated classes need same capability\\n• Need multiple inheritance\\n• Defining a contract for dependency injection\\n• Cross-cutting concerns (IDisposable, ICloneable)",
+        "example": "// Abstract class — shared state + behavior\nabstract class PaymentProcessor {\n    protected List<string> _log = new();  // shared state\n    \n    public void Process(decimal amount) {  // template method\n        Validate(amount);\n        ExecutePayment(amount);\n        _log.Add($\"Processed {amount}\");\n    }\n    \n    protected abstract void ExecutePayment(decimal amount);\n    private void Validate(decimal amount) {\n        if (amount <= 0) throw new ArgumentException();\n    }\n}\n\nclass StripeProcessor : PaymentProcessor {\n    protected override void ExecutePayment(decimal amount) {\n        // Stripe-specific logic\n    }\n}",
+        "whyAsked": "Tests design decision-making — not just knowing the difference, but knowing when to apply each.",
+        "mistakes": [
+          "Defaulting to abstract classes for everything — leads to rigid hierarchies.",
+          "Forgetting C# 8 default interface methods — interfaces can now have implementations too."
+        ]
+      },
+      {
+        "question": "Can an interface inherit from another interface?",
+        "answer": "Yes, an interface can inherit from one or more other interfaces. The implementing class must implement all members from the entire inheritance chain.",
+        "interviewPitch": "Yes, interfaces can inherit from **multiple** other interfaces. For example, `IList<T>` inherits from `ICollection<T>`, which inherits from `IEnumerable<T>`. Any class implementing `IList<T>` must implement all members from the entire chain. This is how .NET builds its collection hierarchy. Unlike classes (single inheritance), interfaces support **multiple inheritance** — so `IMyInterface` can inherit from `IDisposable` and `IComparable` simultaneously.",
+        "explanation": "**Interface inheritance:**\\n• An interface can extend multiple interfaces\\n• Implementing class must satisfy ALL inherited members\\n• This is how .NET builds collection hierarchies\\n\\n**Real .NET example:**\\n`IList<T> : ICollection<T> : IEnumerable<T> : IEnumerable`\\n\\nA class implementing `IList<T>` must implement:\\n• `IEnumerable.GetEnumerator()`\\n• `IEnumerable<T>.GetEnumerator()`\\n• `ICollection<T>.Count`, `Add()`, `Remove()`, etc.\\n• `IList<T>.this[int]`, `IndexOf()`, etc.",
+        "example": "interface IReadable {\n    string Read();\n}\n\ninterface IWritable {\n    void Write(string data);\n}\n\n// Interface inheriting MULTIPLE interfaces\ninterface IReadWritable : IReadable, IWritable {\n    void Flush();\n}\n\n// Must implement Read(), Write(), AND Flush()\nclass FileStream : IReadWritable {\n    public string Read() => \"data\";\n    public void Write(string data) { /* ... */ }\n    public void Flush() { /* ... */ }\n}",
+        "whyAsked": "Tests understanding of interface composition and .NET's type hierarchy.",
+        "mistakes": [
+          "Confusing interface inheritance with class inheritance — interfaces support multiple inheritance, classes don't.",
+          "Forgetting that the implementing class must implement ALL inherited members."
+        ]
+      }
+    ]
+  },
+  {
+    "questionId": 9,
+    "followUps": [
+      {
+        "question": "What is the IDisposable interface and the `using` statement?",
+        "answer": "IDisposable provides a Dispose() method for deterministic cleanup of unmanaged resources. The 'using' statement ensures Dispose() is called automatically, even if an exception occurs.",
+        "interviewPitch": "**IDisposable** defines a single method `Dispose()` for **deterministic cleanup** — you control exactly when resources are released, unlike GC which is non-deterministic. It's used for **unmanaged resources** like database connections, file handles, network sockets, and HTTP clients. The **`using` statement** is syntactic sugar that calls `Dispose()` automatically at the end of the block, even if an exception is thrown — it compiles to a `try/finally`. In C# 8+, you can use `using var` for a simpler declaration that disposes when the variable goes out of scope.",
+        "explanation": "**Why IDisposable exists:**\\n• GC handles managed memory, but NOT unmanaged resources\\n• DB connections, file handles, sockets must be released immediately\\n• Waiting for GC finalizer is too slow and unpredictable\\n\\n**The pattern:**\\n• Implement `IDisposable.Dispose()` to release resources\\n• Use `using` block to guarantee cleanup\\n• `using` compiles to `try { ... } finally { obj.Dispose(); }`\\n\\n**C# 8 using declaration:**\\n• `using var conn = new SqlConnection(...);`\\n• Disposes when the variable goes out of scope (end of method)",
+        "example": "// Traditional using block\nusing (var conn = new SqlConnection(connString)) {\n    conn.Open();\n    // work with connection\n}  // Dispose() called here automatically\n\n// C# 8 using declaration (cleaner)\nusing var reader = new StreamReader(\"file.txt\");\nvar text = reader.ReadToEnd();\n// Dispose() called at end of method scope\n\n// What 'using' compiles to:\nvar conn = new SqlConnection(connString);\ntry {\n    conn.Open();\n} finally {\n    conn?.Dispose();  // ALWAYS runs, even on exception\n}",
+        "whyAsked": "Tests if you understand resource management beyond just letting GC handle everything.",
+        "mistakes": [
+          "Thinking Dispose() and GC are the same — Dispose is deterministic, GC is not.",
+          "Forgetting to use 'using' — leaked connections are a top cause of production outages."
+        ]
+      },
+      {
+        "question": "How does GC handle Large Object Heap (LOH) differently?",
+        "answer": "Objects >= 85KB are allocated on the LOH. The LOH is only collected during Gen 2 collections and is NOT compacted by default, which can cause fragmentation.",
+        "interviewPitch": "Objects **>= 85,000 bytes** (roughly 85KB) are allocated on the **Large Object Heap** instead of the regular generational heap. The LOH has two key differences: it's only collected during expensive **Gen 2 collections** (infrequent), and it's **not compacted** by default — meaning freed memory leaves holes that can't be reused for different-sized objects, causing **fragmentation**. This is why allocating many large temporary arrays can degrade performance over time. Since .NET 4.5.1, you can enable LOH compaction with `GCSettings.LargeObjectHeapCompactionMode`, but it's expensive and usually a last resort.",
+        "explanation": "**LOH Rules:**\\n• Objects >= 85,000 bytes → LOH\\n• Common culprits: large arrays, strings, byte buffers\\n• Collected only with Gen 2 (expensive, infrequent)\\n\\n**Fragmentation problem:**\\n• LOH is not compacted → freed memory leaves holes\\n• New allocations may not fit in existing holes\\n• Over time → wasted memory, OutOfMemoryException possible\\n\\n**Mitigations:**\\n• Use `ArrayPool<T>.Shared.Rent()` to reuse large arrays\\n• Avoid allocating/discarding large arrays in loops\\n• Enable compaction: `GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce`",
+        "example": "// This creates LOH allocations (bad in loops):\nfor (int i = 0; i < 1000; i++) {\n    var big = new byte[100_000]; // 100KB → LOH!\n    Process(big);\n}   // 1000 LOH allocations → fragmentation\n\n// Better: rent from ArrayPool\nfor (int i = 0; i < 1000; i++) {\n    var big = ArrayPool<byte>.Shared.Rent(100_000);\n    try {\n        Process(big);\n    } finally {\n        ArrayPool<byte>.Shared.Return(big); // reused!\n    }\n}",
+        "whyAsked": "Tests advanced GC knowledge — important for high-performance .NET services.",
+        "mistakes": [
+          "Not knowing the 85KB threshold — a common interview trick question.",
+          "Ignoring ArrayPool for large buffer reuse — simple fix for LOH pressure."
+        ]
+      }
+    ]
+  },
+  {
+    "questionId": 10,
+    "followUps": [
+      {
+        "question": "What is deferred execution in LINQ?",
+        "answer": "Deferred execution means the LINQ query is NOT executed when defined — it runs only when you iterate over the results (foreach, ToList, First, etc.).",
+        "interviewPitch": "**Deferred execution** means a LINQ query is **not executed when you write it** — it's only executed when you **consume the results** (via `foreach`, `.ToList()`, `.First()`, `.Count()`, etc.). The query variable just holds the **definition** of the query, not the results. This enables **query composition** — you can build up a query in multiple steps, and it all executes as a single operation. With `IQueryable`, this means the entire composed query is translated to one SQL statement. The gotcha is: if the underlying data changes between defining and executing the query, you get the **new** data.",
+        "explanation": "**How it works:**\\n• Query definition → creates an expression/iterator (no execution)\\n• Enumeration → triggers execution (foreach, ToList, First)\\n\\n**Benefits:**\\n• Compose queries in stages without hitting the DB multiple times\\n• Only fetch data you actually need\\n• Efficient — one SQL query for the whole chain\\n\\n**Gotcha — multiple enumeration:**\\n• Each `foreach` or `ToList()` re-executes the query\\n• Can cause multiple DB round-trips\\n• Fix: materialize once with `.ToList()` if you need to iterate multiple times",
+        "example": "// Query is DEFINED here — NOT executed\nvar query = db.Users.Where(u => u.Age > 18);\n\n// Still not executed — just composing\nquery = query.OrderBy(u => u.Name);\nquery = query.Take(10);\n\n// NOW it executes (one SQL query for everything above)\nvar results = query.ToList();\n// SQL: SELECT TOP 10 * FROM Users WHERE Age > 18 ORDER BY Name\n\n// Gotcha: multiple enumeration\nvar count = query.Count();   // executes AGAIN!\nvar first = query.First();   // executes AGAIN!",
+        "whyAsked": "Tests if you understand when queries actually execute — critical for avoiding performance issues.",
+        "mistakes": [
+          "Thinking the query runs when you write .Where() — it doesn't until you enumerate.",
+          "Iterating a deferred query multiple times — causes multiple DB round trips."
+        ]
+      },
+      {
+        "question": "Can you give an example of when using IEnumerable over a database call causes issues?",
+        "answer": "If a repository returns IEnumerable instead of IQueryable, all rows are loaded into memory first, then filtered in C# — potentially loading millions of unnecessary rows.",
+        "interviewPitch": "If your repository returns `IEnumerable<User>` instead of `IQueryable<User>`, any `.Where()` or `.OrderBy()` called by the consumer will execute **in C# memory**, not on the database. This means the **entire table** is pulled into memory first, then filtered — potentially loading millions of rows when you only need 10. With `IQueryable`, the same `.Where()` call builds an expression tree that gets translated to a SQL `WHERE` clause, so only matching rows leave the database. I've seen this cause **OutOfMemoryException** in production when a table grew from 1K to 1M rows.",
+        "explanation": "**The problem:**\\n• Repository: `IEnumerable<User> GetUsers() => dbContext.Users;`\\n• Consumer: `GetUsers().Where(u => u.Active).Take(10).ToList()`\\n• SQL generated: `SELECT * FROM Users` (ALL rows!)\\n• Then C# filters in memory → slow, memory-heavy\\n\\n**The fix:**\\n• Repository: `IQueryable<User> GetUsers() => dbContext.Users;`\\n• Same consumer code, but now:\\n• SQL generated: `SELECT TOP 10 * FROM Users WHERE Active = 1`\\n\\n**Rule of thumb:**\\n• Return `IQueryable` from repositories\\n• Call `.ToList()` only at the service/controller layer",
+        "example": "// BAD — returns IEnumerable\npublic IEnumerable<User> GetUsers() {\n    return _db.Users;  // implicit cast to IEnumerable\n}\n\nvar active = GetUsers()\n    .Where(u => u.IsActive)  // filtered in C# memory!\n    .ToList();\n// SQL: SELECT * FROM Users  ← loads ALL rows\n\n// GOOD — returns IQueryable\npublic IQueryable<User> GetUsers() {\n    return _db.Users;\n}\n\nvar active = GetUsers()\n    .Where(u => u.IsActive)  // translated to SQL WHERE\n    .ToList();\n// SQL: SELECT * FROM Users WHERE IsActive = 1  ← only matching rows",
+        "whyAsked": "A real-world performance trap — tests if you've dealt with ORM performance issues.",
+        "mistakes": [
+          "Returning IEnumerable from repositories by default — always prefer IQueryable for DB sources.",
+          "Not profiling SQL queries — you won't notice until the table grows large."
+        ]
+      }
+    ]
+  },
+  {
+    "questionId": 11,
+    "followUps": [
+      {
+        "question": "What is `ConfigureAwait(false)` and why use it?",
+        "answer": "ConfigureAwait(false) tells the awaiter to NOT capture the current SynchronizationContext, allowing the continuation to run on any ThreadPool thread.",
+        "interviewPitch": "`ConfigureAwait(false)` tells the runtime to **not capture** the current `SynchronizationContext` when resuming after an `await`. By default, `await` captures the context and resumes on the **same thread** (important for UI apps to update controls). With `ConfigureAwait(false)`, the continuation runs on **any ThreadPool thread** — this avoids potential **deadlocks** and improves performance in library code. In **ASP.NET Core**, there's no SynchronizationContext, so it's less critical — but it's still best practice in shared libraries.",
+        "explanation": "**Default behavior:**\\n• `await task;` → captures SynchronizationContext → resumes on original thread\\n• In WPF: resumes on UI thread (safe to update controls)\\n\\n**With ConfigureAwait(false):**\\n• `await task.ConfigureAwait(false);` → skips context capture\\n• Resumes on any ThreadPool thread\\n\\n**When to use:**\\n• Library code (no UI context needed)\\n• Preventing deadlocks in legacy ASP.NET\\n• Performance optimization (avoids context switching)\\n\\n**When NOT to use:**\\n• UI code that needs to update controls after await\\n• ASP.NET Core controllers (no context anyway)",
+        "example": "// Library method — use ConfigureAwait(false)\npublic async Task<string> FetchDataAsync(string url) {\n    var response = await _client.GetAsync(url)\n        .ConfigureAwait(false);  // don't need UI thread\n    return await response.Content.ReadAsStringAsync()\n        .ConfigureAwait(false);\n}\n\n// UI code — do NOT use ConfigureAwait(false)\nasync void Button_Click(object sender, EventArgs e) {\n    var data = await FetchDataAsync(url);\n    label.Text = data;  // needs UI thread!\n}",
+        "whyAsked": "Tests deep async understanding — separates juniors from seniors.",
+        "mistakes": [
+          "Using ConfigureAwait(false) in UI event handlers — will crash when updating controls.",
+          "Thinking it's required in ASP.NET Core — there's no SynchronizationContext to capture."
+        ]
+      },
+      {
+        "question": "Can you use `await` inside a `lock` block?",
+        "answer": "No. The compiler prevents it because lock uses thread-affine Monitor which can deadlock with async. Use SemaphoreSlim instead.",
+        "interviewPitch": "No, the C# compiler **explicitly prevents** `await` inside a `lock` block. The reason: `lock` uses `Monitor.Enter/Exit` which is **thread-affine** — the same thread must enter and exit. But `await` can resume on a **different thread**, meaning `Monitor.Exit` would be called from the wrong thread, causing an exception or deadlock. The fix is to use **`SemaphoreSlim`** with `await WaitAsync()` — it's async-compatible and not thread-affine.",
+        "explanation": "**Why lock + await fails:**\\n• `lock` = `Monitor.Enter()` on Thread T1\\n• `await` suspends → resumes on Thread T2\\n• `Monitor.Exit()` on T2 → `SynchronizationLockException`!\\n\\n**Solution — SemaphoreSlim:**\\n• `await semaphore.WaitAsync()` — async-friendly\\n• Not thread-affine — any thread can release\\n• Use `SemaphoreSlim(1, 1)` for mutual exclusion",
+        "example": "// ❌ COMPILER ERROR — cannot await in lock\nlock (_obj) {\n    await Task.Delay(100);  // CS1996 error!\n}\n\n// ✅ Use SemaphoreSlim instead\nprivate readonly SemaphoreSlim _sem = new(1, 1);\n\nasync Task SafeMethodAsync() {\n    await _sem.WaitAsync();  // async-friendly lock\n    try {\n        await Task.Delay(100);  // safe!\n    } finally {\n        _sem.Release();\n    }\n}",
+        "whyAsked": "Tests practical async knowledge — a real gotcha developers hit in production.",
+        "mistakes": [
+          "Trying to work around the compiler error — the restriction exists for good reason.",
+          "Using lock for async code — always use SemaphoreSlim for async mutual exclusion."
+        ]
+      }
+    ]
+  },
+  {
+    "questionId": 12,
+    "followUps": [
+      {
+        "question": "What is the `in` parameter modifier?",
+        "answer": "The 'in' keyword (C# 7.2) passes a value type by reference but makes it read-only — the method cannot modify it. Used to avoid copying large structs.",
+        "interviewPitch": "The `in` modifier (C# 7.2) passes a value type **by reference** but makes it **read-only** inside the method. It's a performance optimization for **large structs** — instead of copying 64+ bytes on every call, you pass a reference (8 bytes). The method gets fast access to the data but cannot modify it. It completes the trio: `ref` = read/write by reference, `out` = write-only by reference, `in` = read-only by reference.",
+        "explanation": "**The trio:**\\n• `ref` — by reference, read + write\\n• `out` — by reference, must write before returning\\n• `in` — by reference, read-only\\n\\n**When to use `in`:**\\n• Large structs (> 16 bytes) passed to methods\\n• When the method only needs to read, not modify\\n• Hot paths where avoiding copies matters\\n\\n**Caveat:**\\n• For small structs (int, bool), `in` can be SLOWER due to indirection overhead",
+        "example": "readonly struct LargeData {\n    public readonly double X, Y, Z, W;  // 32 bytes\n    public readonly string Name;\n}\n\n// Without 'in' — copies 32+ bytes every call\nvoid Process(LargeData data) { /* ... */ }\n\n// With 'in' — passes 8-byte reference, no copy\nvoid ProcessFast(in LargeData data) {\n    Console.WriteLine(data.X);  // read OK\n    // data.X = 5;  // COMPILER ERROR — read-only!\n}",
+        "whyAsked": "Tests knowledge of C# 7.2+ features and performance-conscious coding.",
+        "mistakes": [
+          "Using 'in' for small types like int — the indirection overhead makes it slower.",
+          "Confusing 'in' with 'ref readonly' — they are related but 'in' is for parameters."
+        ]
+      },
+      {
+        "question": "How do reference types behave when passed by value without `ref`?",
+        "answer": "The reference (pointer) is copied, but both copies point to the same object on the heap. You can mutate properties, but you cannot reassign the reference to a different object.",
+        "interviewPitch": "When you pass a reference type (class) to a method **without `ref`**, the **reference itself is copied** — but both the original and the copy point to the **same object** on the heap. So you CAN mutate the object's properties (both variables see the change), but you CANNOT reassign the reference to point to a different object — that only affects the local copy. With `ref`, you can reassign the reference itself, making the caller's variable point to a completely different object.",
+        "explanation": "**Without ref (default):**\\n• Reference is copied → two pointers to same heap object\\n• `person.Name = \"Bob\"` → mutates shared object ✓\\n• `person = new Person()` → only changes local copy, caller unaffected\\n\\n**With ref:**\\n• No copy — method has the actual reference\\n• `person = new Person()` → caller's variable now points to new object",
+        "example": "class Person { public string Name { get; set; } }\n\nvoid ChangeName(Person p) {\n    p.Name = \"Bob\";        // mutates the SAME object ✓\n    p = new Person();       // only changes local copy\n}\n\nvoid ChangeRef(ref Person p) {\n    p = new Person { Name = \"Eve\" };  // changes caller's variable!\n}\n\nvar person = new Person { Name = \"Alice\" };\nChangeName(person);\nConsole.WriteLine(person.Name);  // \"Bob\" (mutated)\n// person still points to original object\n\nChangeRef(ref person);\nConsole.WriteLine(person.Name);  // \"Eve\" (reassigned!)",
+        "whyAsked": "Tests precise understanding of reference vs value semantics — a common source of confusion.",
+        "mistakes": [
+          "Thinking without ref you can't modify the object — you CAN modify properties, just not reassign.",
+          "Thinking ref is needed to pass objects — it's only needed to reassign the reference itself."
+        ]
+      }
+    ]
+  }
+]

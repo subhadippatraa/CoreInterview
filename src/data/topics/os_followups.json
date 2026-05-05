@@ -1,0 +1,31 @@
+[
+  {
+    "questionId": 6,
+    "followUps": [
+      {
+        "question": "What is a race condition?",
+        "answer": "A race condition occurs when two or more threads access shared data concurrently and at least one modifies it, leading to unpredictable results depending on timing.",
+        "interviewPitch": "A **race condition** happens when multiple threads read and write to **shared mutable state** without proper synchronization. The result depends on the **order of execution**, which is non-deterministic. For example, two threads incrementing a counter might both read the same value, increment it, and write back — losing one update. In C#, we fix this with `lock`, `Interlocked`, `Mutex`, or by avoiding shared state entirely using immutable data.",
+        "explanation": "**How it happens:**\\n1. Thread A reads `counter = 5`\\n2. Thread B reads `counter = 5` (before A writes)\\n3. Thread A writes `counter = 6`\\n4. Thread B writes `counter = 6` (should be 7!)\\n\\n**Solutions in C#:**\\n• `lock (obj) { ... }` — mutual exclusion, simplest\\n• `Interlocked.Increment(ref counter)` — atomic operation, fastest for simple ops\\n• `SemaphoreSlim` — limit concurrent access to N threads\\n• `ConcurrentDictionary`, `ConcurrentQueue` — thread-safe collections\\n• Best: avoid shared mutable state entirely",
+        "example": "// ── Race condition ──\nint counter = 0;\nParallel.For(0, 100000, _ => counter++); // NOT safe\nConsole.WriteLine(counter); // < 100000!\n\n// ── Fix with Interlocked ──\nint safe = 0;\nParallel.For(0, 100000, _ => Interlocked.Increment(ref safe));\nConsole.WriteLine(safe); // Always 100000 ✓",
+        "whyAsked": "Tests if you understand concurrency pitfalls — critical for anyone writing multi-threaded or async code.",
+        "mistakes": [
+          "Thinking race conditions only happen with threads — async code with shared state can also race.",
+          "Using lock everywhere — over-locking causes contention and deadlocks."
+        ]
+      },
+      {
+        "question": "How does C# async/await relate to threads?",
+        "answer": "async/await does NOT create new threads. It frees the current thread during I/O waits using a state machine. The ThreadPool assigns an available thread to resume when the I/O completes.",
+        "interviewPitch": "A common misconception is that `async` creates threads — it doesn't. When you `await` an I/O operation (HTTP call, DB query), the current thread is **released back to the ThreadPool**. No thread is blocked or waiting. The OS uses **I/O completion ports** to signal when data is ready, and then a ThreadPool thread picks up the continuation. This is why ASP.NET Core can handle thousands of concurrent requests with just a few threads — threads aren't sitting idle waiting for database responses.",
+        "explanation": "**Key insight:** For I/O-bound work, there is literally **no thread waiting**.\\n\\n**Flow:**\\n1. Request arrives → ThreadPool thread T1 starts processing\\n2. `await db.QueryAsync()` → T1 is returned to the pool (free!)\\n3. OS handles the I/O via completion ports\\n4. I/O done → ThreadPool thread T2 (any thread) picks up the continuation\\n\\n**CPU-bound vs I/O-bound:**\\n• `await Task.Run(...)` — DOES use a ThreadPool thread (CPU work)\\n• `await httpClient.GetAsync(...)` — does NOT block any thread (I/O work)",
+        "example": "// No thread is blocked during the await!\nasync Task<string> GetDataAsync() {\n    // Thread T1 handles this line\n    var response = await httpClient.GetAsync(url);\n    // Thread T1 is FREE during the wait ^\n    // Thread T2 (any pool thread) resumes here\n    return await response.Content.ReadAsStringAsync();\n}",
+        "whyAsked": "Separates candidates who understand async deeply from those who just use the keywords.",
+        "mistakes": [
+          "Saying async creates a background thread — it does not for I/O operations.",
+          "Using Task.Run for I/O work — wasteful, blocks a ThreadPool thread."
+        ]
+      }
+    ]
+  }
+]

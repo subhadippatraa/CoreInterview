@@ -1,11 +1,12 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { PageWrapper } from '../components/layout/PageWrapper';
+import { InteractiveFollowUp } from '../components/ui/InteractiveFollowUp';
 import { DiagramRenderer } from '../components/diagrams/DiagramRenderer';
-import questions from '../data/questions.json';
+import questions from '../data/questions';
 import { sections } from '../data/sections';
-import { BookmarkIcon as BookmarkOutline, LightBulbIcon, ExclamationTriangleIcon, ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
+import { BookmarkIcon as BookmarkOutline, LightBulbIcon, ExclamationTriangleIcon, ChatBubbleBottomCenterTextIcon, CodeBracketIcon, CommandLineIcon } from '@heroicons/react/24/outline';
 import { BookmarkIcon as BookmarkSolid, CheckCircleIcon as CheckSolid } from '@heroicons/react/24/solid';
 import { useProgress } from '../hooks/useProgress';
 
@@ -29,11 +30,7 @@ export function SectionLayout() {
   const activeQuestionId = questionId ? parseInt(questionId) : sectionQuestions[0]?.id;
   const activeQuestion = sectionQuestions.find(q => q.id === activeQuestionId);
 
-  const [showAnswer, setShowAnswer] = useState(false);
-
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setShowAnswer(false);
     if (sectionId && !questionId && sectionQuestions.length > 0) {
       navigate(`/section/${sectionId}/question/${sectionQuestions[0].id}`, { replace: true });
     }
@@ -43,10 +40,6 @@ export function SectionLayout() {
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === ' ' && !e.ctrlKey && !e.metaKey) {
-        e.preventDefault();
-        setShowAnswer(prev => !prev);
-      }
       if (e.key === 'b' || e.key === 'B') {
         if (activeQuestion) toggleBookmark(activeQuestion.id);
       }
@@ -76,6 +69,7 @@ export function SectionLayout() {
 
   const renderAnswer = (text: string) =>
     text
+      .replace(/\\n/g, '<br/>')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/`([^`]+)`/g, '<code>$1</code>');
 
@@ -86,14 +80,14 @@ export function SectionLayout() {
       <aside className="w-[280px] shrink-0 border-r border-[var(--color-border)] bg-[var(--color-bg)] overflow-y-auto hidden lg:block sticky top-14 h-[calc(100vh-56px)]">
         <div className="py-6 px-4">
           <div className="mb-6 px-2">
-            <Link to="/" className="inline-flex items-center gap-2 text-[12px] text-[var(--color-text3)] hover:text-white transition-colors group">
+            <Link to="/" className="inline-flex items-center gap-2 text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text)] transition-colors group">
               <span className="transition-transform group-hover:-translate-x-1">←</span>
               <span>All Topics</span>
             </Link>
           </div>
 
           <div className="mb-4 px-2">
-            <h2 className="text-[14px] font-semibold text-white tracking-tight">{section.name}</h2>
+            <h2 className="text-[14px] font-semibold text-[var(--color-text)] tracking-tight">{section.name}</h2>
           </div>
 
           <div className="space-y-0.5">
@@ -104,11 +98,10 @@ export function SectionLayout() {
                 <Link
                   key={q.id}
                   to={`/section/${sectionId}/question/${q.id}`}
-                  className={`group flex items-start gap-2.5 px-3 py-2 rounded-md text-[13px] leading-snug transition-all ${
-                    isActive
-                      ? 'text-white font-medium bg-[var(--color-bg2)]'
-                      : 'text-[var(--color-text3)] hover:text-[var(--color-text2)] hover:bg-white/5'
-                  }`}
+                  className={`group flex items-start gap-2.5 px-3 py-2 rounded-md text-[13px] leading-snug transition-all ${isActive
+                    ? 'text-[var(--color-text)] font-medium bg-[var(--color-bg2)]'
+                    : 'text-[var(--color-text3)] hover:text-[var(--color-text2)] hover:bg-white/5'
+                    }`}
                 >
                   {isDone ? (
                     <CheckSolid className="w-4 h-4 shrink-0 text-[var(--color-green)] mt-[1px]" />
@@ -153,8 +146,8 @@ export function SectionLayout() {
             </button>
           </div>
 
-          {/* Question Text */}
-          <h1 id="section-question" className="font-heading text-[32px] sm:text-[40px] font-extrabold text-white leading-[1.15] tracking-tight mb-6">
+          {/* ① Question Text */}
+          <h1 id="section-question" className="font-heading text-[32px] sm:text-[40px] font-extrabold text-[var(--color-text)] leading-[1.15] tracking-tight mb-6">
             {activeQuestion.question}
           </h1>
 
@@ -164,130 +157,121 @@ export function SectionLayout() {
              <span>{section.name}</span>
           </div>
 
-          {/* ── Answer Section ── */}
-          <div className="relative min-h-[120px]">
-            {!showAnswer && (
-              <div className="relative">
-                <div
-                  className="answer-prose text-[15px] leading-[1.9] text-[var(--color-text)] blur-[6px] select-none pointer-events-none"
-                  dangerouslySetInnerHTML={{ __html: renderAnswer(activeQuestion.answer) }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <motion.button
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => setShowAnswer(true)}
-                    className="px-7 py-3 bg-[var(--color-accent)] text-white font-medium text-[14px] rounded-xl cursor-pointer shadow-[0_4px_24px_rgba(91,127,255,0.2)] hover:shadow-[0_4px_32px_rgba(91,127,255,0.3)] hover:brightness-110 transition-all"
-                  >
-                    Show Answer
-                  </motion.button>
+          {/* ── All Sections Always Visible ── */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeQuestion.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+
+              {/* ② Answer — What to Say in the Interview */}
+              <motion.div id="section-answer" custom={0} variants={staggerChild} initial="hidden" animate="visible" className="mb-8">
+                <div className="bg-[var(--color-bg2)] border-l-4 border-l-[var(--color-accent)] border border-[var(--color-border)] p-6 rounded-r-xl shadow-sm">
+                  <h3 className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-[var(--color-accent)] mb-3">
+                    <ChatBubbleBottomCenterTextIcon className="w-4 h-4" />
+                    What to Say in the Interview
+                  </h3>
+                  <div className="text-[15px] leading-[1.85] text-[var(--color-text)]" dangerouslySetInnerHTML={{ __html: renderAnswer(activeQuestion.interviewPitch || activeQuestion.answer) }} />
                 </div>
-              </div>
-            )}
+              </motion.div>
 
-            <AnimatePresence>
-              {showAnswer && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {/* Answer */}
-                  <motion.div
-                    custom={0}
-                    variants={staggerChild}
-                    initial="hidden"
-                    animate="visible"
-                    id="section-answer"
-                    className="answer-prose text-[15px] leading-[1.9] text-[var(--color-text)] mb-10"
-                    dangerouslySetInnerHTML={{ __html: renderAnswer(activeQuestion.answer) }}
-                  />
+              {/* ③ Under the Hood — Full Explanation */}
+              <motion.div id="section-explanation" custom={1} variants={staggerChild} initial="hidden" animate="visible" className="mb-8">
+                <div className="bg-[var(--color-bg2)] border border-[var(--color-border)] p-6 rounded-xl shadow-sm">
+                  <h3 className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-[var(--color-text3)] mb-3">
+                    <CommandLineIcon className="w-4 h-4" />
+                    Under the Hood
+                  </h3>
+                  <div className="answer-prose text-[15px] leading-[1.9] text-[var(--color-text)]" dangerouslySetInnerHTML={{ __html: renderAnswer(activeQuestion.explanation || activeQuestion.answer) }} />
+                </div>
+              </motion.div>
 
-                  {/* Diagram */}
-                  {activeQuestion.diagram && (
-                    <motion.div id="section-diagram" custom={1} variants={staggerChild} initial="hidden" animate="visible" className="mb-10">
-                      <DiagramRenderer diagramId={activeQuestion.diagram} />
-                    </motion.div>
-                  )}
-
-                  {/* Why Asked */}
-                  <motion.div id="section-why-asked" custom={2} variants={staggerChild} initial="hidden" animate="visible"
-                    className="mb-12 bg-amber-500/5 border border-amber-500/20 rounded-2xl p-6 relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 left-0 w-1 h-full bg-amber-500/50" />
-                    <h3 className="flex items-center gap-2 font-heading text-[13px] font-bold text-amber-500 uppercase tracking-[0.1em] mb-3">
-                      <LightBulbIcon className="w-5 h-5" />
-                      Why interviewers ask this
+              {/* ④ Example */}
+              {activeQuestion.example && (
+                <motion.div id="section-example" custom={2} variants={staggerChild} initial="hidden" animate="visible" className="mb-8">
+                  <div className="bg-[var(--color-bg2)] border border-[var(--color-border)] p-5 rounded-xl shadow-sm overflow-x-auto nice-scrollbar">
+                    <h3 className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-[var(--color-text3)] mb-4">
+                      <CodeBracketIcon className="w-4 h-4" />
+                      Example
                     </h3>
-                    <p className="text-[15px] leading-[1.8] text-[var(--color-text2)]">
-                      {activeQuestion.whyAsked}
-                    </p>
-                  </motion.div>
-
-                  {/* Follow-ups */}
-                  {activeQuestion.followUps.length > 0 && (
-                    <motion.div id="section-follow-ups" custom={3} variants={staggerChild} initial="hidden" animate="visible" className="mb-12">
-                      <h3 className="flex items-center gap-2 font-heading text-[14px] font-bold text-white tracking-tight mb-5">
-                        <ChatBubbleBottomCenterTextIcon className="w-5 h-5 text-[var(--color-accent)]" />
-                        Common Follow-up Questions
-                      </h3>
-                      <div className="space-y-3">
-                        {activeQuestion.followUps.map((fu, i) => (
-                          <div key={i} className="flex items-start gap-4 text-[15px] text-[var(--color-text)] bg-[var(--color-bg2)] border border-[var(--color-border)] px-5 py-4 rounded-xl hover:border-[var(--color-border2)] transition-colors shadow-sm">
-                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] font-mono text-[12px] shrink-0 mt-0.5">
-                              {i + 1}
-                            </div>
-                            <span className="leading-relaxed">{fu}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Common Mistakes */}
-                  {activeQuestion.mistakes.length > 0 && (
-                    <motion.div id="section-mistakes" custom={4} variants={staggerChild} initial="hidden" animate="visible"
-                      className="mb-12 bg-red-500/5 border border-red-500/20 rounded-2xl p-6 relative overflow-hidden"
-                    >
-                      <div className="absolute top-0 left-0 w-1 h-full bg-red-500/50" />
-                      <h3 className="flex items-center gap-2 font-heading text-[13px] font-bold text-red-500 uppercase tracking-[0.1em] mb-4">
-                        <ExclamationTriangleIcon className="w-5 h-5" />
-                        Common mistakes to avoid
-                      </h3>
-                      <ul className="space-y-3">
-                        {activeQuestion.mistakes.map((m, i) => (
-                          <li key={i} className="text-[15px] text-[var(--color-text2)] flex gap-3 items-start leading-relaxed">
-                            <span className="text-red-500 mt-1 shrink-0">•</span>
-                            <span>{m}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </motion.div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-4 pt-4 mb-6">
-                    <button
-                      onClick={() => setShowAnswer(false)}
-                      className="text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text2)] transition-colors font-mono cursor-pointer"
-                    >
-                      ↑ Hide answer
-                    </button>
-                    <span className="text-[var(--color-border2)]">·</span>
-                    <button
-                      onClick={() => toggleReviewed(activeQuestion.id)}
-                      className={`text-[12px] font-mono cursor-pointer transition-colors ${
-                        isReviewed(activeQuestion.id)
-                          ? 'text-[var(--color-green)]'
-                          : 'text-[var(--color-text3)] hover:text-[var(--color-green)]'
-                      }`}
-                    >
-                      {isReviewed(activeQuestion.id) ? '✓ Reviewed' : '○ Mark as reviewed'}
-                    </button>
+                    <div className="font-mono text-[13px] text-[var(--color-text)] whitespace-pre-wrap bg-[var(--color-bg)] p-4 rounded-lg border border-[var(--color-border)]" dangerouslySetInnerHTML={{ __html: activeQuestion.example }} />
                   </div>
                 </motion.div>
               )}
-            </AnimatePresence>
-          </div>
+
+              {/* ⑤ Diagram */}
+              {activeQuestion.diagram && (
+                <motion.div id="section-diagram" custom={3} variants={staggerChild} initial="hidden" animate="visible" className="mb-10">
+                  <DiagramRenderer diagramId={activeQuestion.diagram} />
+                </motion.div>
+              )}
+
+              {/* ⑥ Why Interviewers Ask This */}
+              <motion.div id="section-why-asked" custom={4} variants={staggerChild} initial="hidden" animate="visible"
+                className="mb-12 bg-amber-500/5 border border-amber-500/20 rounded-2xl p-6 relative overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 w-1 h-full bg-amber-500/50" />
+                <h3 className="flex items-center gap-2 font-heading text-[13px] font-bold text-amber-500 uppercase tracking-[0.1em] mb-3">
+                  <LightBulbIcon className="w-5 h-5" />
+                  Why interviewers ask this
+                </h3>
+                <p className="text-[15px] leading-[1.8] text-[var(--color-text2)]">
+                  {activeQuestion.whyAsked}
+                </p>
+              </motion.div>
+
+              {/* ⑦ Follow-ups */}
+              {activeQuestion.followUps.length > 0 && (
+                <motion.div id="section-follow-ups" custom={5} variants={staggerChild} initial="hidden" animate="visible" className="mb-12">
+                  <h3 className="flex items-center gap-2 font-heading text-[14px] font-bold text-[var(--color-text)] tracking-tight mb-5">
+                    <ChatBubbleBottomCenterTextIcon className="w-5 h-5 text-[var(--color-accent)]" />
+                    Common Follow-up Questions
+                  </h3>
+                  <div className="space-y-4">
+                    {activeQuestion.followUps.map((fu, i) => (
+                      <InteractiveFollowUp key={i} followUp={fu} index={i} renderAnswer={renderAnswer} />
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* ⑧ Common Mistakes */}
+              {activeQuestion.mistakes.length > 0 && (
+                <motion.div id="section-mistakes" custom={6} variants={staggerChild} initial="hidden" animate="visible"
+                  className="mb-12 bg-red-500/5 border border-red-500/20 rounded-2xl p-6 relative overflow-hidden"
+                >
+                  <div className="absolute top-0 left-0 w-1 h-full bg-red-500/50" />
+                  <h3 className="flex items-center gap-2 font-heading text-[13px] font-bold text-red-500 uppercase tracking-[0.1em] mb-4">
+                    <ExclamationTriangleIcon className="w-5 h-5" />
+                    Common mistakes to avoid
+                  </h3>
+                  <ul className="space-y-3">
+                    {activeQuestion.mistakes.map((m, i) => (
+                      <li key={i} className="text-[15px] text-[var(--color-text2)] flex gap-3 items-start leading-relaxed">
+                        <span className="text-red-500 mt-1 shrink-0">•</span>
+                        <span>{m}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
+
+              {/* Actions */}
+              <div className="flex items-center gap-4 pt-4 mb-6">
+                <button
+                  onClick={() => toggleReviewed(activeQuestion.id)}
+                  className={`text-[12px] font-mono cursor-pointer transition-colors ${isReviewed(activeQuestion.id)
+                    ? 'text-[var(--color-green)]'
+                    : 'text-[var(--color-text3)] hover:text-[var(--color-green)]'
+                    }`}
+                >
+                  {isReviewed(activeQuestion.id) ? '✓ Reviewed' : '○ Mark as reviewed'}
+                </button>
+              </div>
+            </motion.div>
+          </AnimatePresence>
 
           {/* ── Previous / Next ── */}
           <div className="mt-16 pt-8 border-t border-[var(--color-border)] flex justify-between items-center">
@@ -296,7 +280,7 @@ export function SectionLayout() {
                 className="group flex flex-col items-start"
               >
                 <span className="text-[11px] text-[var(--color-text3)] font-mono mb-1">← Previous</span>
-                <span className="text-[13px] text-[var(--color-text2)] group-hover:text-white transition-colors line-clamp-1 max-w-[260px]">
+                <span className="text-[13px] text-[var(--color-text2)] group-hover:text-[var(--color-text)] transition-colors line-clamp-1 max-w-[260px]">
                   {sectionQuestions[currentIndex - 1].question}
                 </span>
               </Link>
@@ -306,7 +290,7 @@ export function SectionLayout() {
                 className="group flex flex-col items-end text-right"
               >
                 <span className="text-[11px] text-[var(--color-text3)] font-mono mb-1">Next →</span>
-                <span className="text-[13px] text-[var(--color-text2)] group-hover:text-white transition-colors line-clamp-1 max-w-[260px]">
+                <span className="text-[13px] text-[var(--color-text2)] group-hover:text-[var(--color-text)] transition-colors line-clamp-1 max-w-[260px]">
                   {sectionQuestions[currentIndex + 1].question}
                 </span>
               </Link>
@@ -316,7 +300,7 @@ export function SectionLayout() {
           {/* Keyboard hint */}
           <div className="mt-10 text-center">
             <p className="text-[11px] font-mono text-[var(--color-text3)]/50">
-              Space to reveal · ← → to navigate · B to bookmark
+              ← → to navigate · B to bookmark
             </p>
           </div>
         </article>
@@ -327,16 +311,14 @@ export function SectionLayout() {
         <div className="py-10 px-5">
           <h4 className="font-heading text-[10px] font-bold text-[var(--color-text3)] uppercase tracking-[0.15em] mb-5">On This Page</h4>
           <nav className="space-y-3">
-            <a href="#section-question" className="block text-[12px] text-[var(--color-text2)] hover:text-white transition-colors">Question</a>
-            {showAnswer && (
-              <>
-                <a href="#section-answer" className="block text-[12px] text-[var(--color-text2)] hover:text-white transition-colors">Answer</a>
-                {activeQuestion.diagram && <a href="#section-diagram" className="block text-[12px] text-[var(--color-text3)] hover:text-white transition-colors">Diagram</a>}
-                <a href="#section-why-asked" className="block text-[12px] text-[var(--color-text3)] hover:text-white transition-colors">Why Asked</a>
-                <a href="#section-follow-ups" className="block text-[12px] text-[var(--color-text3)] hover:text-white transition-colors">Follow-ups</a>
-                <a href="#section-mistakes" className="block text-[12px] text-[var(--color-text3)] hover:text-white transition-colors">Mistakes</a>
-              </>
-            )}
+            <a href="#section-question" className="block text-[12px] text-[var(--color-text2)] hover:text-[var(--color-text)] transition-colors">Question</a>
+            <a href="#section-answer" className="block text-[12px] text-[var(--color-text2)] hover:text-[var(--color-text)] transition-colors">What to Say</a>
+            <a href="#section-explanation" className="block text-[12px] text-[var(--color-text2)] hover:text-[var(--color-text)] transition-colors">Under the Hood</a>
+            {activeQuestion.example && <a href="#section-example" className="block text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text)] transition-colors">Example</a>}
+            {activeQuestion.diagram && <a href="#section-diagram" className="block text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text)] transition-colors">Diagram</a>}
+            <a href="#section-why-asked" className="block text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text)] transition-colors">Why Asked</a>
+            {activeQuestion.followUps.length > 0 && <a href="#section-follow-ups" className="block text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text)] transition-colors">Follow-ups</a>}
+            {activeQuestion.mistakes.length > 0 && <a href="#section-mistakes" className="block text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text)] transition-colors">Mistakes</a>}
           </nav>
         </div>
       </aside>

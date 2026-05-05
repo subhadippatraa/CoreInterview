@@ -1,0 +1,31 @@
+[
+  {
+    "questionId": 3,
+    "followUps": [
+      {
+        "question": "Can a table have no clustered index?",
+        "answer": "Yes. A table without a clustered index is called a 'heap'. Rows are stored in no particular order, and lookups use RID (Row ID) pointers.",
+        "interviewPitch": "Yes, a table without a clustered index is called a **heap**. In a heap, rows are stored in **no particular order** — new rows go wherever there's free space. Non-clustered indexes on a heap use a **RID (Row Identifier)** instead of the clustered index key to locate rows. Heaps can be faster for **bulk inserts** (no index to maintain), but **reads are slower** because the data isn't sorted. In practice, almost every table should have a clustered index — SQL Server's query optimizer is designed around them.",
+        "explanation": "**Heap (no clustered index):**\\n• Data stored in arbitrary order on disk\\n• Non-clustered indexes use RID (FileId:PageId:SlotId) as row pointer\\n• Inserts are fast (append anywhere)\\n• Full table scans for range queries — no ordering to exploit\\n\\n**Clustered table:**\\n• Data physically sorted by the clustered index key\\n• Non-clustered indexes use the clustered key as pointer (more stable)\\n• Range queries are fast (sequential disk reads)\\n\\n**When heaps make sense:**\\n• Staging tables for ETL/bulk loads\\n• Temporary tables\\n• Tables that are only ever fully scanned",
+        "example": "-- Create a heap (no clustered index)\nCREATE TABLE StagingData (\n    Id INT,  -- no PRIMARY KEY = no clustered index\n    Data NVARCHAR(100)\n);\n\n-- Add clustered index later\nCREATE CLUSTERED INDEX IX_Staging_Id \nON StagingData (Id);\n\n-- Now it's no longer a heap — rows are sorted by Id",
+        "whyAsked": "Tests deeper index knowledge beyond the basics.",
+        "mistakes": [
+          "Thinking every table must have a clustered index — heaps are valid for specific use cases.",
+          "Not knowing that PRIMARY KEY creates a clustered index by default in SQL Server."
+        ]
+      },
+      {
+        "question": "What is a covering index?",
+        "answer": "A covering index includes all columns needed by a query, so the database can answer the query entirely from the index without going back to the table data.",
+        "interviewPitch": "A **covering index** is a non-clustered index that **includes all the columns** a query needs — so the query can be satisfied entirely from the index without performing a **key lookup** back to the clustered index or heap. You create one by adding extra columns with the `INCLUDE` clause. In the execution plan, you'll see **Index Seek** without a Key Lookup — that's the ideal scenario. It's one of the most impactful performance optimizations for read-heavy queries.",
+        "explanation": "**The problem:**\\nA non-clustered index only stores the indexed columns + row pointer. If your query needs other columns, the engine must do a **Key Lookup** for each row — expensive for large result sets.\\n\\n**The solution — INCLUDE columns:**\\n• Add frequently queried columns to the index leaf level\\n• These columns are NOT part of the sort key\\n• Eliminates Key Lookups → much faster reads\\n\\n**Trade-off:**\\n• Larger index = more disk space + slower writes\\n• Only worth it for frequently-run queries",
+        "example": "-- Query: frequently run\nSELECT Name, Email \nFROM Users \nWHERE Department = 'Engineering';\n\n-- Without covering index:\n-- 1. Index Seek on IX_Department → finds matching rows\n-- 2. Key Lookup → goes back to table for Name, Email (SLOW)\n\n-- With covering index:\nCREATE INDEX IX_Dept_Cover \nON Users (Department) \nINCLUDE (Name, Email);\n\n-- Now: Index Seek only — no Key Lookup needed! ✓",
+        "whyAsked": "Tests practical SQL optimization skills — covering indexes are a go-to fix for slow queries.",
+        "mistakes": [
+          "Including too many columns — makes the index bloated and slows writes.",
+          "Confusing INCLUDE columns with index key columns — INCLUDE columns are not sorted."
+        ]
+      }
+    ]
+  }
+]

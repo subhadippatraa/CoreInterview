@@ -4,8 +4,26 @@ import { TimerRing } from '../components/mock/TimerRing';
 import { useMockSession } from '../hooks/useMockSession';
 import { useProgress } from '../hooks/useProgress';
 import { sections } from '../data/sections';
-import questions from '../data/questions.json';
+import questions from '../data/questions';
 import { Link } from 'react-router-dom';
+
+function InteractiveFollowUp({ followUp, renderAnswer }: { followUp: any; renderAnswer: (s: string) => string }) {
+  return (
+    <div className="bg-[var(--color-bg2)] border border-[var(--color-border)] p-4 rounded-xl shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1">
+          <div className="text-[13px] font-semibold text-[var(--color-text)] mb-2">{followUp.question}</div>
+          {followUp.answer && (
+            <div
+              className="text-[13px] text-[var(--color-text)]"
+              dangerouslySetInnerHTML={{ __html: renderAnswer(followUp.answer) }}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function MockInterview() {
   const mock = useMockSession(questions);
@@ -13,14 +31,14 @@ export function MockInterview() {
 
   const renderAnswer = (text: string) =>
     text
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-[var(--color-text)] font-semibold">$1</strong>')
       .replace(/`([^`]+)`/g, '<code class="font-mono text-sm bg-[#1e1e2e] text-[#89b4fa] px-1.5 py-0.5 rounded border border-[#2a2a3a]">$1</code>');
 
   /* ── Config Screen ── */
   if (mock.phase === 'config') {
     return (
       <PageWrapper className="max-w-[520px] mx-auto px-6 py-16">
-        <h1 className="font-heading text-3xl font-extrabold text-white mb-2">Mock Interview</h1>
+        <h1 className="font-heading text-3xl font-extrabold text-[var(--color-text)] mb-2">Mock Interview</h1>
         <p className="text-sm text-[var(--color-text2)] mb-10">Configure your practice session.</p>
 
         {/* Topic */}
@@ -28,12 +46,12 @@ export function MockInterview() {
           <label className="font-heading text-xs font-bold text-[var(--color-text3)] uppercase tracking-widest mb-2 block">Topic</label>
           <div className="flex flex-wrap gap-2">
             <button onClick={() => mock.setSelectedSection('all')}
-              className={`px-3 py-1.5 rounded-lg text-sm transition-colors cursor-pointer ${mock.selectedSection === 'all' ? 'bg-[var(--color-accent)] text-white' : 'bg-[var(--color-bg2)] border border-[var(--color-border)] text-[var(--color-text2)] hover:text-white'}`}>
+              className={`px-3 py-1.5 rounded-lg text-sm transition-colors cursor-pointer ${mock.selectedSection === 'all' ? 'bg-[var(--color-accent)] text-white' : 'bg-[var(--color-bg2)] border border-[var(--color-border)] text-[var(--color-text2)] hover:text-[var(--color-text)]'}`}>
               All Topics
             </button>
             {sections.map(s => (
               <button key={s.id} onClick={() => mock.setSelectedSection(s.id)}
-                className={`px-3 py-1.5 rounded-lg text-sm transition-colors cursor-pointer ${mock.selectedSection === s.id ? 'bg-[var(--color-accent)] text-white' : 'bg-[var(--color-bg2)] border border-[var(--color-border)] text-[var(--color-text2)] hover:text-white'}`}>
+                className={`px-3 py-1.5 rounded-lg text-sm transition-colors cursor-pointer ${mock.selectedSection === s.id ? 'bg-[var(--color-accent)] text-white' : 'bg-[var(--color-bg2)] border border-[var(--color-border)] text-[var(--color-text2)] hover:text-[var(--color-text)]'}`}>
                 {s.name}
               </button>
             ))}
@@ -46,7 +64,7 @@ export function MockInterview() {
           <div className="flex gap-2">
             {['all', 'easy', 'medium', 'hard'].map(d => (
               <button key={d} onClick={() => mock.setSelectedDifficulty(d)}
-                className={`px-3 py-1.5 rounded-lg text-sm capitalize transition-colors cursor-pointer ${mock.selectedDifficulty === d ? 'bg-[var(--color-accent)] text-white' : 'bg-[var(--color-bg2)] border border-[var(--color-border)] text-[var(--color-text2)] hover:text-white'}`}>
+                className={`px-3 py-1.5 rounded-lg text-sm capitalize transition-colors cursor-pointer ${mock.selectedDifficulty === d ? 'bg-[var(--color-accent)] text-white' : 'bg-[var(--color-bg2)] border border-[var(--color-border)] text-[var(--color-text2)] hover:text-[var(--color-text)]'}`}>
                 {d}
               </button>
             ))}
@@ -112,7 +130,7 @@ export function MockInterview() {
           <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest badge-${mock.currentQuestion.difficulty} mb-3 inline-block`}>
             {mock.currentQuestion.difficulty}
           </span>
-          <h2 className="font-heading text-2xl md:text-[28px] font-extrabold text-white leading-tight">
+          <h2 className="font-heading text-2xl md:text-[28px] font-extrabold text-[var(--color-text)] leading-tight">
             {mock.currentQuestion.question}
           </h2>
         </div>
@@ -130,10 +148,50 @@ export function MockInterview() {
         ) : (
           <AnimatePresence>
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-              <div
-                className="text-base leading-[1.8] text-[var(--color-text)] bg-[var(--color-bg2)] border border-[var(--color-border)] p-5 rounded-lg"
-                dangerouslySetInnerHTML={{ __html: renderAnswer(mock.currentQuestion.answer) }}
-              />
+              <div className="space-y-6">
+                {/* Interview Pitch */}
+                {mock.currentQuestion.interviewPitch && (
+                  <div className="bg-[var(--color-bg2)] border-l-4 border-l-[var(--color-accent)] border-[var(--color-border)] p-5 rounded-r-xl shadow-sm">
+                    <h3 className="text-[12px] font-bold uppercase tracking-wider text-[var(--color-text3)] mb-2">The Pitch (What to say)</h3>
+                    <div
+                      className="text-[15px] leading-relaxed text-[var(--color-text)]"
+                      dangerouslySetInnerHTML={{ __html: renderAnswer(mock.currentQuestion.interviewPitch) }}
+                    />
+                  </div>
+                )}
+
+                {/* Main Explanation */}
+                <div className="bg-[var(--color-bg2)] border border-[var(--color-border)] p-5 rounded-xl shadow-sm">
+                  <h3 className="text-[12px] font-bold uppercase tracking-wider text-[var(--color-text3)] mb-2">Deep Dive Explanation</h3>
+                  <div
+                    className="text-[15px] leading-[1.8] text-[var(--color-text)]"
+                    dangerouslySetInnerHTML={{ __html: renderAnswer(mock.currentQuestion.explanation || mock.currentQuestion.answer) }}
+                  />
+                </div>
+
+                {/* Code Example */}
+                {mock.currentQuestion.example && (
+                  <div className="bg-[var(--color-bg2)] border border-[var(--color-border)] p-4 rounded-xl shadow-sm overflow-x-auto nice-scrollbar">
+                    <h3 className="text-[12px] font-bold uppercase tracking-wider text-[var(--color-text3)] mb-3">Example</h3>
+                    <div
+                      className="font-mono text-[13px] text-[var(--color-text)] whitespace-pre-wrap"
+                      dangerouslySetInnerHTML={{ __html: mock.currentQuestion.example }}
+                    />
+                  </div>
+                )}
+
+                {/* Follow Ups */}
+                {mock.currentQuestion.followUps && mock.currentQuestion.followUps.length > 0 && (
+                  <div className="pt-4">
+                    <h3 className="text-[14px] font-bold text-[var(--color-text)] tracking-tight mb-4">Follow-up Questions</h3>
+                    <div className="space-y-4">
+                      {mock.currentQuestion.followUps.map((fu: any, i: number) => (
+                        <InteractiveFollowUp key={i} followUp={fu} renderAnswer={renderAnswer} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Rating Buttons */}
               {!mock.hasRatedCurrent ? (
@@ -184,7 +242,7 @@ export function MockInterview() {
 
   return (
     <PageWrapper className="max-w-[520px] mx-auto px-6 py-16 text-center">
-      <h1 className="font-heading text-3xl font-extrabold text-white mb-2">Session Complete</h1>
+      <h1 className="font-heading text-3xl font-extrabold text-[var(--color-text)] mb-2">Session Complete</h1>
       <p className="text-sm text-[var(--color-text2)] mb-10">
         You attempted {mock.ratings.length} of {mock.sessionQuestions.length} questions.
       </p>

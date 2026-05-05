@@ -7,17 +7,7 @@ interface MockRating {
 
 type Phase = 'config' | 'session' | 'end';
 
-export interface Question {
-  id: number;
-  sectionId: string;
-  difficulty: string;
-  question: string;
-  answer: string;
-  whyAsked: string;
-  followUps: string[];
-  mistakes: string[];
-  diagram?: string;
-}
+import type { Question } from '../data/types';
 
 export function useMockSession(allQuestions: Question[]) {
   const [phase, setPhase] = useState<Phase>('config');

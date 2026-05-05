@@ -1,0 +1,31 @@
+[
+  {
+    "questionId": 4,
+    "followUps": [
+      {
+        "question": "What problems does horizontal scaling introduce?",
+        "answer": "Horizontal scaling introduces distributed systems complexity: data consistency, session management, distributed caching, service discovery, and debugging across multiple servers.",
+        "interviewPitch": "Horizontal scaling introduces several **distributed systems challenges**: **Session management** — user sessions can't live in server memory since requests may hit different servers; you need Redis or a database. **Data consistency** — with multiple servers writing to a database, you face race conditions and need strategies like optimistic concurrency. **Distributed caching** — each server's local cache has different data; use Redis Cluster for a shared cache. **Service discovery** — new servers must register themselves so the load balancer knows about them. **Logging and debugging** — errors span multiple servers; you need centralized logging (ELK stack, Datadog) and distributed tracing (Jaeger, OpenTelemetry).",
+        "explanation": "**Key challenges:**\\n\\n1. **Statelessness requirement** — no in-memory sessions or file storage\\n   • Fix: Redis for sessions, S3 for files\\n\\n2. **Data consistency** — multiple servers = concurrent writes\\n   • Fix: database transactions, optimistic locking, idempotency keys\\n\\n3. **Cache coherence** — local caches diverge across servers\\n   • Fix: centralized cache (Redis), cache invalidation strategies\\n\\n4. **Deployment complexity** — must deploy to N servers atomically\\n   • Fix: blue-green deploys, rolling updates, Kubernetes\\n\\n5. **Debugging** — one request touches multiple servers\\n   • Fix: correlation IDs, centralized logging, distributed tracing\\n\\n6. **Database bottleneck** — app scales horizontally but DB is a single point\\n   • Fix: read replicas, connection pooling, eventually sharding",
+        "example": "Problems and Solutions:\n\n Problem: Sessions          → Solution: Redis\n Problem: File uploads      → Solution: S3 / Azure Blob\n Problem: Caching           → Solution: Redis Cluster\n Problem: Logging           → Solution: ELK / Datadog\n Problem: Deployments       → Solution: Kubernetes rolling updates\n Problem: DB bottleneck     → Solution: Read replicas + connection pooling\n Problem: Request tracing   → Solution: Correlation IDs + OpenTelemetry",
+        "whyAsked": "Tests if you understand the real-world trade-offs beyond just 'add more servers'.",
+        "mistakes": [
+          "Thinking horizontal scaling is free of complexity — it's a major architecture shift.",
+          "Forgetting the database becomes the bottleneck when app servers scale but the DB doesn't."
+        ]
+      },
+      {
+        "question": "How does a load balancer fit in?",
+        "answer": "A load balancer sits in front of multiple servers and distributes incoming requests across them using algorithms like round-robin or least connections.",
+        "interviewPitch": "A **load balancer** is the entry point that sits between clients and your pool of backend servers. It distributes incoming requests across servers using algorithms like **round-robin** (equal distribution), **least connections** (send to the least busy server), **IP hash** (same client always hits same server), or **weighted** (more powerful servers get more traffic). Load balancers also perform **health checks** — if a server stops responding, it's removed from the pool automatically. In cloud environments, I use **AWS ALB** (Application Load Balancer) for HTTP routing or **Nginx** as a reverse proxy. The load balancer also terminates TLS, so backend servers don't need to handle encryption.",
+        "explanation": "**Types of Load Balancers:**\\n• **L4 (Transport)** — routes based on IP/port, very fast, no request inspection\\n• **L7 (Application)** — routes based on URL path, headers, cookies. Can do path-based routing (e.g., `/api/*` → API servers, `/static/*` → CDN)\\n\\n**Common Algorithms:**\\n• **Round Robin** — 1 → 2 → 3 → 1 → ...\\n• **Least Connections** — send to server with fewest active connections\\n• **IP Hash** — consistent routing for same client (useful for local caches)\\n• **Weighted** — server with weight 3 gets 3x traffic vs weight 1\\n\\n**Health Checks:**\\n• LB pings `/health` endpoint every N seconds\\n• If server fails 3 consecutive checks → removed from pool\\n• When it recovers → automatically added back\\n\\n**TLS Termination:**\\n• LB handles HTTPS decryption\\n• Backend servers receive plain HTTP (simpler, faster)\\n• LB → Backend traffic often on a private network",
+        "example": "# Nginx as a Load Balancer\n\nupstream api_servers {\n    least_conn;  # algorithm\n    server 10.0.1.1:80 weight=3;  # more powerful\n    server 10.0.1.2:80 weight=1;\n    server 10.0.1.3:80 weight=1;\n}\n\nserver {\n    listen 443 ssl;\n    ssl_certificate /etc/ssl/cert.pem;\n    \n    location /api/ {\n        proxy_pass http://api_servers;\n        proxy_set_header X-Real-IP $remote_addr;\n    }\n    \n    location /health {\n        return 200 'OK';\n    }\n}",
+        "whyAsked": "Tests if you understand how traffic distribution works in a scaled system.",
+        "mistakes": [
+          "Thinking load balancers only do round-robin — there are many algorithms for different needs.",
+          "Forgetting that the load balancer itself can be a SPOF — use redundant LBs or cloud-managed ones."
+        ]
+      }
+    ]
+  }
+]

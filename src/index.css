@@ -113,3 +113,21 @@ a { color: inherit; text-decoration: none; }
   border-radius: 4px;
   border: 1px solid rgba(91, 127, 255, 0.1);
 }
+
+:root.light {
+  --color-bg: #ffffff;
+  --color-bg2: #f8f9fa;
+  --color-bg3: #f1f3f5;
+  --color-bg4: #e9ecef;
+  --color-border: #cbd5e1;
+  --color-border2: #94a3b8;
+  --color-text: #0f172a;
+  --color-text2: #334155;
+  --color-text3: #475569;
+  --color-accent: #2563eb;
+  --color-accent-glow: rgba(37, 99, 235, 0.08);
+  --color-green: #10b981;
+  --color-amber: #d97706;
+  --color-red: #ef4444;
+  --color-purple: #8b5cf6;
+}

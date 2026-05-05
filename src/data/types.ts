@@ -1,11 +1,20 @@
+export interface FollowUp {
+  id?: number;
+  question: string;
+  answer: string;
+}
+
 export interface Question {
   id: number;
   sectionId: string;
   question: string;
   difficulty: 'easy' | 'medium' | 'hard';
   answer: string;
+  interviewPitch?: string;
+  explanation?: string;
+  example?: string;
   whyAsked: string;
-  followUps: string[];
+  followUps: FollowUp[];
   mistakes: string[];
   diagram?: 'middleware-pipeline' | 'di-flow' | 'http-lifecycle' | 'process-vs-thread' | 'load-balancing' | 'docker-layers';
   tags?: string[];
