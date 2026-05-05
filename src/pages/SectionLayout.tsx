@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { PageWrapper } from '../components/layout/PageWrapper';
 import { DiagramRenderer } from '../components/diagrams/DiagramRenderer';
 import questions from '../data/questions.json';
@@ -9,7 +9,7 @@ import { BookmarkIcon as BookmarkOutline, LightBulbIcon, ExclamationTriangleIcon
 import { BookmarkIcon as BookmarkSolid, CheckCircleIcon as CheckSolid } from '@heroicons/react/24/solid';
 import { useProgress } from '../hooks/useProgress';
 
-const staggerChild = {
+const staggerChild: Variants = {
   hidden: { opacity: 0, y: 10 },
   visible: (i: number) => ({
     opacity: 1,
