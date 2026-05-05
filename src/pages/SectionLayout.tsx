@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { PageWrapper } from '../components/layout/PageWrapper';
 import { DiagramRenderer } from '../components/diagrams/DiagramRenderer';
 import questions from '../data/questions.json';
