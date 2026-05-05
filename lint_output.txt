@@ -1,0 +1,56 @@
+
+/Users/subhadippatraa/Desktop/Projects/CoreInterview/src/components/home/TopicCard.tsx
+  5:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/subhadippatraa/Desktop/Projects/CoreInterview/src/components/mock/TimerRing.tsx
+  14:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/subhadippatraa/Desktop/Projects/CoreInterview/src/components/mock/TimerRing.tsx:14:5
+  12 |
+  13 |   useEffect(() => {
+> 14 |     setRemaining(duration);
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  15 |   }, [duration]);
+  16 |
+  17 |   useEffect(() => {  react-hooks/set-state-in-effect
+
+/Users/subhadippatraa/Desktop/Projects/CoreInterview/src/hooks/useMockSession.ts
+  10:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  15:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/subhadippatraa/Desktop/Projects/CoreInterview/src/pages/Home.tsx
+  8:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/subhadippatraa/Desktop/Projects/CoreInterview/src/pages/SectionLayout.tsx
+   2:31  error    'useCallback' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+   8:10  error    'ChevronDownIcon' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+   8:27  error    'ChevronRightIcon' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+  33:10  error    'expandedSections' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  36:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/subhadippatraa/Desktop/Projects/CoreInterview/src/pages/SectionLayout.tsx:36:5
+  34 |
+  35 |   useEffect(() => {
+> 36 |     setShowAnswer(false);
+     |     ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  37 |     if (sectionId && !questionId && sectionQuestions.length > 0) {
+  38 |       navigate(`/section/${sectionId}/question/${sectionQuestions[0].id}`, { replace: true });
+  39 |     }  react-hooks/set-state-in-effect
+  43:6   warning  React Hook useEffect has missing dependencies: 'navigate' and 'sectionQuestions'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  react-hooks/exhaustive-deps
+  70:6   warning  React Hook useEffect has missing dependencies: 'navigate' and 'toggleBookmark'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    react-hooks/exhaustive-deps
+  77:9   error    'toggleSection' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+
+✖ 13 problems (11 errors, 2 warnings)
+
