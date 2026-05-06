@@ -1,30 +1,32 @@
 [
   {
-    "questionId": 5,
+    "questionId": 47,
     "followUps": [
       {
         "question": "What is the difference between a Docker image and a container?",
         "answer": "An image is a read-only template with your app and dependencies. A container is a running instance of that image with its own writable layer.",
-        "interviewPitch": "A Docker **image** is a read-only, layered template that contains your application code, runtime, libraries, and config. Think of it like a **class** in OOP. A **container** is a running instance of an image — like an **object**. Each container gets its own writable layer on top of the read-only image layers. You can run multiple containers from the same image, each isolated from the others. Images are stored in registries (Docker Hub, ACR); containers are ephemeral — when stopped and removed, the writable layer is lost unless you use volumes.",
-        "explanation": "**Image:**\\n• Read-only, immutable template\\n• Built from a `Dockerfile` — each instruction adds a layer\\n• Stored in registries (Docker Hub, AWS ECR, Azure ACR)\\n• Versioned with tags (e.g., `myapp:1.0`, `myapp:latest`)\\n\\n**Container:**\\n• Running instance of an image\\n• Has its own writable layer (copy-on-write)\\n• Isolated process with its own network, filesystem, PID namespace\\n• Ephemeral — destroyed data is lost without volumes\\n\\n**Analogy:** Image = Class, Container = Object instance",
-        "example": "# Build an image from Dockerfile\ndocker build -t myapi:1.0 .\n\n# List images\ndocker images\n# REPOSITORY  TAG   SIZE\n# myapi       1.0   210MB\n\n# Run a container from the image\ndocker run -d -p 8080:80 --name api1 myapi:1.0\n\n# Run ANOTHER container from same image\ndocker run -d -p 8081:80 --name api2 myapi:1.0\n\n# List running containers\ndocker ps\n# CONTAINER ID  IMAGE      PORTS          NAMES\n# a1b2c3        myapi:1.0  8080->80/tcp   api1\n# d4e5f6        myapi:1.0  8081->80/tcp   api2",
-        "whyAsked": "Fundamental Docker concept — confusing images and containers is a red flag.",
+        "interviewPitch": "A Docker Image is an immutable, read-only template that contains your source code, libraries, and dependencies. It is essentially the blueprint. A Container is a running instance of that image. You can run hundreds of identical containers from a single image.",
+        "explanation": "**\ud83c\udf70 The Cake Analogy:**\n\u2022 **Docker Image (The Recipe):** A piece of paper that says 'Add 2 eggs, 1 cup flour, bake at 350'. You can't eat the recipe. It just tells you how to make the cake.\n\u2022 **Docker Container (The Cake):** The actual, physical cake that you baked using the recipe. You can use the exact same recipe to bake 10 identical cakes (Containers).",
+        "example": "# Build the Recipe (Image)\ndocker build -t my-app-image .\n\n# Bake the Cake (Container)\ndocker run -d -p 80:80 my-app-image",
+        "whyAsked": "Fundamental Docker concept \u2014 confusing images and containers is a red flag.",
         "mistakes": [
-          "Saying an image is a 'running application' — images are static templates.",
-          "Forgetting containers are ephemeral — data is lost without volumes."
-        ]
+          "Saying an image is a 'running application' \u2014 images are static templates.",
+          "Forgetting containers are ephemeral \u2014 data is lost without volumes."
+        ],
+        "diagram": "flowchart LR\n    I[Docker Image (Recipe)] -->|docker run| C1[Container 1]\n    I -->|docker run| C2[Container 2]\n    I -->|docker run| C3[Container 3]"
       },
       {
-        "question": "How is Docker different from a virtual machine?",
+        "question": "What is Docker Compose and when do you use it?",
         "answer": "Docker containers share the host OS kernel and isolate at the process level. VMs run a full guest OS on a hypervisor, providing hardware-level isolation.",
-        "interviewPitch": "The key difference is the **isolation layer**. A VM runs a **full guest OS** on top of a hypervisor, virtualizing the hardware — each VM has its own kernel, drivers, and system libraries (GBs of overhead, minutes to boot). Docker containers share the **host OS kernel** and use Linux **namespaces** for process isolation and **cgroups** for resource limits. This makes containers extremely lightweight — they start in **seconds**, use **MBs** of memory, and you can run dozens on a single machine. The trade-off: VMs provide stronger isolation (separate kernel), containers are faster and more efficient.",
-        "explanation": "**Virtual Machine:**\\n• Hypervisor (VMware, Hyper-V) → Guest OS → App\\n• Each VM: full OS kernel + system libraries (2-10 GB)\\n• Boot time: minutes\\n• Strong hardware-level isolation\\n• Use when: running different OS kernels, strict security boundaries\\n\\n**Docker Container:**\\n• Docker Engine → Shared Host Kernel → App\\n• Each container: app + dependencies only (50-500 MB)\\n• Start time: seconds\\n• Process-level isolation (namespaces + cgroups)\\n• Use when: microservices, CI/CD, consistent dev environments\\n\\n**Not mutually exclusive:**\\nIn production, containers often run INSIDE VMs (e.g., Kubernetes nodes are VMs running container workloads).",
-        "example": "Comparison:\n\n             Virtual Machine         Docker Container\n─────────────────────────────────────────────────────\nSize         2-10 GB                 50-500 MB\nBoot time    1-3 minutes             1-5 seconds\nIsolation    Hardware (hypervisor)   Process (namespaces)\nOS           Full guest OS           Shares host kernel\nPerformance  ~5-10% overhead         Near-native\nDensity      ~10 VMs per host        ~100 containers per host\nUse case     Multi-OS, strong        Microservices, CI/CD,\n             security boundaries     dev environments",
-        "whyAsked": "Tests understanding of virtualization levels — critical for cloud architecture decisions.",
+        "interviewPitch": "Docker Compose is a tool for defining and running multi-container Docker applications. Instead of running 5 massive `docker run` commands in the terminal with complex network flags, you write a single `docker-compose.yml` file. I use it exclusively for local development to spin up my Web API, SQL Server, and Redis cache all at the exact same time with a single command.",
+        "explanation": "**\ud83c\udfbc The Sheet Music Analogy:**\nIf you have a drummer, a guitarist, and a singer (3 Containers), you don't want to walk up to each of them individually and tell them what to play and how loud to play it.\n\nDocker Compose is the **Sheet Music**. You write down all the rules for the entire band on one piece of paper. You hand it out, wave your baton (`docker-compose up`), and the entire band starts playing together in perfect harmony.",
+        "example": "# \u2705 docker-compose.yml\nversion: '3.8'\nservices:\n  web:\n    image: my-web-api\n    ports:\n      - \"8080:80\"\n  db:\n    image: mcr.microsoft.com/mssql/server\n    environment:\n      SA_PASSWORD: \"SuperSecret123!\"",
+        "whyAsked": "Tests understanding of virtualization levels \u2014 critical for cloud architecture decisions.",
         "mistakes": [
-          "Saying Docker replaces VMs — they solve different problems and often coexist.",
-          "Claiming containers have no security isolation — namespaces + cgroups provide strong isolation."
-        ]
+          "Saying Docker replaces VMs \u2014 they solve different problems and often coexist.",
+          "Claiming containers have no security isolation \u2014 namespaces + cgroups provide strong isolation."
+        ],
+        "diagram": "flowchart TD\n    DC[docker-compose up] --> API[Web API Container]\n    DC --> DB[SQL Server Container]\n    DC --> Redis[Redis Container]\n    Note over API, DB: All connected to the same virtual network!"
       }
     ]
   }

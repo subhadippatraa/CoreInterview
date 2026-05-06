@@ -1,30 +1,32 @@
 [
   {
-    "questionId": 2,
+    "questionId": 16,
     "followUps": [
       {
         "question": "What is the difference between Use, Run, and Map?",
-        "answer": "Use adds middleware that calls next() to continue the pipeline. Run is terminal — it never calls next(). Map branches the pipeline based on a request path.",
-        "interviewPitch": "**`Use`** adds middleware that can process the request, call `next()` to pass it forward, and then process the response on the way back. **`Run`** is a terminal middleware — it handles the request and **never calls next()**, so the pipeline stops there. **`Map`** creates a **branch** in the pipeline based on the request path — for example, `app.Map(\"/api\", apiBranch)` routes all `/api/*` requests to a separate middleware pipeline. There's also `MapWhen` which branches on any condition, not just path.",
-        "explanation": "**Use — Pass-through middleware:**\\n• Receives `HttpContext` and `RequestDelegate next`\\n• Can execute logic before AND after `next()`\\n• Must call `next()` or the pipeline stops\\n\\n**Run — Terminal middleware:**\\n• Receives only `HttpContext` (no `next`)\\n• Always the last middleware — never forwards\\n• Use for catch-all responses or health checks\\n\\n**Map — Branch middleware:**\\n• Splits pipeline based on URL path prefix\\n• Each branch has its own independent middleware chain\\n• `MapWhen` branches on any `Func<HttpContext, bool>` predicate",
-        "example": "// Use — passes to next middleware\napp.Use(async (context, next) => {\n    Console.WriteLine(\"Before\");\n    await next();  // continue pipeline\n    Console.WriteLine(\"After\");\n});\n\n// Run — terminal, no next()\napp.Run(async context => {\n    await context.Response.WriteAsync(\"Hello!\");\n});\n\n// Map — branch by path\napp.Map(\"/health\", branch => {\n    branch.Run(async ctx => \n        await ctx.Response.WriteAsync(\"OK\"));\n});",
+        "answer": "Use adds middleware that calls next() to continue the pipeline. Run is terminal \u2014 it never calls next(). Map branches the pipeline based on a request path.",
+        "interviewPitch": "These are the three primary extension methods for configuring the ASP.NET Core middleware pipeline. **`Use`** adds middleware that can process the request, call `next()` to pass it to the next middleware, and then process the response on the way back. **`Run`** is terminal middleware\u2014it completely handles the request and never calls `next()`, stopping the pipeline. **`Map`** branches the pipeline based on the URL path, allowing you to create a completely separate chain of middleware for specific routes (like `/api`).",
+        "explanation": "**\ud83c\udfed The Factory Assembly Line Analogy:**\n\u2022 **`Use` (A standard worker):** A worker inspects the car part, adds a screw, and passes it down the conveyor belt to the next worker (`next()`).\n\u2022 **`Run` (The shipping department):** The final worker puts the car part in a box and ships it out the door. The assembly line is over. No one else touches it.\n\u2022 **`Map` (A fork in the conveyor belt):** The conveyor belt splits. If the car is red, it goes down the left belt (Branch A). If it's blue, it goes down the right belt (Branch B).",
+        "example": "// 1. USE: Passes to next middleware\napp.Use(async (context, next) => {\n    Console.WriteLine(\"Before\");\n    await next();  // continue pipeline\n});\n\n// 2. MAP: Branches the pipeline based on URL\napp.Map(\"/health\", branch => {\n    // 3. RUN: Terminal! Stops the pipeline and returns a response.\n    branch.Run(async ctx => await ctx.Response.WriteAsync(\"API is Healthy!\"));\n});",
         "whyAsked": "Tests if you understand middleware composition patterns beyond just registering built-in middleware.",
         "mistakes": [
-          "Forgetting to call next() in Use middleware — this silently short-circuits the pipeline.",
-          "Thinking Map replaces routing — it's for middleware branching, not endpoint routing."
-        ]
+          "Forgetting to call next() in Use middleware \u2014 this silently short-circuits the pipeline.",
+          "Thinking Map replaces routing \u2014 it's for middleware branching, not endpoint routing."
+        ],
+        "diagram": "flowchart LR\n    Start[Request] --> Use1[app.Use (Auth)]\n    Use1 --> Map{app.Map ('/api')}\n    \n    Map -->|Path is /api| Branch1[app.Run (Return JSON)]\n    Map -->|Path is NOT /api| Use2[app.Use (Static Files)]\n    \n    Use2 --> Run1[app.Run (Return HTML)]"
       },
       {
         "question": "Where would you place authentication middleware and why?",
         "answer": "Authentication must come after UseRouting() but before UseAuthorization() and UseEndpoints(). This ensures the user identity is established before authorization checks run.",
-        "interviewPitch": "**`UseAuthentication()`** must be placed **after `UseRouting()`** and **before `UseAuthorization()`**. The reason is: routing determines which endpoint was matched (and what auth policies it requires), authentication establishes **who the user is** (parses JWT, cookie, etc.), and authorization checks **if that user is allowed** to access the endpoint. If authentication comes after authorization, the `[Authorize]` attribute would always fail because the user identity hasn't been set yet.",
-        "explanation": "**Correct order:**\\n1. `UseRouting()` — matches URL to endpoint, reads `[Authorize]` metadata\\n2. `UseAuthentication()` — reads token/cookie → sets `HttpContext.User`\\n3. `UseAuthorization()` — checks `User` against endpoint's policy\\n4. `MapControllers()` — executes the controller action\\n\\n**Why this order matters:**\\n• If Auth comes before Routing → routing metadata not available\\n• If Authorization comes before Authentication → User is always anonymous\\n• Exception handler must be FIRST (outermost) to catch all errors",
-        "example": "var app = builder.Build();\n\napp.UseExceptionHandler(\"/error\");  // 1st — catches everything\napp.UseHttpsRedirection();\napp.UseStaticFiles();\n\napp.UseRouting();          // matches endpoint\napp.UseAuthentication();   // who are you? (JWT/Cookie)\napp.UseAuthorization();    // are you allowed?\n\napp.MapControllers();      // execute action",
-        "whyAsked": "Tests understanding of why middleware order matters — a misconfigured pipeline is a common source of auth bugs.",
+        "interviewPitch": "The `UseAuthentication()` middleware must be placed strictly **after** `UseRouting()` and **before** `UseAuthorization()`. Routing must happen first so the framework knows which endpoint is being requested (and what security attributes it has). Authentication comes next to validate the JWT or Cookie and identify *who* the user is. Finally, Authorization runs to check if that identified user has the required roles to access the matched endpoint.",
+        "explanation": "**\ud83c\udfab The Nightclub Analogy:**\nIf you mess up the order of the middleware, the club breaks.\n\n1. **`UseRouting` (Checking the Map):** The user asks, \"Where is the VIP Lounge?\"\n2. **`UseAuthentication` (Checking ID):** The bouncer checks your Driver's License to prove your name is Bob.\n3. **`UseAuthorization` (Checking the VIP List):** The bouncer looks at the VIP list to see if \"Bob\" is allowed in.\n\nIf you put Authorization *before* Authentication, the bouncer looks at the VIP list for \"Bob\", but he hasn't checked your ID yet, so he doesn't know who you are! He will automatically kick you out.",
+        "example": "var app = builder.Build();\n\napp.UseHttpsRedirection();\n\n// 1. Figure out which endpoint they want\napp.UseRouting();          \n\n// 2. Parse their JWT token to figure out WHO they are\napp.UseAuthentication();   \n\n// 3. Check if they are ALLOWED to access the endpoint\napp.UseAuthorization();    \n\n// 4. Actually run the code!\napp.MapControllers();      ",
+        "whyAsked": "Tests understanding of why middleware order matters \u2014 a misconfigured pipeline is a common source of auth bugs.",
         "mistakes": [
-          "Placing UseAuthentication before UseRouting — routing metadata won't be available.",
-          "Placing UseAuthorization before UseAuthentication — user identity is always null."
-        ]
+          "Placing UseAuthentication before UseRouting \u2014 routing metadata won't be available.",
+          "Placing UseAuthorization before UseAuthentication \u2014 user identity is always null."
+        ],
+        "diagram": "sequenceDiagram\n    participant R as UseRouting()\n    participant AuthN as UseAuthentication()\n    participant AuthZ as UseAuthorization()\n    participant E as MapControllers()\n    \n    R->>AuthN: 1. Matched /api/vip. Requires [Authorize]\n    AuthN->>AuthZ: 2. Parsed JWT. User is \"Bob\".\n    AuthZ->>E: 3. Bob is an Admin. Allowed!\n    Note over E: 4. Executes the C# Controller Action"
       }
     ]
   }

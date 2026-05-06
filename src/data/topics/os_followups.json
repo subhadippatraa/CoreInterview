@@ -1,30 +1,32 @@
 [
   {
-    "questionId": 6,
+    "questionId": 36,
     "followUps": [
       {
         "question": "What is a race condition?",
         "answer": "A race condition occurs when two or more threads access shared data concurrently and at least one modifies it, leading to unpredictable results depending on timing.",
-        "interviewPitch": "A **race condition** happens when multiple threads read and write to **shared mutable state** without proper synchronization. The result depends on the **order of execution**, which is non-deterministic. For example, two threads incrementing a counter might both read the same value, increment it, and write back — losing one update. In C#, we fix this with `lock`, `Interlocked`, `Mutex`, or by avoiding shared state entirely using immutable data.",
-        "explanation": "**How it happens:**\\n1. Thread A reads `counter = 5`\\n2. Thread B reads `counter = 5` (before A writes)\\n3. Thread A writes `counter = 6`\\n4. Thread B writes `counter = 6` (should be 7!)\\n\\n**Solutions in C#:**\\n• `lock (obj) { ... }` — mutual exclusion, simplest\\n• `Interlocked.Increment(ref counter)` — atomic operation, fastest for simple ops\\n• `SemaphoreSlim` — limit concurrent access to N threads\\n• `ConcurrentDictionary`, `ConcurrentQueue` — thread-safe collections\\n• Best: avoid shared mutable state entirely",
-        "example": "// ── Race condition ──\nint counter = 0;\nParallel.For(0, 100000, _ => counter++); // NOT safe\nConsole.WriteLine(counter); // < 100000!\n\n// ── Fix with Interlocked ──\nint safe = 0;\nParallel.For(0, 100000, _ => Interlocked.Increment(ref safe));\nConsole.WriteLine(safe); // Always 100000 ✓",
-        "whyAsked": "Tests if you understand concurrency pitfalls — critical for anyone writing multi-threaded or async code.",
+        "interviewPitch": "A race condition occurs in a multi-threaded application when two or more threads attempt to read and write to the same shared memory location at the exact same time, and the final result depends on the unpredictable timing of the OS thread scheduler. To prevent this, we must synchronize access using locking mechanisms like a Mutex or a Monitor.",
+        "explanation": "**\ud83c\udfe6 The Joint Bank Account Analogy:**\nYou and your spouse share a bank account with $100.\n1. You check the balance: $100.\n2. Your spouse checks the balance: $100.\n3. You deposit $50. You do the math ($100 + $50) and save the new balance: $150.\n4. **At the exact same millisecond**, your spouse deposits $50. They do their math ($100 + $50) and overwrite the balance: $150.\n\nEven though you deposited $100 total, the bank says you only have $150. Your $50 was completely destroyed because you 'raced' to update the same piece of paper.",
+        "example": "int count = 0;\nobject _lock = new object();\n\n// \u274c CAUSES A RACE CONDITION\npublic void IncrementBad() {\n    count++; // Not thread-safe! (Read, Add, Write)\n}\n\n// \u2705 THREAD-SAFE\npublic void IncrementGood() {\n    lock(_lock) {\n        count++;\n    }\n}",
+        "whyAsked": "Tests if you understand concurrency pitfalls \u2014 critical for anyone writing multi-threaded or async code.",
         "mistakes": [
-          "Thinking race conditions only happen with threads — async code with shared state can also race.",
-          "Using lock everywhere — over-locking causes contention and deadlocks."
-        ]
+          "Thinking race conditions only happen with threads \u2014 async code with shared state can also race.",
+          "Using lock everywhere \u2014 over-locking causes contention and deadlocks."
+        ],
+        "diagram": "sequenceDiagram\n    participant T1 as Thread 1\n    participant T2 as Thread 2\n    participant Mem as Memory (x=0)\n    \n    T1->>Mem: Reads x=0\n    T2->>Mem: Reads x=0\n    T1->>Mem: Writes x=1 (0+1)\n    T2->>Mem: Writes x=1 (0+1)\n    Note over Mem: We added 1 twice, but x is only 1! Data corrupted!"
       },
       {
         "question": "How does C# async/await relate to threads?",
         "answer": "async/await does NOT create new threads. It frees the current thread during I/O waits using a state machine. The ThreadPool assigns an available thread to resume when the I/O completes.",
-        "interviewPitch": "A common misconception is that `async` creates threads — it doesn't. When you `await` an I/O operation (HTTP call, DB query), the current thread is **released back to the ThreadPool**. No thread is blocked or waiting. The OS uses **I/O completion ports** to signal when data is ready, and then a ThreadPool thread picks up the continuation. This is why ASP.NET Core can handle thousands of concurrent requests with just a few threads — threads aren't sitting idle waiting for database responses.",
-        "explanation": "**Key insight:** For I/O-bound work, there is literally **no thread waiting**.\\n\\n**Flow:**\\n1. Request arrives → ThreadPool thread T1 starts processing\\n2. `await db.QueryAsync()` → T1 is returned to the pool (free!)\\n3. OS handles the I/O via completion ports\\n4. I/O done → ThreadPool thread T2 (any thread) picks up the continuation\\n\\n**CPU-bound vs I/O-bound:**\\n• `await Task.Run(...)` — DOES use a ThreadPool thread (CPU work)\\n• `await httpClient.GetAsync(...)` — does NOT block any thread (I/O work)",
-        "example": "// No thread is blocked during the await!\nasync Task<string> GetDataAsync() {\n    // Thread T1 handles this line\n    var response = await httpClient.GetAsync(url);\n    // Thread T1 is FREE during the wait ^\n    // Thread T2 (any pool thread) resumes here\n    return await response.Content.ReadAsStringAsync();\n}",
+        "interviewPitch": "This is a massive misconception: `async/await` does NOT automatically create new threads! `async/await` is about freeing up the *current* thread to do other work while waiting for an I/O operation (like a database call) to finish. The heavy lifting is done by the hardware (the network card or hard drive), not the CPU. Only use `Task.Run` if you actually need to push heavy CPU-bound math to a separate background thread.",
+        "explanation": "**\ud83c\udf55 The Pizza Oven Analogy:**\n\u2022 **Synchronous (Blocking the Thread):** You put a pizza in the oven. You stand completely still, staring at the oven for 15 minutes. You refuse to talk to anyone or do any other work until the pizza is done.\n\u2022 **Async/Await (Freeing the Thread):** You put a pizza in the oven and set a timer. While the oven (The Hardware) is doing the work, you walk away to chop vegetables (Do other work). When the timer goes off, you come back and take the pizza out.\n\nYou didn't hire a second chef (A New Thread). You just stopped staring at the oven!",
+        "example": "// \u274c BAD: Creates a useless background thread just to wait.\n// This wastes thread pool resources.\nawait Task.Run(() => dbContext.Users.ToList());\n\n// \u2705 GOOD: Pure Async I/O.\n// No threads are blocked. The SQL Server does the work!\nawait dbContext.Users.ToListAsync();",
         "whyAsked": "Separates candidates who understand async deeply from those who just use the keywords.",
         "mistakes": [
-          "Saying async creates a background thread — it does not for I/O operations.",
-          "Using Task.Run for I/O work — wasteful, blocks a ThreadPool thread."
-        ]
+          "Saying async creates a background thread \u2014 it does not for I/O operations.",
+          "Using Task.Run for I/O work \u2014 wasteful, blocks a ThreadPool thread."
+        ],
+        "diagram": "flowchart LR\n    T[Thread 1] -->|Awaits HTTP Call| N[Network Card does the work]\n    T -.->|Thread is free!| UI[Thread handles UI clicks!]\n    N -->|Finished| T[Thread resumes HTTP method]"
       }
     ]
   }

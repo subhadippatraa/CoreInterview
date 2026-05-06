@@ -1,30 +1,32 @@
 [
   {
-    "questionId": 7,
+    "questionId": 40,
     "followUps": [
       {
         "question": "What is a DNS record?",
         "answer": "A DNS record is an entry in a DNS zone that maps a domain name to information like an IP address, mail server, or alias.",
-        "interviewPitch": "A **DNS record** is an entry in a DNS zone file that maps a domain name to specific information. The most common types are: **A record** (maps domain to IPv4 address), **AAAA** (maps to IPv6), **CNAME** (alias pointing to another domain), **MX** (mail server for the domain), **NS** (authoritative nameservers), and **TXT** (arbitrary text, used for email verification and SPF/DKIM). When you configure a custom domain for your app, you typically add an A record pointing to your server's IP or a CNAME pointing to your cloud provider's URL.",
-        "explanation": "**Common DNS Record Types:**\\n• **A** — Maps domain to IPv4 (e.g., `example.com → 93.184.216.34`)\\n• **AAAA** — Maps domain to IPv6\\n• **CNAME** — Alias to another domain (e.g., `www.example.com → example.com`)\\n• **MX** — Mail server (e.g., priority 10 → `mail.example.com`)\\n• **NS** — Nameserver (delegates DNS authority)\\n• **TXT** — Text records (SPF, DKIM, domain verification)\\n• **SOA** — Start of Authority (zone metadata)\\n\\n**TTL (Time To Live):**\\nEach record has a TTL — how long resolvers cache it. Low TTL (60s) = faster propagation but more DNS queries. High TTL (86400s) = fewer queries but slow to update.",
-        "example": "# Common DNS records for example.com\n\n# A Record — domain to IP\nexample.com.        A     93.184.216.34\n\n# CNAME — alias\nwww.example.com.    CNAME example.com.\n\n# MX — mail server\nexample.com.        MX    10 mail.example.com.\n\n# TXT — email verification\nexample.com.        TXT   \"v=spf1 include:_spf.google.com ~all\"\n\n# NS — nameservers\nexample.com.        NS    ns1.cloudflare.com.\n\n# Check with: nslookup example.com\n# Or:         dig example.com A",
-        "whyAsked": "Tests practical networking knowledge — DNS configuration is a daily task for backend developers deploying apps.",
+        "interviewPitch": "A DNS Record is an entry in a DNS server's database that provides routing instructions for a domain. The most common is the **A Record**, which maps a domain name (google.com) directly to an IPv4 address. The **CNAME Record** maps an alias (www.google.com) to another domain name. We use CNAMEs so that if the server's IP address changes, we only have to update the root A Record.",
+        "explanation": "**\ud83c\udfe2 The Office Directory Analogy:**\nImagine the directory board in the lobby of a skyscraper.\n\n\u2022 **A Record (The Room Number):** The board says \"Alice Store is in Room 402\". It points directly to a physical location.\n\u2022 **CNAME Record (The Alias):** The board says \"Shoe Department -> See Alice Store\". It doesn't give you a room number. It just tells you to look up another name on the board.",
+        "example": "# \u2699\ufe0f DNS ZONE FILE EXAMPLES\n\n# A Record (Maps Name to IP)\napi.myapp.com.    IN A      142.250.190.46\n\n# CNAME Record (Maps Name to Name)\nwww.myapp.com.    IN CNAME  api.myapp.com.",
+        "whyAsked": "Tests practical networking knowledge \u2014 DNS configuration is a daily task for backend developers deploying apps.",
         "mistakes": [
-          "Confusing A and CNAME — A points to an IP, CNAME points to another domain name.",
-          "Not understanding TTL — changing DNS records doesn't take effect instantly due to caching."
-        ]
+          "Confusing A and CNAME \u2014 A points to an IP, CNAME points to another domain name.",
+          "Not understanding TTL \u2014 changing DNS records doesn't take effect instantly due to caching."
+        ],
+        "diagram": "flowchart TD\n    D[User types www.api.com]\n    D --> CNAME[CNAME Record: 'www.api.com' points to 'api.com']\n    CNAME --> A[A Record: 'api.com' points to 192.168.1.5]\n    A --> Server[(Physical Server)]"
       },
       {
         "question": "How does the TLS handshake work?",
         "answer": "The TLS handshake establishes an encrypted connection. The client and server exchange cipher suites, the server sends its certificate, and both derive shared session keys.",
-        "interviewPitch": "The **TLS handshake** establishes an encrypted connection before any HTTP data is sent. In TLS 1.2, it works like this: the client sends a **ClientHello** with supported cipher suites and a random number. The server responds with **ServerHello** (chosen cipher + its SSL certificate). The client **verifies the certificate** against trusted Certificate Authorities. Then both sides perform a **key exchange** (typically ECDHE) to derive a shared **session key** — this is the symmetric key used to encrypt all subsequent data. **TLS 1.3** simplifies this to a single round trip and removes legacy insecure algorithms.",
-        "explanation": "**TLS 1.2 Handshake (2 RTTs):**\\n1. **ClientHello** → supported cipher suites, TLS version, client random\\n2. **ServerHello** → chosen cipher, server random, SSL certificate\\n3. **Client verifies cert** → checks CA chain, expiry, domain match\\n4. **Key Exchange** → client sends pre-master secret encrypted with server's public key\\n5. **Both derive session keys** → symmetric encryption begins\\n6. **Finished** → both send encrypted verification\\n\\n**TLS 1.3 (1 RTT — faster):**\\n• Client sends key share in ClientHello (saves a round trip)\\n• Removed RSA key exchange (only forward-secret algorithms)\\n• 0-RTT resumption for returning clients\\n\\n**Key concepts:**\\n• **Asymmetric crypto** (RSA/ECDSA) — used only during handshake for key exchange\\n• **Symmetric crypto** (AES-256-GCM) — used for actual data encryption (fast)\\n• **Forward secrecy** — even if server's private key is stolen, past sessions can't be decrypted",
-        "example": "TLS 1.2 Handshake Flow:\n\nClient                         Server\n  │──── ClientHello ──────────→│  (cipher suites, random)\n  │                            │\n  │←── ServerHello ────────────│  (chosen cipher, random)\n  │←── Certificate ────────────│  (SSL cert with public key)\n  │←── ServerHelloDone ────────│\n  │                            │\n  │──── ClientKeyExchange ────→│  (pre-master secret)\n  │──── ChangeCipherSpec ─────→│  (switching to encrypted)\n  │──── Finished ─────────────→│\n  │                            │\n  │←── ChangeCipherSpec ───────│\n  │←── Finished ───────────────│\n  │                            │\n  │←── Encrypted HTTP Data ───→│  (AES-256-GCM)",
-        "whyAsked": "Tests understanding of HTTPS security — important for anyone building web APIs or handling sensitive data.",
+        "interviewPitch": "The TLS handshake secures an HTTP connection using asymmetric and symmetric encryption. First, the server sends its Public Key (via an SSL Certificate) to the browser. The browser uses this Public Key to securely encrypt a new, secret 'Session Key'. It sends this encrypted Session Key back to the server. The server unlocks it with its Private Key. Now, both sides share a secret Session Key, which they use to rapidly encrypt all future data via symmetric encryption.",
+        "explanation": "**\ud83d\udd12 The Padlock Analogy:**\n1. I want to send you a secret message. You mail me an open, unlocked padlock (Your Public Key).\n2. I put my secret message (The Session Key) into a box, and snap your padlock shut on it.\n3. I mail the locked box back to you. Even the mailman can't open it.\n4. You use your physical key (Your Private Key) to unlock the box.\n5. Now we both know the secret Session Key, and we use it to talk super fast.",
+        "example": "// \u274c ASYMMETRIC ENCRYPTION (Public/Private Key)\n// Extremely secure, but incredibly slow and heavy on the CPU.\n// Used ONLY during the handshake to establish trust.\n\n// \u2705 SYMMETRIC ENCRYPTION (Session Key)\n// Uses the exact same key to lock and unlock.\n// Blazing fast. Used for the actual web traffic (HTML/JSON).",
+        "whyAsked": "Tests understanding of HTTPS security \u2014 important for anyone building web APIs or handling sensitive data.",
         "mistakes": [
-          "Thinking TLS encrypts with the server's public key — that's only for key exchange. Data uses symmetric encryption.",
-          "Not knowing TLS 1.3 exists — it's faster and more secure than 1.2."
-        ]
+          "Thinking TLS encrypts with the server's public key \u2014 that's only for key exchange. Data uses symmetric encryption.",
+          "Not knowing TLS 1.3 exists \u2014 it's faster and more secure than 1.2."
+        ],
+        "diagram": "sequenceDiagram\n    participant B as Browser\n    participant S as Server\n    \n    B->>S: 1. Hello! Secure me.\n    S-->>B: 2. Here is my Public Key (Certificate)\n    Note over B: Browser creates a random Session Key\n    B->>S: 3. Encrypts Session Key with Public Key\n    Note over S: Server decrypts it using Private Key\n    B->>S: 4. Encrypted HTTP GET (Using Session Key)\n    S-->>B: 5. Encrypted HTTP 200 OK"
       }
     ]
   }

@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { PageWrapper } from '../components/layout/PageWrapper';
 import { InteractiveFollowUp } from '../components/ui/InteractiveFollowUp';
@@ -24,6 +24,7 @@ export function SectionLayout() {
   const navigate = useNavigate();
   const { isBookmarked, toggleBookmark, isReviewed, toggleReviewed } = useProgress();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
 
   const section = sections.find(s => s.id === sectionId);
   const sectionQuestions = questions.filter(q => q.sectionId === sectionId);
@@ -37,6 +38,12 @@ export function SectionLayout() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionId, sectionId]);
+
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+  }, [questionId]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -71,6 +78,7 @@ export function SectionLayout() {
   const renderAnswer = (text: string) =>
     text
       .replace(/\\n/g, '<br/>')
+      .replace(/\n/g, '<br/>')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/`([^`]+)`/g, '<code>$1</code>');
 
@@ -118,7 +126,7 @@ export function SectionLayout() {
       </aside>
 
       {/* ═══════ Main Content ═══════ */}
-      <main className="flex-1 overflow-y-auto">
+      <main ref={mainRef} className="flex-1 overflow-y-auto">
         <article className="max-w-4xl mx-auto px-6 sm:px-10 py-10 sm:py-14 pb-24 lg:pb-14">
 
           {/* Breadcrumb */}
