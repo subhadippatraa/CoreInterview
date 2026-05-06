@@ -198,80 +198,112 @@ export function Home() {
         ) : (
         <>
         {/* ═══ Topics Grid ═══ */}
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-[13px] font-bold text-[var(--color-text)] uppercase tracking-[0.1em]">All Topics</h2>
-          <span className="text-[11px] text-[var(--color-text3)] font-mono">{sections.length} sections</span>
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-[13px] font-bold text-[var(--color-text)] uppercase tracking-[0.1em]">All Topics</h2>
+            <span className="text-[11px] text-[var(--color-text3)] font-mono">{sections.length} sections</span>
+          </div>
+
+          <div className="space-y-12">
+            {[
+              {
+                title: '.NET Ecosystem',
+                color: 'var(--color-accent)',
+                sectionIds: ['csharp', 'dotnet', 'aspnet', 'efcore', 'architecture']
+              },
+              {
+                title: 'Core Subjects',
+                color: 'var(--color-green)',
+                sectionIds: ['sql-theory', 'sql-queries', 'dbms', 'systemdesign', 'os', 'networking']
+              },
+              {
+                title: 'DevOps & Others',
+                color: 'var(--color-purple)',
+                sectionIds: ['devops']
+              }
+            ].map((category, idx) => (
+              <div key={idx}>
+                <div className="flex items-center gap-3 mb-4 pl-1">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: category.color }} />
+                  <h3 className="text-[14px] font-bold text-[var(--color-text2)] uppercase tracking-widest">{category.title}</h3>
+                </div>
+                
+                <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {category.sectionIds.map(sectionId => {
+                    const section = sections.find(s => s.id === sectionId);
+                    if (!section) return null;
+                    
+                    const sectionQs = questions.filter(q => q.sectionId === section.id);
+                    const count = sectionQs.length;
+                    const completedCount = sectionQs.filter(q => data.reviewed.includes(q.id)).length;
+                    const progress = count === 0 ? 0 : Math.round((completedCount / count) * 100);
+                    const Icon = iconMap[section.icon] || CodeBracketIcon;
+                    const isComplete = progress === 100 && count > 0;
+
+                    return (
+                      <motion.div key={section.id} variants={item}>
+                        <Link to={`/section/${section.id}`}>
+                          <motion.div whileHover={{ y: -3, transition: { duration: 0.2 } }} whileTap={{ scale: 0.98 }}
+                            className={`group relative flex items-start gap-4 p-5 rounded-2xl border transition-all cursor-pointer ${
+                              isComplete
+                                ? 'bg-[var(--color-green)]/5 border-[var(--color-green)]/20 hover:border-[var(--color-green)]/40'
+                                : 'bg-[var(--color-bg2)] border-[var(--color-border)] hover:border-[var(--color-accent)]/30 hover:shadow-lg hover:shadow-[var(--color-accent)]/5'
+                            }`}>
+
+                            {/* Icon */}
+                            <div className={`p-2.5 rounded-xl border shrink-0 mt-0.5 transition-all ${
+                              isComplete
+                                ? 'bg-[var(--color-green)]/10 border-[var(--color-green)]/20 text-[var(--color-green)]'
+                                : 'bg-[var(--color-bg)] border-[var(--color-border)] text-[var(--color-text3)] group-hover:text-[var(--color-accent)] group-hover:border-[var(--color-accent)]/25'
+                            }`}>
+                              <Icon className="w-5 h-5" />
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className={`text-[15px] font-semibold leading-snug transition-colors ${
+                                  isComplete
+                                    ? 'text-[var(--color-green)]'
+                                    : 'text-[var(--color-text)] group-hover:text-[var(--color-accent)]'
+                                }`}>
+                                  {section.name}
+                                </h3>
+                                {isComplete && <CheckCircleIcon className="w-4 h-4 text-[var(--color-green)]" />}
+                              </div>
+                              <p className="text-[12px] text-[var(--color-text3)] leading-relaxed mb-3">{section.description}</p>
+
+                              {/* Progress bar */}
+                              <div className="flex items-center gap-3">
+                                <span className="font-mono text-[10px] text-[var(--color-text3)]">{completedCount}/{count}</span>
+                                <div className="flex-1 h-1.5 bg-[var(--color-bg3)] rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full transition-all duration-500 ease-out ${
+                                      isComplete ? 'bg-[var(--color-green)]' : 'bg-[var(--color-accent)]'
+                                    }`}
+                                    style={{ width: `${progress}%` }}
+                                  />
+                                </div>
+                                <span className={`font-mono text-[10px] font-medium ${
+                                  isComplete ? 'text-[var(--color-green)]' : 'text-[var(--color-accent)]'
+                                }`}>{progress}%</span>
+                              </div>
+                            </div>
+
+                            {/* Arrow */}
+                            <ArrowRightIcon className={`w-4 h-4 shrink-0 mt-1 transition-all opacity-0 group-hover:opacity-100 group-hover:translate-x-1 ${
+                              isComplete ? 'text-[var(--color-green)]' : 'text-[var(--color-accent)]'
+                            }`} />
+                          </motion.div>
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
+                </motion.div>
+              </div>
+            ))}
+          </div>
         </div>
-
-        <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {sections.map(section => {
-            const sectionQs = questions.filter(q => q.sectionId === section.id);
-            const count = sectionQs.length;
-            const completedCount = sectionQs.filter(q => data.reviewed.includes(q.id)).length;
-            const progress = count === 0 ? 0 : Math.round((completedCount / count) * 100);
-            const Icon = iconMap[section.icon] || CodeBracketIcon;
-            const isComplete = progress === 100 && count > 0;
-
-            return (
-              <motion.div key={section.id} variants={item}>
-                <Link to={`/section/${section.id}`}>
-                  <motion.div whileHover={{ y: -3, transition: { duration: 0.2 } }} whileTap={{ scale: 0.98 }}
-                    className={`group relative flex items-start gap-4 p-5 rounded-2xl border transition-all cursor-pointer ${
-                      isComplete
-                        ? 'bg-[var(--color-green)]/5 border-[var(--color-green)]/20 hover:border-[var(--color-green)]/40'
-                        : 'bg-[var(--color-bg2)] border-[var(--color-border)] hover:border-[var(--color-accent)]/30 hover:shadow-lg hover:shadow-[var(--color-accent)]/5'
-                    }`}>
-
-                    {/* Icon */}
-                    <div className={`p-2.5 rounded-xl border shrink-0 mt-0.5 transition-all ${
-                      isComplete
-                        ? 'bg-[var(--color-green)]/10 border-[var(--color-green)]/20 text-[var(--color-green)]'
-                        : 'bg-[var(--color-bg)] border-[var(--color-border)] text-[var(--color-text3)] group-hover:text-[var(--color-accent)] group-hover:border-[var(--color-accent)]/25'
-                    }`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className={`text-[15px] font-semibold leading-snug transition-colors ${
-                          isComplete
-                            ? 'text-[var(--color-green)]'
-                            : 'text-[var(--color-text)] group-hover:text-[var(--color-accent)]'
-                        }`}>
-                          {section.name}
-                        </h3>
-                        {isComplete && <CheckCircleIcon className="w-4 h-4 text-[var(--color-green)]" />}
-                      </div>
-                      <p className="text-[12px] text-[var(--color-text3)] leading-relaxed mb-3">{section.description}</p>
-
-                      {/* Progress bar */}
-                      <div className="flex items-center gap-3">
-                        <span className="font-mono text-[10px] text-[var(--color-text3)]">{completedCount}/{count}</span>
-                        <div className="flex-1 h-1.5 bg-[var(--color-bg3)] rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ease-out ${
-                              isComplete ? 'bg-[var(--color-green)]' : 'bg-[var(--color-accent)]'
-                            }`}
-                            style={{ width: `${progress}%` }}
-                          />
-                        </div>
-                        <span className={`font-mono text-[10px] font-medium ${
-                          isComplete ? 'text-[var(--color-green)]' : 'text-[var(--color-accent)]'
-                        }`}>{progress}%</span>
-                      </div>
-                    </div>
-
-                    {/* Arrow */}
-                    <ArrowRightIcon className={`w-4 h-4 shrink-0 mt-1 transition-all opacity-0 group-hover:opacity-100 group-hover:translate-x-1 ${
-                      isComplete ? 'text-[var(--color-green)]' : 'text-[var(--color-accent)]'
-                    }`} />
-                  </motion.div>
-                </Link>
-              </motion.div>
-            );
-          })}
-        </motion.div>
 
         {/* ═══ Footer CTA ═══ */}
         <motion.div
