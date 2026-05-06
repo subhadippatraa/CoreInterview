@@ -175,7 +175,7 @@ export function Home() {
                 <p className="text-[12px]">Try a different keyword or clear filters</p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-4">
                 {filteredQuestions.slice(0, 20).map(q => {
                   const sec = sections.find(s => s.id === q.sectionId);
                   return (
