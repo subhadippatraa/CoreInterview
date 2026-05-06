@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom';
 
-export function InteractiveFollowUp({ followUp, index }: { followUp: any, index: number, renderAnswer: (text: string) => string }) {
+import type { Question } from '../../data/types';
+
+export function InteractiveFollowUp({ followUp, index }: { followUp: Partial<Question> & { question: string }, index: number, renderAnswer: (text: string) => string }) {
   const navigate = useNavigate();
   const { sectionId } = useParams();
 

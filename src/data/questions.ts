@@ -77,7 +77,7 @@ const questions: Question[] = [];
 allQuestions.forEach(q => {
   const followUps = followupMap.get(q.id) || [];
   
-  const mappedFollowUps = followUps.map((fu: any, index: number) => {
+  const mappedFollowUps = followUps.map((fu: Partial<Question> & { question: string, answer: string }, index: number) => {
     const fuId = q.id * 1000 + (index + 1);
     return {
       id: fuId,

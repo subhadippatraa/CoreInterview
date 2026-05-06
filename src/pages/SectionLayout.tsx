@@ -40,11 +40,16 @@ export function SectionLayout() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionId, sectionId]);
 
+  const [prevQuestionId, setPrevQuestionId] = useState(activeQuestionId);
+  if (activeQuestionId !== prevQuestionId) {
+    setPrevQuestionId(activeQuestionId);
+    setShowExample(false);
+  }
+
   useEffect(() => {
     if (mainRef.current) {
       mainRef.current.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
-    setShowExample(false);
   }, [activeQuestionId]);
 
   // Keyboard shortcuts

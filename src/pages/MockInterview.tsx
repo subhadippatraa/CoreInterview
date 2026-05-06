@@ -7,7 +7,9 @@ import { sections } from '../data/sections';
 import questions from '../data/questions';
 import { Link } from 'react-router-dom';
 
-function InteractiveFollowUp({ followUp, renderAnswer }: { followUp: any; renderAnswer: (s: string) => string }) {
+import type { Question } from '../data/types';
+
+function InteractiveFollowUp({ followUp, renderAnswer }: { followUp: Partial<Question> & { question: string }; renderAnswer: (s: string) => string }) {
   return (
     <div className="bg-[var(--color-bg2)] border border-[var(--color-border)] p-4 rounded-xl shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -185,7 +187,7 @@ export function MockInterview() {
                   <div className="pt-4">
                     <h3 className="text-[14px] font-bold text-[var(--color-text)] tracking-tight mb-4">Follow-up Questions</h3>
                     <div className="space-y-4">
-                      {mock.currentQuestion.followUps.map((fu: any, i: number) => (
+                      {mock.currentQuestion.followUps.map((fu: Partial<Question> & { question: string }, i: number) => (
                         <InteractiveFollowUp key={i} followUp={fu} renderAnswer={renderAnswer} />
                       ))}
                     </div>

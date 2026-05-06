@@ -5,7 +5,7 @@ import { PageWrapper } from '../components/layout/PageWrapper';
 import { sections } from '../data/sections';
 import questions from '../data/questions';
 import { useProgress } from '../hooks/useProgress';
-import { CodeBracketIcon, ServerIcon, CircleStackIcon, CpuChipIcon, GlobeAltIcon, RectangleGroupIcon, CloudIcon, TableCellsIcon, ArrowRightIcon, SparklesIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { CodeBracketIcon, ServerIcon, CircleStackIcon, CpuChipIcon, GlobeAltIcon, RectangleGroupIcon, CloudIcon, TableCellsIcon, ArrowRightIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 
 import React from 'react';

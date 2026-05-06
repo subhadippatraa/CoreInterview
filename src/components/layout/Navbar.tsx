@@ -19,10 +19,11 @@ export function Navbar() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // Close mobile menu on route change
-  useEffect(() => {
+  const [prevPathname, setPrevPathname] = useState(location.pathname);
+  if (location.pathname !== prevPathname) {
+    setPrevPathname(location.pathname);
     setMobileMenuOpen(false);
-  }, [location.pathname]);
+  }
 
   const toggleTheme = () => {
     setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
