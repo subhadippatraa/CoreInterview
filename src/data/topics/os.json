@@ -1,6 +1,6 @@
 [
   {
-    "id": 36,
+    "id": 56,
     "sectionId": "os",
     "difficulty": "medium",
     "question": "What is the difference between a Process and a Thread?",
@@ -16,7 +16,7 @@
     "example": "// \u2705 IN C# (Creating a Thread is incredibly easy)\n\n// 1. We start the main Process (The Console App)\nConsole.WriteLine(\"Main thread is running...\");\n\n// 2. We hire a background worker (A Thread) to do heavy lifting\nThread worker = new Thread(() => \n{\n    Console.WriteLine(\"Background thread is downloading a file...\");\n});\nworker.Start();\n\nConsole.WriteLine(\"Main thread is still responsive!\");"
   },
   {
-    "id": 37,
+    "id": 57,
     "sectionId": "os",
     "difficulty": "hard",
     "question": "What is a Deadlock in an Operating System? What are the 4 Coffman conditions?",
@@ -32,7 +32,7 @@
     "example": "// \u274c HOW TO CREATE A DEADLOCK IN C#\nobject lockA = new object();\nobject lockB = new object();\n\n// Thread 1\nlock (lockA)\n{\n    Thread.Sleep(100); // Wait a millisecond...\n    lock (lockB) // Thread 1 freezes here forever\n    {\n        Console.WriteLine(\"Thread 1 got both locks\");\n    }\n}\n\n// Thread 2 (Running at the exact same time)\nlock (lockB)\n{\n    Thread.Sleep(100); // Wait a millisecond...\n    lock (lockA) // Thread 2 freezes here forever\n    {\n        Console.WriteLine(\"Thread 2 got both locks\");\n    }\n}"
   },
   {
-    "id": 38,
+    "id": 58,
     "sectionId": "os",
     "difficulty": "hard",
     "question": "What is Virtual Memory and Paging?",
@@ -48,7 +48,7 @@
     "example": "// Why Virtual Memory Matters in .NET:\n// A 32-bit process can only address 4GB of memory.\n// A 64-bit process has a massive 8 Terabyte virtual memory limit.\n\n// If your C# app allocates massive arrays and Physical RAM is full,\n// the OS won't instantly crash with OutOfMemoryException.\n// Instead, it silently pages memory to the SSD, making your app\n// 10,000x slower. This is why memory profiling is critical."
   },
   {
-    "id": 39,
+    "id": 59,
     "sectionId": "os",
     "difficulty": "medium",
     "question": "What is the difference between a Mutex and a Semaphore?",

@@ -24,6 +24,12 @@ import osFollowups from './topics/os_followups.json';
 import systemdesign from './topics/systemdesign.json';
 import systemdesignFollowups from './topics/systemdesign_followups.json';
 
+import dotnet from './topics/dotnet.json';
+import dotnetFollowups from './topics/dotnet_followups.json';
+
+import architecture from './topics/architecture.json';
+import architectureFollowups from './topics/architecture_followups.json';
+
 const allQuestions = [
   ...csharp,
   ...aspnet,
@@ -32,7 +38,9 @@ const allQuestions = [
   ...devops,
   ...networking,
   ...os,
-  ...systemdesign
+  ...systemdesign,
+  ...dotnet,
+  ...architecture
 ];
 
 const allFollowups = [
@@ -43,7 +51,9 @@ const allFollowups = [
   ...devopsFollowups,
   ...networkingFollowups,
   ...osFollowups,
-  ...systemdesignFollowups
+  ...systemdesignFollowups,
+  ...dotnetFollowups,
+  ...architectureFollowups
 ];
 
 const followupMap = new Map();

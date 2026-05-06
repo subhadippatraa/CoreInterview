@@ -1,6 +1,6 @@
 [
   {
-    "questionId": 31,
+    "questionId": 51,
     "followUps": [
       {
         "question": "Can a table have no clustered index?",

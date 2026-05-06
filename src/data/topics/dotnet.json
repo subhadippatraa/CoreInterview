@@ -1,0 +1,104 @@
+[
+  {
+    "id": 22,
+    "sectionId": "dotnet",
+    "difficulty": "easy",
+    "question": "What is the difference between .NET Framework, .NET Core, and .NET?",
+    "answer": ".NET Framework is the legacy Windows-only platform. .NET Core is the modern, cross-platform, high-performance rewrite. '.NET' (5, 6, 8, etc.) is simply the continuation of .NET Core under a unified name.",
+    "whyAsked": "This is almost guaranteed to be the very first question asked at companies migrating legacy codebases.",
+    "mistakes": [
+      "Saying .NET Standard is a runtime. It's not; it's a specification/API contract.",
+      "Thinking .NET 5 is an upgrade to .NET Framework 4.8. It is actually .NET Core 4.0 renamed."
+    ],
+    "interviewPitch": "**.NET Framework** is the original, closed-source, Windows-only runtime released in 2002. It is deeply tied to Windows APIs and is now in maintenance mode. **.NET Core** was a complete ground-up rewrite released in 2016. It is open-source, blazing fast, and cross-platform (runs on Linux, Mac, and Windows). Starting with version 5, Microsoft dropped the 'Core' name to signify a unified platform, so **.NET 8** is just the 8th version of .NET Core.",
+    "explanation": "**\ud83d\udcf1 The iPhone Analogy:**\n\u2022 **.NET Framework (The Flip Phone):** Reliable, does exactly what it was built for, but it only works on one specific cellular network (Windows). It's no longer getting new features, just security patches.\n\u2022 **.NET Core / .NET 8 (The iPhone):** A completely new, modern device that works on every network in the world (Cross-platform). It gets all the massive performance updates and new features.",
+    "diagram": "flowchart TD\n    F[.NET Framework 4.8 (Windows Only)] --> Stop[Maintenance Mode (Dead End)]\n    C[.NET Core 3.1 (Cross-Platform)] --> N[.NET 5]\n    N --> N6[.NET 6]\n    N6 --> N8[.NET 8 (LTS)]",
+    "example": "// How you host an app in .NET Framework (IIS Only, Windows Only)\n// System.Web.HttpApplication\n\n// How you host an app in modern .NET (Kestrel, runs on Linux/Docker!)\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\napp.Run();",
+    "followUps": []
+  },
+  {
+    "id": 23,
+    "sectionId": "dotnet",
+    "difficulty": "medium",
+    "question": "What is the CLR (Common Language Runtime)?",
+    "answer": "The CLR is the virtual machine component of .NET that manages the execution of programs. It handles memory management, security, exception handling, and thread execution.",
+    "whyAsked": "Interviewers want to know if you understand what is actually running your code under the hood, separating C# developers from Java or C++ developers.",
+    "mistakes": [
+      "Confusing the CLR with the compiler (Roslyn).",
+      "Not mentioning Garbage Collection as its primary responsibility."
+    ],
+    "interviewPitch": "The Common Language Runtime (CLR) is the execution engine for .NET applications. When you compile C# code, it is not turned into machine code; it is turned into an intermediate language called MSIL. The CLR takes this MSIL and runs it. The CLR provides massive benefits: it acts as a sandbox, providing automatic memory management (the Garbage Collector), type safety, exception handling, and thread management.",
+    "explanation": "**\ud83c\udfe2 The Restaurant Manager Analogy:**\nImagine your C# code is a Cook.\nThe Cook doesn't pay the electricity bill, take out the trash, or hire security. \n\nThe **CLR is the Restaurant Manager**. It makes sure the Cook has a safe environment to work in. It takes out the trash (Garbage Collection), handles emergencies (Exception Handling), and kicks out unruly customers (Security). The Cook just cooks.",
+    "diagram": "flowchart LR\n    C[C# Code] -->|Roslyn Compiler| IL[MSIL (DLL)]\n    IL --> CLR[The CLR Engine]\n    \n    subgraph The CLR Engine\n    JIT[JIT Compiler]\n    GC[Garbage Collector]\n    end\n    \n    CLR -->|Executes| CPU[Machine Code]",
+    "example": "// You don't interact with the CLR directly, but it provides features like this:\n\n// 1. Automatic Memory Management (GC)\nvar list = new List<int>(); // The CLR allocates and eventually cleans this up.\n\n// 2. Exception Handling\ntry { \n    int x = 1 / 0; \n} catch (DivideByZeroException) { \n    // The CLR caught the crash safely! \n}",
+    "followUps": []
+  },
+  {
+    "id": 24,
+    "sectionId": "dotnet",
+    "difficulty": "medium",
+    "question": "What is JIT (Just-In-Time) compilation?",
+    "answer": "JIT compilation is the process where the CLR converts Intermediate Language (MSIL) into actual machine code (0s and 1s) at the exact moment the method is called for the very first time.",
+    "whyAsked": "This proves you understand the lifecycle of .NET code. It is often asked alongside questions about Application startup performance.",
+    "mistakes": [
+      "Thinking the Roslyn C# compiler generates machine code.",
+      "Thinking JIT runs on every single method call. (It only runs on the *first* call)."
+    ],
+    "interviewPitch": "When you hit 'Build' in Visual Studio, your C# code is compiled into Microsoft Intermediate Language (MSIL). This is platform-agnostic, which is why a .NET DLL can run on Windows or Linux. When you actually run the program, the JIT (Just-In-Time) compiler takes over. The very first time a method is called, the JIT compiler converts that MSIL into native machine code optimized for the specific CPU (Intel, ARM, etc.) running the app. Subsequent calls to that method reuse the cached machine code.",
+    "explanation": "**\ud83d\udde3\ufe0f The UN Translator Analogy:**\n\u2022 **AOT (Ahead-of-Time, like C++):** You translate an English book into Spanish. It takes 5 years to print. If you hand it to someone who speaks French, they can't read it.\n\u2022 **MSIL (The Intermediate Language):** You translate the English book into a universal sign language.\n\u2022 **JIT (The Live Translator):** You hire a translator to sit next to the reader. When the reader turns to Page 1, the translator instantly converts the sign language into French. It takes a second to translate (Startup Delay), but once translated, the reader can read Page 1 instantly forever.",
+    "diagram": "sequenceDiagram\n    participant App as C# App\n    participant JIT as JIT Compiler\n    participant CPU as Native CPU\n    \n    App->>JIT: Calls CalculateTotal() for 1st time\n    JIT-->>JIT: Converts MSIL to 0s and 1s (Slow)\n    JIT->>CPU: Executes Code\n    \n    App->>JIT: Calls CalculateTotal() for 2nd time\n    JIT->>CPU: Instantly executes cached Machine Code! (Fast)",
+    "example": "// C# Code\npublic int Add(int a, int b) { return a + b; }\n\n// \u2193 (Compile Time - Roslyn) \u2193\n\n// MSIL (Stored in DLL)\n// IL_0000: ldarg.1\n// IL_0001: ldarg.2\n// IL_0002: add\n// IL_0003: ret\n\n// \u2193 (Runtime - JIT) \u2193\n\n// Machine Code (01010011 11010101)",
+    "followUps": []
+  },
+  {
+    "id": 25,
+    "sectionId": "dotnet",
+    "difficulty": "medium",
+    "question": "What is the difference between Managed and Unmanaged code?",
+    "answer": "Managed code runs inside the .NET CLR, which provides automatic garbage collection and safety. Unmanaged code runs directly on the OS outside the CLR (like C++ or Windows APIs), requiring manual memory management.",
+    "whyAsked": "Usually a lead-up to questions about IDisposable, memory leaks, and how .NET interacts with external systems.",
+    "mistakes": [
+      "Thinking .NET code can never cause memory leaks (it can, through unmanaged resources).",
+      "Not knowing about `P/Invoke` (Platform Invoke)."
+    ],
+    "interviewPitch": "**Managed Code** is any code that is executed and managed by the .NET CLR. It benefits from garbage collection, type safety, and exception handling. You don't have to manually allocate or free memory. **Unmanaged Code** runs entirely outside the CLR directly on the operating system. Examples include C++ libraries, COM components, or raw file handles. Because the Garbage Collector has no jurisdiction over unmanaged code, if you interact with it in C#, you must implement the `IDisposable` interface to manually release the memory.",
+    "explanation": "**\ud83c\udfeb The Daycare Analogy:**\n\u2022 **Managed Code (The Daycare):** You leave your kids at a daycare. There are fences, supervisors, and rules. If a kid drops a toy (Memory), a janitor (Garbage Collector) picks it up. It is perfectly safe.\n\u2022 **Unmanaged Code (The Wild Forest):** You let your kids run into the woods. There are no supervisors. If they drop a toy, it stays there forever until you personally go into the woods and pick it up (Memory Leak).",
+    "diagram": "flowchart TD\n    subgraph The CLR (Daycare)\n    MC[Managed Code (C#)]\n    GC[Garbage Collector]\n    end\n    \n    subgraph Operating System (The Wild)\n    UC[Unmanaged Code (C++)]\n    Win[Windows API / File Handles]\n    end\n    \n    MC -->|P/Invoke| UC\n    Note over MC, UC: Danger! GC cannot clean up UC!",
+    "example": "// \u2705 MANAGED CODE: The GC cleans this up automatically\nstring name = \"Bob\"; \n\n// \u274c UNMANAGED CODE: Calling a raw C++ Windows API\n// The GC CANNOT clean this up. You must call it carefully.\n[DllImport(\"user32.dll\")]\npublic static extern int MessageBox(IntPtr hWnd, String text, String caption, int options);",
+    "followUps": []
+  },
+  {
+    "id": 26,
+    "sectionId": "dotnet",
+    "difficulty": "hard",
+    "question": "What are Assemblies in .NET?",
+    "answer": "An assembly is the compiled output of your .NET code, typically a .DLL (library) or an .EXE (executable). It contains the compiled MSIL code, resources, and metadata.",
+    "whyAsked": "This is a fundamental architecture question. You need to know how code is packaged and distributed.",
+    "mistakes": [
+      "Thinking an assembly is a namespace. (A namespace is a logical grouping of code; an assembly is the physical file).",
+      "Not knowing about the Assembly Manifest."
+    ],
+    "interviewPitch": "An Assembly is the fundamental unit of deployment, version control, and security in .NET. When you compile a C# project, it outputs an Assembly\u2014either a DLL (Dynamic Link Library) or an EXE (Executable). An Assembly contains two critical things: the actual MSIL (Intermediate Language) code, and the **Manifest**. The Manifest is metadata that describes the assembly's version, security requirements, and a list of all other assemblies (dependencies) it needs to run.",
+    "explanation": "**\ud83d\udce6 The Shipping Container Analogy:**\n\u2022 **Code:** The raw goods (laptops, shoes).\n\u2022 **The Assembly:** The massive metal shipping container you put the goods into.\n\u2022 **The Manifest:** The clipboard taped to the outside of the container. It tells the dock worker what is inside, how heavy it is, what version it is, and what other boxes need to be shipped with it.\n\nYou don't ship individual shoes (Classes). You ship the entire Container (Assembly).",
+    "diagram": "flowchart LR\n    subgraph MyProject.dll (The Assembly)\n    M[Manifest / Metadata]\n    IL[MSIL Code]\n    R[Resources (Images)]\n    end\n    \n    M -.->|Depends on| N[Newtonsoft.Json.dll]",
+    "example": "// You can inspect the Assembly Manifest using Reflection:\nusing System.Reflection;\n\n// Get the currently running Assembly (The DLL)\nAssembly myAssembly = Assembly.GetExecutingAssembly();\n\n// Read the Manifest to get the version number\nConsole.WriteLine(myAssembly.GetName().Version);",
+    "followUps": []
+  },
+  {
+    "id": 27,
+    "sectionId": "dotnet",
+    "difficulty": "hard",
+    "question": "What are Span<T> and Memory<T> in .NET?",
+    "answer": "Span<T> is a high-performance struct that allows you to read and write a continuous region of memory (like arrays or strings) without allocating new objects on the heap.",
+    "whyAsked": "This is the ultimate senior-level performance question. If you understand Span, you understand modern .NET high-performance architecture.",
+    "mistakes": [
+      "Using Span in async methods. (You can't. Span is a ref struct and can only live on the Stack. You must use Memory<T> for async).",
+      "Not understanding how string slicing normally causes massive Garbage Collection."
+    ],
+    "interviewPitch": "`Span<T>` (introduced in C# 7.2) is a game-changer for .NET performance. Traditionally, if you want to slice a string or an array, methods like `.Substring()` create a brand new copy of that data on the Heap, triggering Garbage Collection. `Span<T>` is a `ref struct` that provides a safe 'window' or 'pointer' into existing memory. You can slice data infinitely with ZERO heap allocations. Because it's a `ref struct`, it can only exist on the Stack. If you need to store it on the Heap or use it in `async/await`, you must use `Memory<T>` instead.",
+    "explanation": "**\u2702\ufe0f The Newspaper Analogy:**\n\u2022 **Substring() (The Photocopier):** You find an article in a newspaper you like. You walk to the photocopier, print a brand new copy of that specific article, and read it. If you do this 10,000 times, you waste massive amounts of paper (Heap Allocations / GC).\n\u2022 **Span<T> (The Magnifying Glass):** You simply hold a magnifying glass over the exact paragraph you want to read. You don't copy anything. You just look at the original paper. It costs nothing.",
+    "diagram": "flowchart TD\n    S[\"Hello World\" (Array in Memory)]\n    \n    subgraph The Bad Way\n    Sub[Substring(0, 5)] -->|Allocates NEW string| H[Heap Memory: \"Hello\"]\n    end\n    \n    subgraph The Good Way\n    Span[Span.Slice(0, 5)] -.->|Just points to original memory| S\n    Note over Span: ZERO Allocations!\n    end\n    style H fill:#ffcccc,stroke:#cc0000",
+    "example": "string data = \"123,456,789\";\n\n// \u274c BAD: Allocates 2 brand new strings on the Heap!\nstring part1 = data.Substring(0, 3);\nstring part2 = data.Substring(4, 3);\n\n// \u2705 GOLD STANDARD: ZERO Heap Allocations.\nReadOnlySpan<char> spanData = data.AsSpan();\nReadOnlySpan<char> span1 = spanData.Slice(0, 3);\nReadOnlySpan<char> span2 = spanData.Slice(4, 3);",
+    "followUps": []
+  }
+]

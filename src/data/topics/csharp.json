@@ -236,5 +236,106 @@
     "explanation": "**\ud83d\ude9a The Grocery Delivery Analogy:**\nImagine you are a Chef (A Class) who needs Tomatoes (A Dependency) to cook.\n\u2022 **The BAD Way (No DI):** You leave the kitchen, drive to the farm, plant a tomato seed, grow it, harvest it, and drive back. (`new Tomato()`). You are doing too much work, and if the farm closes, you can't cook.\n\u2022 **The GOOD Way (Dependency Injection):** You stand in the kitchen. Someone knocks on the door and hands you fresh Tomatoes. You don't care where they came from or how they grew. You just take them and cook! \n\n**How we do it in C#:**\nWe write our classes to ask for things in their `Constructor`. Then, the .NET framework automatically delivers those things when the app runs.",
     "diagram": "flowchart TD\n    subgraph No DI (Tightly Coupled)\n    C1[Controller] -->|Calls 'new'| DB1[(Real Database)]\n    end\n    subgraph With DI (Loosely Coupled)\n    DI[DI Container] -->|Injects Interface| C2[Controller]\n    C2 -.->|Uses| I[IDatabase]\n    DI -->|Provides| DB2[(Real Database)]\n    DI -->|Or Provides| M[Mock Database for Tests]\n    end",
     "example": "// \u274c THE BAD WAY (Tightly Coupled)\npublic class UserService {\n    // The service creates the database itself.\n    // If we want to test this without hitting the real database, we can't!\n    private readonly SqlDatabase _db = new SqlDatabase(); \n}\n\n\n// \u2705 THE GOOD WAY (Dependency Injection)\npublic class UserService {\n    private readonly IDatabase _db;\n    \n    // We ASK for the database in the constructor. We don't create it.\n    public UserService(IDatabase db) {\n        _db = db;\n    }\n}\n\n// \u2699\ufe0f SETUP IN PROGRAM.CS\nvar builder = WebApplication.CreateBuilder(args);\n\n// We tell the delivery system: \n// \"Whenever a class asks for an IDatabase, hand them a SqlDatabase!\"\nbuilder.Services.AddScoped<IDatabase, SqlDatabase>();"
+  },
+  {
+    "id": 16,
+    "sectionId": "csharp",
+    "difficulty": "easy",
+    "question": "What is the difference between the ref and out keywords?",
+    "answer": "Both allow a method to modify a passed variable. However, 'ref' requires the variable to be initialized before passing, while 'out' requires the method to initialize it before returning.",
+    "whyAsked": "This is a basic syntax question often asked at service companies to check if you understand C# value-type parameter passing.",
+    "mistakes": [
+      "Forgetting that 'out' forces the method to assign a value before returning.",
+      "Using 'ref' when returning multiple values instead of a Tuple."
+    ],
+    "interviewPitch": "By default, value types are passed by value (a copy). Both the `ref` and `out` keywords allow passing arguments by reference, meaning the method modifies the original variable. The key difference is initialization. A `ref` parameter must be initialized by the caller *before* it is passed to the method. An `out` parameter does not need to be initialized by the caller, but the method itself *must* assign a value to it before the method returns.",
+    "explanation": "**\ud83d\udce5 The Mailbox Analogy:**\n\u2022 **`ref` (Editing a Letter):** You write a letter, put it in an envelope, and hand it to a friend. The friend takes the letter out, crosses out a sentence, writes a new one, and hands it back. (The letter *must* exist first).\n\u2022 **`out` (The Empty Box):** You hand your friend a completely empty box. They are strictly required to put a new letter inside the box before giving it back to you. (You don't need to initialize it, but they *must* fill it).",
+    "diagram": "flowchart LR\n    subgraph Caller\n    A[int x = 5] -->|ref: Must exist| M[Method]\n    B[int y (Unassigned)] -->|out: Can be empty| M\n    end\n    subgraph Method\n    M -.->|Optional Edit| A\n    M -.->|Mandatory Edit| B\n    end",
+    "example": "// \u2705 REF: Must be initialized beforehand\nint score = 100; \nMultiplyScore(ref score);\n\nvoid MultiplyScore(ref int s) {\n    s = s * 2; // Mutates original\n}\n\n// \u2705 OUT: Does not need to be initialized beforehand\n// (Very common in TryParse patterns)\nbool success = int.TryParse(\"123\", out int result);\nif (success) { \n    Console.WriteLine(result); \n}",
+    "followUps": []
+  },
+  {
+    "id": 17,
+    "sectionId": "csharp",
+    "difficulty": "medium",
+    "question": "What are Records in C# and when should you use them?",
+    "answer": "Records are a special type of class designed to be purely immutable. They automatically provide 'value equality', meaning two records are considered equal if their properties match, not just their memory addresses.",
+    "whyAsked": "Introduced in C# 9, this tests if you are keeping up with modern C# features and understand Domain-Driven Design (DDD) concepts like Value Objects.",
+    "mistakes": [
+      "Thinking Records are value types (structs). They are reference types (classes) by default.",
+      "Trying to mutate a record after it is created."
+    ],
+    "interviewPitch": "A `record` (introduced in C# 9) is a reference type designed specifically for immutable data models. Unlike standard classes which use *reference equality* (checking if they point to the same memory address), records automatically use *value equality* (checking if all their properties contain the same values). They drastically reduce boilerplate code for DTOs (Data Transfer Objects) and configuration models. You use them when you want data to be read-only after creation, utilizing the `with` keyword for non-destructive mutation.",
+    "explanation": "**\ud83c\udfe6 The Bank Receipt Analogy:**\n\u2022 **Class (A Whiteboard):** You write \"$500\" on a whiteboard. Anyone can walk up and erase it to write \"$1000\". It is mutable.\n\u2022 **Record (A Printed Bank Receipt):** The ATM prints a receipt saying \"$500\". You cannot erase the ink. If you want a receipt that says \"$1000\", you have to print a brand new receipt that copies the old data but updates the amount. It is completely immutable.",
+    "diagram": "flowchart TD\n    R1[Record A: {Name: Alice}]\n    R2[Record B: {Name: Alice}]\n    \n    R1 -->|R1 == R2?| Eq[TRUE! Because properties match.]\n    \n    C1[Class A: {Name: Alice}]\n    C2[Class B: {Name: Alice}]\n    \n    C1 -->|C1 == C2?| N[FALSE! Different memory addresses.]\n    style Eq fill:#ccffcc,stroke:#00cc00\n    style N fill:#ffcccc,stroke:#cc0000",
+    "example": "// \u2705 RECORD: 1 line of code creates an immutable object with value equality!\npublic record UserDto(string Name, int Age);\n\nvar user1 = new UserDto(\"Alice\", 25);\nvar user2 = new UserDto(\"Alice\", 25);\n\nConsole.WriteLine(user1 == user2); // TRUE (Value Equality)\n\n// \u274c user1.Age = 30; // COMPILER ERROR! Immutable.\n\n// \u2705 Non-Destructive Mutation (Creates a new copy)\nvar olderUser = user1 with { Age = 30 };",
+    "followUps": []
+  },
+  {
+    "id": 18,
+    "sectionId": "csharp",
+    "difficulty": "medium",
+    "question": "What are Extension Methods in C# and how are they used?",
+    "answer": "Extension methods allow you to 'add' new methods to existing types (like String or Int) without altering their original source code.",
+    "whyAsked": "LINQ is built entirely on extension methods. If you don't understand how they work, you don't truly understand LINQ.",
+    "mistakes": [
+      "Forgetting that the class must be `static` and the method must be `static`.",
+      "Forgetting the `this` keyword in the first parameter."
+    ],
+    "interviewPitch": "Extension methods enable you to add methods to existing types without creating a new derived type or modifying the original type. You implement them as a `static` method inside a `static` class, where the first parameter specifies the type it operates on, preceded by the `this` modifier. The most famous use case is LINQ, which adds `.Where()` and `.Select()` to the `IEnumerable` interface. I use them frequently to add utility functions to built-in classes like `string` or `DateTime`.",
+    "explanation": "**\ud83d\ude97 The Aftermarket Car Part Analogy:**\nImagine you buy a Ford Mustang (A sealed, compiled class).\n\nFord didn't put a spoiler on the car. You want a spoiler. \nInstead of breaking into the Ford factory to redesign the blueprints (Editing the source code), you just buy an aftermarket spoiler and bolt it onto the trunk. \n\nAn Extension Method is a bolted-on feature. The car *acts* like it was built with a spoiler, but the original blueprints remain untouched.",
+    "diagram": "flowchart LR\n    S[String Class (Microsoft Code)]\n    S -.->|Cannot modify| S\n    \n    Ext[Your Static Class] -->|Bolts on| S\n    Note over Ext: public static bool IsValidEmail(this string s)",
+    "example": "// 1. Must be a static class\npublic static class StringExtensions\n{\n    // 2. Must be a static method. 3. Uses 'this' on the first parameter.\n    public static bool IsValidEmail(this string str)\n    {\n        return str.Contains(\"@\");\n    }\n}\n\n// \u2705 USAGE: It looks exactly like an instance method!\nstring myEmail = \"bob@test.com\";\nbool check = myEmail.IsValidEmail();",
+    "followUps": []
+  },
+  {
+    "id": 19,
+    "sectionId": "csharp",
+    "difficulty": "hard",
+    "question": "What is Reflection in C# and when should you use it?",
+    "answer": "Reflection allows your C# code to inspect and dynamically execute other code at runtime. It is extremely powerful but very slow.",
+    "whyAsked": "Reflection is heavily used inside frameworks (like EF Core or ASP.NET DI). Interviewers want to know if you understand its massive performance penalties.",
+    "mistakes": [
+      "Using Reflection in a tight, high-speed loop. (It will destroy your CPU performance).",
+      "Not knowing that Reflection bypasses `private` access modifiers."
+    ],
+    "interviewPitch": "Reflection is a feature in the `System.Reflection` namespace that allows code to inspect the metadata of assemblies, modules, and types at runtime. You can use it to dynamically instantiate objects, invoke methods, or read properties\u2014even if they are marked `private`. Frameworks like Entity Framework and JSON serializers rely heavily on Reflection to map data. However, because the compiler cannot optimize reflection calls, it incurs a massive performance overhead. I only use it for framework-level code or plugin architectures, never in high-performance application logic.",
+    "explanation": "**\ud83e\ude9e The X-Ray Machine Analogy:**\n\u2022 **Normal Code:** You look at a person and see their clothes. You interact with them normally. It's fast and natural.\n\u2022 **Reflection (The X-Ray):** You put the person through a massive medical X-Ray machine to look at their internal organs and bones (Private properties). You can see absolutely everything, but the X-Ray machine is incredibly slow, expensive to run, and completely ignores the clothes (Access Modifiers) they are wearing.",
+    "diagram": "flowchart TD\n    C[C# Code] -->|typeof(User)| R[Reflection API]\n    R -->|Reads Metadata| A[Assembly DLL]\n    R -->|Dynamically Invokes| M[Private Method()]\n    style R fill:#ffebcc,stroke:#ff9900",
+    "example": "public class SecretBox {\n    private string _secretCode = \"1234\";\n}\n\nvar box = new SecretBox();\n// box._secretCode; // \u274c COMPILER ERROR! It's private.\n\n// \u2705 REFLECTION: Bypassing the compiler to steal the private variable\nType type = box.GetType();\nFieldInfo field = type.GetField(\"_secretCode\", BindingFlags.NonPublic | BindingFlags.Instance);\n\nstring stolenCode = (string)field.GetValue(box);\nConsole.WriteLine(stolenCode); // Prints: 1234",
+    "followUps": []
+  },
+  {
+    "id": 20,
+    "sectionId": "csharp",
+    "difficulty": "hard",
+    "question": "What are Async Streams (IAsyncEnumerable) in C#?",
+    "answer": "IAsyncEnumerable allows you to 'yield return' data asynchronously. Instead of waiting for an entire database table to download before processing it, you process rows one-by-one as they arrive over the network.",
+    "whyAsked": "This is a C# 8+ feature that solves massive memory bottlenecks when pulling thousands of records from an API or Database.",
+    "mistakes": [
+      "Returning a `Task<IEnumerable<T>>` instead of `IAsyncEnumerable<T>`. (The former waits for the entire list to finish downloading before returning anything).",
+      "Forgetting to use `await foreach`."
+    ],
+    "interviewPitch": "`IAsyncEnumerable<T>` (Async Streams) was introduced in C# 8. Normally, if you return a `Task<IEnumerable<T>>`, the caller must wait for the entire collection to be fully materialized in memory before they can process the first item. `IAsyncEnumerable<T>` allows you to asynchronously yield elements one at a time as they become available. This drastically reduces memory consumption and time-to-first-byte when streaming large amounts of data from APIs or databases.",
+    "explanation": "**\ud83c\udf63 The Sushi Conveyor Belt Analogy:**\n\u2022 **Task<IEnumerable> (The Traditional Restaurant):** You order 50 pieces of sushi. The chef makes all 50 pieces in the kitchen. You sit at the table waiting for 30 minutes with no food. Finally, the waiter brings out a massive platter of 50 pieces at once.\n\u2022 **IAsyncEnumerable (The Conveyor Belt):** You sit at the bar. Every time the chef finishes 1 piece of sushi, he puts it on the belt (`yield return`). You eat it immediately while he makes the next one. You don't have to wait 30 minutes, and the table (Your RAM) never gets cluttered with 50 plates.",
+    "diagram": "sequenceDiagram\n    participant App as C# foreach loop\n    participant API as Database/API\n    \n    Note over App, API: Task<IEnumerable>\n    App->>API: Give me 100 rows\n    API-->>API: Processing... (5 seconds)\n    API-->>App: Returns all 100 rows at once\n    \n    Note over App, API: IAsyncEnumerable\n    App->>API: Give me 100 rows\n    API-->>App: Returns Row 1 (instantly)\n    App->>App: Process Row 1\n    API-->>App: Returns Row 2\n    App->>App: Process Row 2",
+    "example": "// \u2705 PRODUCER: Streams data slowly over the network\npublic async IAsyncEnumerable<int> GetNumbersAsync()\n{\n    for (int i = 0; i < 10; i++)\n    {\n        await Task.Delay(1000); // Simulate network latency\n        yield return i;         // Send 1 item immediately!\n    }\n}\n\n// \u2705 CONSUMER: Processes items as they arrive\npublic async Task ProcessAsync()\n{\n    // Notice the 'await foreach' syntax!\n    await foreach (var number in GetNumbersAsync())\n    {\n        Console.WriteLine(number);\n    }\n}",
+    "followUps": []
+  },
+  {
+    "id": 21,
+    "sectionId": "csharp",
+    "difficulty": "hard",
+    "question": "What is ValueTask and when should you use it instead of Task?",
+    "answer": "ValueTask is a struct version of Task. It prevents unnecessary memory allocations on the heap when a method returns synchronously.",
+    "whyAsked": "This is a low-latency, high-performance optimization question. It shows you understand the Garbage Collector impact of async/await.",
+    "mistakes": [
+      "Awaiting a `ValueTask` twice. (You can't do this. Once awaited, its state is consumed).",
+      "Using `ValueTask` everywhere. (It actually has a slight overhead compared to `Task` if the method *always* completes asynchronously)."
+    ],
+    "interviewPitch": "A standard `Task` is a class, meaning every time an async method is called, an object is allocated on the heap, putting pressure on the Garbage Collector. `ValueTask` is a struct (a value type). If an async method often completes synchronously (for example, if the requested data is already in a local cache), returning a `ValueTask` completely avoids the heap allocation. You should only use it in extremely high-throughput, performance-critical code paths where profiling has proven that standard `Task` allocations are causing GC bottlenecks.",
+    "explanation": "**\ud83c\udf9f\ufe0f The Rollercoaster Ticket Analogy:**\n\u2022 **`Task` (A Hard Plastic VIP Badge):** Every time you ask to ride, the park manufactures a thick plastic badge with your name on it. If you ride 10,000 times, they create 10,000 plastic badges that end up in the trash (Garbage Collection overhead).\n\u2022 **`ValueTask` (A Temporary Paper Stamp):** If the ride has no line (Synchronous completion), they just stamp your hand. It costs nothing and creates no trash. If the ride has a long line (Asynchronous), they still give you the plastic badge.",
+    "diagram": "flowchart TD\n    Call[Call GetUserAsync()]\n    Call --> Check{Is User in Cache?}\n    \n    Check -->|Yes (Sync)| Sync[Return Data Instantly]\n    Sync -.->|Task| T1[Allocates Class on Heap \u274c]\n    Sync -.->|ValueTask| V1[No Allocation! Struct on Stack \u2705]\n    \n    Check -->|No (Async)| Async[Await Database Call]\n    Async -.->|Both Task and ValueTask| T2[Allocate state machine on Heap]",
+    "example": "// Let's say this method is called 50,000 times a second.\npublic async ValueTask<User> GetUserAsync(int id)\n{\n    // 99% of the time, the user is in the cache.\n    // Because we use ValueTask, this returns synchronously with ZERO heap allocation!\n    if (_cache.TryGetValue(id, out var user))\n        return user;\n\n    // 1% of the time, we hit the database.\n    return await _db.Users.FindAsync(id);\n}"
   }
 ]

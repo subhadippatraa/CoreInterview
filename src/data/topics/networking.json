@@ -1,6 +1,6 @@
 [
   {
-    "id": 40,
+    "id": 60,
     "sectionId": "networking",
     "difficulty": "medium",
     "question": "What happens when you type a URL into your browser and press Enter?",
@@ -16,7 +16,7 @@
     "example": "// \ud83c\udf10 THE DNS LOOKUP (What happens behind the scenes)\n// Domain: www.example.com\n// IP: 93.184.216.34\n\n// \ud83c\udf10 THE RAW HTTP REQUEST\nGET / HTTP/1.1\nHost: www.example.com\nUser-Agent: Mozilla/5.0 (Windows NT 10.0)\nAccept: text/html\n\n// \ud83c\udf10 THE RAW HTTP RESPONSE\nHTTP/1.1 200 OK\nContent-Type: text/html\n\n<html><body>Hello World!</body></html>"
   },
   {
-    "id": 41,
+    "id": 61,
     "sectionId": "networking",
     "difficulty": "hard",
     "question": "What is the difference between REST and gRPC?",
@@ -32,7 +32,7 @@
     "example": "// \u274c REST JSON (Heavy - 40 bytes)\n{\n  \"id\": 123,\n  \"name\": \"Alice\",\n  \"isActive\": true\n}\n\n\n// \u2705 gRPC PROTOBUF (Lightweight - ~8 bytes)\n// You define a strict 'contract' file.\nsyntax = \"proto3\";\n\nmessage User {\n  int32 id = 1;\n  string name = 2;\n  bool is_active = 3;\n}\n\n// The code automatically generates the classes for you in C#, Python, Go, etc!"
   },
   {
-    "id": 42,
+    "id": 62,
     "sectionId": "networking",
     "difficulty": "medium",
     "question": "What are WebSockets and how are they different from HTTP?",

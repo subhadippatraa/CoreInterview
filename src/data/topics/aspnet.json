@@ -1,6 +1,6 @@
 [
   {
-    "id": 16,
+    "id": 35,
     "sectionId": "aspnet",
     "difficulty": "medium",
     "question": "How does the ASP.NET Core middleware pipeline work?",
@@ -17,7 +17,7 @@
     "example": "// \u2699\ufe0f Program.cs - ORDER MATTERS!\nvar app = builder.Build();\n\n// 1. Catches all crashes. Must be first!\napp.UseExceptionHandler(\"/Error\"); \n\n// 2. Returns images instantly without hitting controllers.\napp.UseStaticFiles(); \n\n// 3. Checks WHO you are.\napp.UseAuthentication(); \n\n// 4. Checks WHAT you are allowed to do.\napp.UseAuthorization(); \n\n// 5. Actually runs your C# code.\napp.MapControllers(); \n\napp.Run();\n\n\n// \ud83d\ude80 HOW TO WRITE CUSTOM MIDDLEWARE\napp.Use(async (context, next) => {\n    // --- THIS HAPPENS ON THE WAY IN ---\n    Console.WriteLine(\"1. Request arrived!\");\n    \n    // Pass the request to the next worker in line.\n    // If you forget this line, the app freezes!\n    await next(context); \n    \n    // --- THIS HAPPENS ON THE WAY OUT ---\n    Console.WriteLine(\"2. Response is leaving!\");\n});"
   },
   {
-    "id": 17,
+    "id": 36,
     "sectionId": "aspnet",
     "difficulty": "easy",
     "question": "What is ASP.NET Core? How is it different from old ASP.NET?",
@@ -33,7 +33,7 @@
     "example": "// \u274c THE OLD WAY (Global.asax)\n// Hidden magic, tightly tied to Windows IIS.\nprotected void Application_Start() {\n    RouteConfig.RegisterRoutes(RouteTable.Routes);\n}\n\n// \u2705 THE ASP.NET CORE WAY (Program.cs)\n// Completely visible, runs on a built-in cross-platform server.\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\napp.MapGet(\"/\", () => \"Hello World from anywhere!\");\n\napp.Run();"
   },
   {
-    "id": 18,
+    "id": 37,
     "sectionId": "aspnet",
     "difficulty": "medium",
     "question": "What is Dependency Injection and what are the 3 service lifetimes in ASP.NET Core?",
@@ -49,7 +49,7 @@
     "example": "// \u2699\ufe0f PROGRAM.CS\nvar builder = WebApplication.CreateBuilder(args);\n\n// 1. TRANSIENT: Brand new object every time anyone asks.\nbuilder.Services.AddTransient<IEmailSender, EmailSender>();\n\n// 2. SCOPED: Shared during a single HTTP request, then destroyed.\nbuilder.Services.AddScoped<IUserRepository, UserRepository>();\n\n// 3. SINGLETON: Created once, shared by EVERYONE forever.\nbuilder.Services.AddSingleton<ICacheService, CacheService>();\n\nvar app = builder.Build();\n\n// \ud83d\ude80 USAGE IN A CONTROLLER\npublic class UserController : ControllerBase {\n    private readonly IUserRepository _repo;\n    \n    // The DI Container magically hands us the repository!\n    public UserController(IUserRepository repo) {\n        _repo = repo;\n    }\n}"
   },
   {
-    "id": 19,
+    "id": 38,
     "sectionId": "aspnet",
     "difficulty": "medium",
     "question": "How does routing work in ASP.NET Core?",
@@ -65,7 +65,7 @@
     "example": "// \u2705 ATTRIBUTE ROUTING (The Modern API Way)\n\n[ApiController] // Tells ASP.NET this is an API\n[Route(\"api/[controller]\")] // Automatically uses the class name (\"api/users\")\npublic class UsersController : ControllerBase {\n    \n    // 1. Matches: GET /api/users\n    [HttpGet]\n    public IActionResult GetAll() {\n        return Ok(\"All users\");\n    }\n    \n    // 2. Matches: GET /api/users/5\n    // The {id} is extracted from the URL and passed to the method!\n    [HttpGet(\"{id}\")]\n    public IActionResult GetById(int id) {\n        return Ok($\"User {id}\");\n    }\n    \n    // 3. Matches: POST /api/users\n    [HttpPost]\n    public IActionResult Create(User user) {\n        return Created(\"\", user);\n    }\n}"
   },
   {
-    "id": 20,
+    "id": 39,
     "sectionId": "aspnet",
     "difficulty": "medium",
     "question": "How do you handle global exceptions in ASP.NET Core?",
@@ -81,7 +81,7 @@
     "example": "// \u2699\ufe0f PROGRAM.CS\nvar app = builder.Build();\n\n// 1. Put the Safety Net at the VERY TOP of the pipeline.\nif (app.Environment.IsDevelopment()) {\n    app.UseDeveloperExceptionPage(); // Shows the ugly stack trace (Only for you)\n} else {\n    app.UseExceptionHandler(\"/error\"); // Shows a clean error page (For users)\n}\n\n// ... other middleware ...\n\n\n// \ud83d\ude80 HOW TO RETURN A CLEAN API ERROR (Modern C# 8+)\napp.UseExceptionHandler(errorApp => {\n    errorApp.Run(async context => {\n        context.Response.StatusCode = 500;\n        context.Response.ContentType = \"application/json\";\n        \n        // Create a standard, safe error message\n        var error = new { message = \"Something went wrong. Try again later.\" };\n        await context.Response.WriteAsJsonAsync(error);\n    });\n});"
   },
   {
-    "id": 21,
+    "id": 40,
     "sectionId": "aspnet",
     "difficulty": "hard",
     "question": "How do you implement JWT authentication in ASP.NET Core?",
@@ -97,7 +97,7 @@
     "example": "// \u2699\ufe0f PROGRAM.CS (Setting up the Bouncer)\nbuilder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)\n    .AddJwtBearer(options => {\n        options.TokenValidationParameters = new TokenValidationParameters {\n            ValidateIssuerSigningKey = true,\n            // The Secret Key that proves we made the token\n            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(\"SuperSecretKey123!\")),\n            ValidateIssuer = false,\n            ValidateAudience = false\n        };\n    });\n\n\n// \ud83d\udd12 CONTROLLER (Protecting the VIP Room)\n[ApiController]\n[Route(\"api/[controller]\")]\npublic class SecretController : ControllerBase {\n    \n    [HttpGet]\n    [Authorize] // \ud83d\uded1 BOUNCER: Only people with valid JWTs can enter!\n    public IActionResult GetSecretData() {\n        // We can safely read data from the token payload!\n        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;\n        return Ok($\"Welcome to the VIP room, User {userId}\");\n    }\n}"
   },
   {
-    "id": 22,
+    "id": 41,
     "sectionId": "aspnet",
     "difficulty": "easy",
     "question": "What is model binding and model validation in ASP.NET Core?",
@@ -112,7 +112,7 @@
     "example": "// 1. THE C# OBJECT WITH RULES (Data Annotations)\npublic class RegisterUserRequest {\n    [Required(ErrorMessage = \"Name is absolutely required!\")]\n    [MaxLength(50)]\n    public string Name { get; set; }\n\n    [Required]\n    [EmailAddress] // Automatically checks for the @ symbol!\n    public string Email { get; set; }\n    \n    [Range(18, 99)]\n    public int Age { get; set; }\n}\n\n// 2. THE CONTROLLER\n[ApiController]\n[Route(\"api/[controller]\")]\npublic class UsersController : ControllerBase {\n    \n    [HttpPost]\n    public IActionResult Register([FromBody] RegisterUserRequest request) {\n        // \u2728 MAGIC:\n        // If the JSON is missing an email, or Age is 12, this code NEVER RUNS.\n        // ASP.NET automatically returns a 400 Bad Request before we get here.\n        \n        _db.Users.Add(request);\n        return Ok(\"Registered!\");\n    }\n}"
   },
   {
-    "id": 23,
+    "id": 42,
     "sectionId": "aspnet",
     "difficulty": "medium",
     "question": "What is the difference between Minimal APIs and Controller-based APIs?",
@@ -128,7 +128,7 @@
     "example": "// \u274c THE CONTROLLER WAY (Lots of boilerplate for a simple task)\n[ApiController]\n[Route(\"api/[controller]\")]\npublic class HelloController : ControllerBase {\n    [HttpGet]\n    public IActionResult SayHello() {\n        return Ok(\"Hello World\");\n    }\n}\n\n// \u2705 THE MINIMAL API WAY (1 line of code!)\nvar app = builder.Build();\n\napp.MapGet(\"/api/hello\", () => \"Hello World\");\n\napp.Run();"
   },
   {
-    "id": 24,
+    "id": 43,
     "sectionId": "aspnet",
     "difficulty": "medium",
     "question": "What is CORS and how do you configure it in ASP.NET Core?",
@@ -144,7 +144,7 @@
     "example": "// \u2699\ufe0f PROGRAM.CS\nvar builder = WebApplication.CreateBuilder(args);\n\n// 1. CREATE THE VIP GUEST LIST\nbuilder.Services.AddCors(options => {\n    options.AddPolicy(\"AllowMyFrontend\", policy => {\n        policy.WithOrigins(\"https://my-frontend-website.com\") // Only this site!\n              .AllowAnyHeader()\n              .AllowAnyMethod(); // Allows GET, POST, PUT, etc.\n    });\n});\n\nvar app = builder.Build();\n\n// 2. TELL THE BOUNCER TO USE THE LIST\n// \u26a0\ufe0f CRITICAL: Must be placed BEFORE UseAuthorization()\napp.UseCors(\"AllowMyFrontend\"); \n\napp.MapControllers();\napp.Run();"
   },
   {
-    "id": 25,
+    "id": 44,
     "sectionId": "aspnet",
     "difficulty": "hard",
     "question": "What are Action Filters in ASP.NET Core?",
@@ -157,5 +157,22 @@
     "explanation": "**\ud83c\udfdf\ufe0f The Stadium Security Analogy:**\n\u2022 **Middleware (The Parking Lot Attendant):** Checks EVERY single car that enters the stadium property. \n\u2022 **Action Filter (The VIP Lounge Guard):** You only encounter this guard if you try to enter the VIP Lounge (a specific Controller). He checks your ticket right *before* you walk in, and he says goodbye right *after* you walk out. \n\n**Why use Filters instead of Middleware?**\nIf you want to log something for *every single request* (even missing images), use Middleware. If you want to log something *only when a user hits the `PurchaseItem` method*, use an Action Filter.",
     "diagram": "flowchart TD\n    R[Request reaches MVC Pipeline] --> F1[Filter: OnActionExecuting]\n    F1 --> C[Controller Method Runs]\n    C --> F2[Filter: OnActionExecuted]\n    F2 --> Res[Response returned]",
     "example": "// 1. CREATE THE FILTER\npublic class LogExecutionTimeFilter : IActionFilter {\n    private Stopwatch _timer;\n\n    // Runs right BEFORE the controller method\n    public void OnActionExecuting(ActionExecutingContext context) {\n        _timer = Stopwatch.StartNew();\n    }\n\n    // Runs right AFTER the controller method finishes\n    public void OnActionExecuted(ActionExecutedContext context) {\n        _timer.Stop();\n        Console.WriteLine($\"Method {context.ActionDescriptor.DisplayName} took {_timer.ElapsedMilliseconds} ms\");\n    }\n}\n\n// 2. ATTACH IT TO A SPECIFIC CONTROLLER METHOD\n[ApiController]\n[Route(\"api/[controller]\")]\npublic class HeavyMathController : ControllerBase {\n    \n    // \u2728 The filter will only wrap around this specific method!\n    [ServiceFilter(typeof(LogExecutionTimeFilter))]\n    [HttpGet(\"calculate\")]\n    public IActionResult DoHeavyMath() {\n        Thread.Sleep(2000); // Simulate heavy work\n        return Ok(\"Math done!\");\n    }\n}"
+  },
+  {
+    "id": 45,
+    "sectionId": "aspnet",
+    "difficulty": "medium",
+    "question": "What is IHttpClientFactory and why should you use it?",
+    "answer": "It is a factory that safely manages HTTP connections. If you manually create `new HttpClient()`, you will leave network sockets open and eventually crash your server (Socket Exhaustion).",
+    "whyAsked": "Manually creating HttpClients is the #1 cause of microservice crashes in production. Interviewers need to know you won't bring down the system.",
+    "mistakes": [
+      "Using `using (var client = new HttpClient())`. (Even though it is disposed, the OS keeps the socket open in a TIME_WAIT state for 4 minutes).",
+      "Making `HttpClient` a singleton without setting `PooledConnectionLifetime`. (It won't respect DNS changes)."
+    ],
+    "interviewPitch": "`IHttpClientFactory` was introduced in ASP.NET Core 2.1 to solve two major problems with `HttpClient`: Socket Exhaustion and stale DNS changes. When you instantiate and dispose `HttpClient` inside a loop, the underlying OS socket isn't closed immediately, leading to Socket Exhaustion. If you make it a Singleton, it holds onto the DNS IP address forever, meaning if the target API changes servers, your app breaks. `IHttpClientFactory` solves this by pooling and managing the lifetime of the underlying `HttpMessageHandler`.",
+    "explanation": "**\u260e\ufe0f The Walkie-Talkie Analogy:**\n\u2022 **`new HttpClient()` (Buying a Walkie-Talkie):** You need to talk to Bob. You go to the store, buy a walkie-talkie, say \"Hi Bob\", and throw the walkie-talkie in the trash. If you do this 10,000 times, the trash gets full, the store runs out of walkie-talkies, and the city shuts down (Socket Exhaustion).\n\u2022 **`IHttpClientFactory` (The Radio Room):** You walk into a radio room where an operator is holding a permanently open line to Bob. You borrow the microphone, say \"Hi Bob\", and hand the microphone back to the operator. It is incredibly efficient.",
+    "diagram": "flowchart TD\n    subgraph The Bad Way (Socket Exhaustion)\n    R1[Request 1] -->|new HttpClient()| S1[Socket 1 (Locked for 4 mins!)]\n    R2[Request 2] -->|new HttpClient()| S2[Socket 2 (Locked for 4 mins!)]\n    end\n    \n    subgraph IHttpClientFactory (The Good Way)\n    R3[Request 3] --> F[Factory]\n    R4[Request 4] --> F\n    F -->|Reuses Connection| S3[Pooled Socket]\n    end\n    style S1 fill:#ffcccc,stroke:#cc0000\n    style S3 fill:#ccffcc,stroke:#00cc00",
+    "example": "// \u274c DISASTER WAITING TO HAPPEN\npublic async Task CallApiBad()\n{\n    using var client = new HttpClient(); // NEVER DO THIS!\n    await client.GetAsync(\"http://api.com\");\n}\n\n// \u2705 THE PROFESSIONAL WAY\npublic class MyService\n{\n    private readonly IHttpClientFactory _factory;\n    public MyService(IHttpClientFactory factory) => _factory = factory;\n\n    public async Task CallApiGood()\n    {\n        // We ask the factory to loan us an HTTP Client from the pool\n        var client = _factory.CreateClient();\n        await client.GetAsync(\"http://api.com\");\n    }\n}",
+    "followUps": []
   }
 ]

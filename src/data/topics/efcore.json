@@ -1,6 +1,6 @@
 [
   {
-    "id": 26,
+    "id": 46,
     "sectionId": "efcore",
     "difficulty": "easy",
     "question": "What is Entity Framework Core? Code-First vs Database-First?",
@@ -16,7 +16,7 @@
     "example": "// 1. You write this simple C# class (The Blueprint)\npublic class User {\n    public int Id { get; set; }\n    public string Name { get; set; }\n}\n\n// 2. You tell EF Core to build it using \"Migrations\"\n// Terminal Command: dotnet ef database update\n\n// 3. EF Core secretly writes and runs this SQL for you:\n/*\nCREATE TABLE Users (\n    Id INT PRIMARY KEY IDENTITY,\n    Name NVARCHAR(MAX)\n);\n*/"
   },
   {
-    "id": 27,
+    "id": 47,
     "sectionId": "efcore",
     "difficulty": "medium",
     "question": "What is the difference between Eager Loading and Lazy Loading?",
@@ -32,7 +32,7 @@
     "example": "// \u2705 EAGER LOADING (The Safe Way)\nvar user = await db.Users\n    .Include(u => u.Orders)     // Grab orders right now!\n    .FirstAsync();              // Hits the database ONCE.\n\n// We already have the orders, no extra database trips needed.\nConsole.WriteLine(user.Orders.Count);\n\n\n// \u26a0\ufe0f LAZY LOADING (The Dangerous Way)\nvar user = await db.Users.FirstAsync(); // Hits the database ONCE.\n\n// Oh wait! We are asking for the Orders now.\n// EF Core silently pauses the program and hits the database AGAIN!\nConsole.WriteLine(user.Orders.Count);"
   },
   {
-    "id": 28,
+    "id": 48,
     "sectionId": "efcore",
     "difficulty": "hard",
     "question": "What is the N+1 query problem and how do you fix it?",
@@ -49,7 +49,7 @@
     "example": "// \u274c THE BAD WAY (Makes 101 trips to the database!)\nvar users = await db.Users.ToListAsync(); // Trip 1\n\nforeach (var user in users) {\n    // DANGER: We are inside a loop!\n    // Just typing 'user.Orders' makes EF Core secretly talk to the database.\n    var orderCount = user.Orders.Count;   // Trips 2 through 101 happen here!\n    Console.WriteLine($\"{user.Name} has {orderCount} orders\");\n}\n\n\n// \u2705 THE GOOD WAY (Makes exactly 1 trip to the database!)\nvar users = await db.Users\n    .Include(u => u.Orders)               // <-- THE MAGIC FIX!\n    .ToListAsync();                       // Trip 1 (and only trip)\n\nforeach (var user in users) {\n    // EF Core already got the orders, so it doesn't need to talk to the database again.\n    Console.WriteLine($\"{user.Name} has {user.Orders.Count} orders\");\n}"
   },
   {
-    "id": 29,
+    "id": 49,
     "sectionId": "efcore",
     "difficulty": "easy",
     "question": "What is AsNoTracking() and when should you use it?",
@@ -65,7 +65,7 @@
     "example": "// \u274c THE SLOW WAY (Wastes memory tracking changes we never make)\nvar users = await db.Users.ToListAsync();\nreturn Ok(users); // We are just returning them to a webpage!\n\n\n// \u2705 THE FAST WAY (Tells EF Core not to track them)\nvar users = await db.Users\n    .AsNoTracking()         // <-- The magic speed boost!\n    .ToListAsync();\nreturn Ok(users);\n\n\n// \u26a0\ufe0f THE MISTAKE (Updating untracked data)\nvar user = await db.Users.AsNoTracking().FirstAsync();\nuser.Name = \"Bob\";\n\n// Nothing happens! EF Core wasn't tracking the user, \n// so it doesn't know the name changed.\nawait db.SaveChangesAsync(); "
   },
   {
-    "id": 30,
+    "id": 50,
     "sectionId": "efcore",
     "difficulty": "medium",
     "question": "What is the Repository Pattern with EF Core? Should you use it?",

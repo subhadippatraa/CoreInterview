@@ -1,6 +1,6 @@
 [
   {
-    "id": 47,
+    "id": 67,
     "sectionId": "devops",
     "difficulty": "medium",
     "question": "What is the difference between a Virtual Machine and a Container?",
@@ -16,7 +16,7 @@
     "example": "# \u274c VIRTUAL MACHINE\n# Boot Time: ~2 Minutes\n# Size: ~20 Gigabytes (Requires full Windows/Ubuntu install)\n\n\n# \u2705 CONTAINER\n# Boot Time: ~200 Milliseconds\n# Size: ~50 Megabytes (Only requires your app's code)"
   },
   {
-    "id": 48,
+    "id": 68,
     "sectionId": "devops",
     "difficulty": "easy",
     "question": "What is Docker and why do we use it?",
@@ -32,7 +32,7 @@
     "example": "# \u2699\ufe0f DOCKERFILE (The Recipe for the Box)\n\n# 1. Start with a tiny Linux machine\nFROM mcr.microsoft.com/dotnet/aspnet:8.0\n\n# 2. Copy my compiled code into the machine\nCOPY ./publish /app\n\n# 3. Go to that folder\nWORKDIR /app\n\n# 4. Tell it what command to run when it turns on\nENTRYPOINT [\"dotnet\", \"MyWebApi.dll\"]\n\n# --- TERMINAL COMMANDS ---\n# docker build -t my-api .    <-- Builds the box\n# docker run -p 80:80 my-api  <-- Runs the box"
   },
   {
-    "id": 49,
+    "id": 69,
     "sectionId": "devops",
     "difficulty": "medium",
     "question": "What is CI/CD? Explain a typical pipeline.",
@@ -48,7 +48,7 @@
     "example": "# \u2699\ufe0f GITHUB ACTIONS PIPELINE (yaml)\nname: Deploy My App\n\n# Run this script whenever someone pushes to 'main'\non:\n  push:\n    branches: [ \"main\" ]\n\njobs:\n  build-and-test:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v4\n    \n    - name: Run Tests \ud83e\uddea\n      run: dotnet test\n      \n    - name: Build Docker Image \ud83d\udce6\n      run: docker build -t my-app .\n      \n    - name: Deploy to Server \ud83d\ude80\n      run: ./deploy-script.sh"
   },
   {
-    "id": 50,
+    "id": 70,
     "sectionId": "devops",
     "difficulty": "hard",
     "question": "What is Kubernetes (K8s) and why is it used?",

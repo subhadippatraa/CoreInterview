@@ -1,6 +1,6 @@
 [
   {
-    "id": 31,
+    "id": 51,
     "sectionId": "dbms",
     "difficulty": "medium",
     "question": "What is the difference between clustered and non-clustered indexes?",
@@ -16,7 +16,7 @@
     "example": "-- \u2705 THE CLUSTERED INDEX (Usually happens automatically)\n-- By marking UserId as PRIMARY KEY, SQL Server automatically \n-- physically sorts the table by UserId.\nCREATE TABLE Users (\n    UserId INT PRIMARY KEY, \n    Email VARCHAR(100),\n    Age INT\n);\n\n-- \u2705 THE NON-CLUSTERED INDEX\n-- We search by Email a lot, so we create a separate lookup table.\nCREATE NONCLUSTERED INDEX IX_Users_Email \nON Users (Email);\n\n-- \ud83d\ude80 FAST QUERY:\n-- The database uses IX_Users_Email to instantly find the row pointer!\nSELECT * FROM Users WHERE Email = 'bob@test.com';"
   },
   {
-    "id": 32,
+    "id": 52,
     "sectionId": "dbms",
     "difficulty": "hard",
     "question": "What are ACID properties in databases?",
@@ -32,7 +32,7 @@
     "example": "-- \u2705 HOW TO ENFORCE ATOMICITY IN SQL\nBEGIN TRANSACTION;\n\nBEGIN TRY\n    -- Step 1: Subtract from Alice\n    UPDATE Accounts SET Balance = Balance - 100 WHERE Name = 'Alice';\n    \n    -- Step 2: Add to Bob\n    UPDATE Accounts SET Balance = Balance + 100 WHERE Name = 'Bob';\n    \n    -- If both steps succeed, we permanently save it (Durability)\n    COMMIT TRANSACTION;\nEND TRY\nBEGIN CATCH\n    -- If ANY step fails, we undo everything! (Atomicity)\n    ROLLBACK TRANSACTION;\nEND CATCH"
   },
   {
-    "id": 33,
+    "id": 53,
     "sectionId": "dbms",
     "difficulty": "medium",
     "question": "What is the difference between Stored Procedures and Inline SQL?",
@@ -48,7 +48,7 @@
     "example": "// \u274c INLINE SQL (The old, dangerous way)\n// Vulnerable to SQL Injection!\nstring sql = \"SELECT * FROM Users WHERE Name = '\" + userName + \"'\";\ndbCommand.CommandText = sql;\n\n// \u2705 INLINE SQL (The modern Entity Framework way)\n// EF Core safely generates parameterized SQL for you.\nvar users = dbContext.Users.Where(u => u.Name == userName).ToList();\n\n\n// \u2699\ufe0f CALLING A STORED PROCEDURE\n// The actual SQL logic is hidden inside the database.\nvar users = dbContext.Users.FromSqlRaw(\"EXECUTE dbo.GetActiveUsers\").ToList();"
   },
   {
-    "id": 34,
+    "id": 54,
     "sectionId": "dbms",
     "difficulty": "easy",
     "question": "What is the difference between SQL and NoSQL databases?",
@@ -64,7 +64,7 @@
     "example": "-- \u2705 SQL (Rigid Schema)\n-- You MUST define the exact data types beforehand.\nCREATE TABLE Users (\n    Id INT PRIMARY KEY,\n    Name VARCHAR(100) NOT NULL,\n    Age INT\n);\n\n\n// \u2705 NoSQL (Flexible JSON)\n// You can just throw this straight into MongoDB.\n{\n    \"id\": 1,\n    \"name\": \"Alice\",\n    \"age\": 25,\n    \"favoriteFoods\": [\"Pizza\", \"Tacos\"], // Lists are easy!\n    \"address\": {                         // Nested objects are easy!\n        \"city\": \"New York\",\n        \"zip\": \"10001\"\n    }\n}"
   },
   {
-    "id": 35,
+    "id": 55,
     "sectionId": "dbms",
     "difficulty": "hard",
     "question": "What are database transactions and how do deadlocks occur?",

@@ -1,6 +1,6 @@
 [
   {
-    "id": 43,
+    "id": 63,
     "sectionId": "systemdesign",
     "difficulty": "easy",
     "question": "What is the difference between Horizontal and Vertical Scaling?",
@@ -16,7 +16,7 @@
     "example": "# \u274c THE LIMITS OF VERTICAL SCALING\n# AWS largest server: 448 vCPUs and 12,288 GiB of RAM.\n# It costs ~$100,000 a month. Once you max this out, you are stuck.\n\n# \u2705 THE POWER OF HORIZONTAL SCALING\n# Netflix doesn't run on one $100,000 server.\n# Netflix runs on 100,000 cheap, small servers."
   },
   {
-    "id": 44,
+    "id": 64,
     "sectionId": "systemdesign",
     "difficulty": "medium",
     "question": "What is Caching and when should you use it?",
@@ -32,7 +32,7 @@
     "example": "// \u2705 THE CACHE-ASIDE PATTERN IN C#\npublic async Task<User> GetUserAsync(int id)\n{\n    // 1. Check the fast Cache first\n    var user = await _cache.GetAsync($\"user_{id}\");\n    \n    if (user == null)\n    {\n        // 2. Cache miss! Do the slow Database work\n        user = await _db.Users.FindAsync(id);\n        \n        // 3. Save it in the cache for 10 minutes\n        await _cache.SetAsync($\"user_{id}\", user, TimeSpan.FromMinutes(10));\n    }\n    \n    return user;\n}"
   },
   {
-    "id": 45,
+    "id": 65,
     "sectionId": "systemdesign",
     "difficulty": "easy",
     "question": "What is a Load Balancer and how does it work?",
@@ -48,7 +48,7 @@
     "example": "# \u2699\ufe0f LOAD BALANCING ALGORITHMS\n\n# 1. Round Robin:\n# Gives 1 request to A, 1 to B, 1 to C. Then repeats.\n\n# 2. Least Connections:\n# Checks which server is currently handling the fewest active requests.\n\n# 3. IP Hash:\n# Does math on the User's IP Address to ensure Bob ALWAYS goes to Server B.\n# (Useful for legacy apps that require Sticky Sessions)."
   },
   {
-    "id": 46,
+    "id": 66,
     "sectionId": "systemdesign",
     "difficulty": "medium",
     "question": "What are Message Queues (RabbitMQ/Kafka) and when should you use them?",

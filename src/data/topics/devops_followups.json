@@ -1,6 +1,6 @@
 [
   {
-    "questionId": 47,
+    "questionId": 67,
     "followUps": [
       {
         "question": "What is the difference between a Docker image and a container?",

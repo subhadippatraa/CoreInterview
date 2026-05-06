@@ -1,0 +1,121 @@
+[
+  {
+    "id": 28,
+    "sectionId": "architecture",
+    "difficulty": "medium",
+    "question": "What are common Design Patterns in .NET (Singleton, Factory)?",
+    "answer": "Design patterns are proven solutions to common software problems. Singleton ensures only one instance exists. Factory creates objects without exposing the instantiation logic.",
+    "whyAsked": "Tests if you can architect code that is scalable and maintainable, rather than just writing massive 'spaghetti' functions.",
+    "mistakes": [
+      "Not knowing how to make a Singleton thread-safe in C# (you need a `lock` or `Lazy<T>`).",
+      "Using the Singleton pattern for everything (it is essentially a global variable and an anti-pattern if overused)."
+    ],
+    "interviewPitch": "Design patterns are standard architectural solutions to recurring problems. The **Singleton Pattern** restricts the instantiation of a class to exactly one object. In modern .NET, we almost never write manual Singletons; we just register them as `builder.Services.AddSingleton()` in the DI container. The **Factory Pattern** provides an interface for creating objects in a superclass, but allows subclasses to alter the type of objects that will be created. We use Factories to abstract away complex object creation logic, making our code loosely coupled.",
+    "explanation": "**\ud83c\udfed The Car Factory Analogy:**\n\u2022 **Normal Code:** You want a car. You personally go buy steel, weld the chassis, install the engine, and paint it. If you want 10 cars, you have to write the welding code 10 times.\n\u2022 **Factory Pattern:** You just call `CarFactory.Create(\"Mustang\")`. The factory handles all the complex welding and parts assembly behind closed doors, and just hands you the finished keys.",
+    "diagram": "flowchart TD\n    Client --> Factory[Vehicle Factory]\n    Factory -->|Creates| Car[Car Object]\n    Factory -->|Creates| Truck[Truck Object]\n    Factory -->|Creates| Bike[Bike Object]",
+    "example": "// \u2705 THREAD-SAFE SINGLETON (The modern C# way)\npublic class Logger\n{\n    // Lazy<T> guarantees thread safety automatically!\n    private static readonly Lazy<Logger> _instance = new(() => new Logger());\n    \n    public static Logger Instance => _instance.Value;\n    \n    private Logger() { } // Private constructor\n}",
+    "followUps": []
+  },
+  {
+    "id": 29,
+    "sectionId": "architecture",
+    "difficulty": "hard",
+    "question": "What is SOLID and can you explain each principle?",
+    "answer": "SOLID is an acronym for 5 design principles: Single Responsibility, Open-Closed, Liskov Substitution, Interface Segregation, and Dependency Inversion. They make object-oriented designs more understandable, flexible, and maintainable.",
+    "whyAsked": "This is a mandatory question for any mid-to-senior level backend role. It proves you write code that doesn't break when requirements change.",
+    "mistakes": [
+      "Memorizing the acronym but failing to provide a real-world code violation example.",
+      "Confusing Dependency Inversion with Dependency Injection."
+    ],
+    "interviewPitch": "**S**ingle Responsibility: A class should have only one reason to change (e.g., a User class shouldn't contain email-sending logic). **O**pen-Closed: Classes should be open for extension but closed for modification (use Polymorphism instead of giant if/switch statements). **L**iskov Substitution: Derived classes must be perfectly substitutable for their base classes without breaking the program. **I**nterface Segregation: Don't force clients to implement interfaces they don't use (use many small interfaces instead of one massive one). **D**ependency Inversion: High-level modules should not depend on low-level modules; both should depend on abstractions (interfaces).",
+    "explanation": "**\ud83d\udd0c The Wall Outlet Analogy (Dependency Inversion):**\nIf you buy a new TV, you don't hardwire the TV directly into the electrical wires inside your wall. If you did, you could never move the TV!\nInstead, the wall provides a standard **Abstraction** (The 3-prong Outlet). The TV comes with a standard Plug. They don't care about each other, they just both depend on the interface (The Outlet). This is Dependency Inversion.",
+    "diagram": "flowchart LR\n    subgraph Violation (Tight Coupling)\n    UI --> SQL[SQL Server Class]\n    end\n    \n    subgraph SOLID (Dependency Inversion)\n    UI2[UI] --> I[IRepository Interface]\n    SQL2[SQL Server Class] -.->|Implements| I\n    end\n    style UI fill:#ffcccc,stroke:#cc0000\n    style I fill:#ccffcc,stroke:#00cc00",
+    "example": "// \u274c OPEN-CLOSED VIOLATION\n// Every time you add a new shape, you have to modify this core class!\npublic double CalculateArea(object shape) {\n    if (shape is Circle c) return Math.PI * c.Radius * c.Radius;\n    if (shape is Square s) return s.Side * s.Side;\n    return 0;\n}\n\n// \u2705 SOLID (Open for extension, closed for modification)\npublic interface IShape { double CalculateArea(); }\npublic class Circle : IShape { ... }\n\npublic double CalculateArea(IShape shape) {\n    return shape.CalculateArea(); // Never needs to be modified again!\n}",
+    "followUps": []
+  },
+  {
+    "id": 30,
+    "sectionId": "architecture",
+    "difficulty": "hard",
+    "question": "What is Clean Architecture and how does it work?",
+    "answer": "Clean Architecture is a software design philosophy that separates the application into concentric layers. The most critical rule is the Dependency Rule: inner layers must never depend on outer layers.",
+    "whyAsked": "Almost all modern enterprise .NET applications use Clean Architecture or Onion Architecture. It is a strict requirement for senior roles.",
+    "mistakes": [
+      "Putting Entity Framework Core references inside the Core/Domain project.",
+      "Not understanding that the UI layer and the Database layer are at the exact same 'outer' level."
+    ],
+    "interviewPitch": "Clean Architecture places the core business logic (Domain Entities and Interfaces) at the absolute center of the application. The golden rule is the **Dependency Rule**: dependencies can only point inward. This means the Domain project cannot reference Entity Framework, ASP.NET, or any external NuGet packages. The outer layers (like the Web API and the Infrastructure/SQL project) both depend on the inner Domain layer. This makes the application completely independent of databases, UI frameworks, and external agencies.",
+    "explanation": "**\ud83e\uddc5 The Onion Analogy:**\n\u2022 **The Core (Domain):** Your pure business rules. No databases, no HTTP. Just pure C# classes.\n\u2022 **The Middle (Application):** Your use cases (e.g., 'Transfer Money'). It knows about the Core, but still knows nothing about SQL.\n\u2022 **The Skin (Infrastructure & UI):** The dirty outside world. This is where SQL Server, Entity Framework, and ASP.NET Controllers live.\n\nThe skin can look inside the onion, but the core of the onion has no idea what skin is attached to it.",
+    "diagram": "flowchart TD\n    subgraph Outer Layer (Skin)\n    API[ASP.NET Core Web API]\n    SQL[Entity Framework Infrastructure]\n    end\n    \n    subgraph Middle Layer\n    App[Application (Use Cases / CQRS)]\n    end\n    \n    subgraph Inner Layer (Core)\n    Dom[Domain (Entities & Interfaces)]\n    end\n    \n    API --> App\n    SQL --> App\n    App --> Dom",
+    "example": "// \u2705 DOMAIN LAYER (Pure C#, No EF Core allowed)\npublic interface IUserRepository {\n    Task<User> GetById(int id);\n}\n\n// \u2705 INFRASTRUCTURE LAYER (References Domain layer AND EF Core)\npublic class SqlUserRepository : IUserRepository {\n    private readonly ApplicationDbContext _db;\n    public async Task<User> GetById(int id) => await _db.Users.FindAsync(id);\n}",
+    "followUps": []
+  },
+  {
+    "id": 31,
+    "sectionId": "architecture",
+    "difficulty": "hard",
+    "question": "What is CQRS and when is it beneficial?",
+    "answer": "CQRS (Command Query Responsibility Segregation) separates the read operations (Queries) from the write operations (Commands).",
+    "whyAsked": "Heavily used in event-driven microservices. Interviewers want to know if you can handle high-traffic scaling where reads massively outnumber writes.",
+    "mistakes": [
+      "Using CQRS for a simple CRUD application. (It adds massive unnecessary complexity to simple apps).",
+      "Thinking CQRS requires two separate databases. (It can be used with one database, though two is common)."
+    ],
+    "interviewPitch": "CQRS dictates that the data models used for updating data (Commands) should be strictly separated from the data models used for reading data (Queries). In a traditional architecture, the same Entity is used for both, which becomes a bottleneck when read requirements (like complex joined UI views) diverge drastically from write requirements (like data validation). CQRS allows you to scale reads and writes independently. In .NET, we almost always implement CQRS using the **MediatR** library.",
+    "explanation": "**\ud83c\udf54 The Fast Food Analogy:**\n\u2022 **Standard CRUD (The Food Truck):** One guy takes your order (Write) and also cooks your food and hands it to you (Read). It works fine for 10 customers.\n\u2022 **CQRS (McDonald's):** There are 4 cashiers whose ONLY job is taking orders (Commands). There are 4 different workers at the pickup counter whose ONLY job is handing out food (Queries). They are completely separated. If the pickup line gets too long, you can just hire more pickup workers without touching the cashiers.",
+    "diagram": "flowchart LR\n    UI[User Interface]\n    \n    subgraph CQRS Architecture\n    UI -->|Sends Command| C[Command Model (Create/Update)]\n    UI -->|Sends Query| Q[Query Model (Read/Search)]\n    end\n    \n    C -->|Writes to| WriteDB[(Primary SQL DB)]\n    WriteDB -.->|Syncs via Events| ReadDB[(ElasticSearch / Redis)]\n    Q -->|Reads from| ReadDB",
+    "example": "// 1. THE COMMAND (Write) - Returns nothing, just mutates state\npublic record CreateUserCommand(string Name) : IRequest;\n\n// 2. THE QUERY (Read) - Does not mutate state, just returns data\npublic record GetUserQuery(int Id) : IRequest<UserDto>;\n\n// 3. ASP.NET CONTROLLER (Using MediatR)\n[HttpPost] public async Task Create(CreateUserCommand cmd) => await _mediator.Send(cmd);\n[HttpGet] public async Task<UserDto> Get(int id) => await _mediator.Send(new GetUserQuery(id));",
+    "followUps": []
+  },
+  {
+    "id": 32,
+    "sectionId": "architecture",
+    "difficulty": "medium",
+    "question": "What is the Repository Pattern and its advantages/disadvantages?",
+    "answer": "The Repository Pattern acts as an in-memory collection of domain objects to abstract away database access logic.",
+    "whyAsked": "There is a massive holy war in the .NET community about whether Repositories are useful when using EF Core. You need to know both sides.",
+    "mistakes": [
+      "Not realizing that `DbContext` and `DbSet<T>` in EF Core are already implementing the Unit of Work and Repository patterns.",
+      "Writing a 'Generic Repository' that just wraps EF Core methods 1-to-1."
+    ],
+    "interviewPitch": "The Repository Pattern abstracts the data persistence layer so the application logic doesn't know whether data is coming from SQL, Redis, or an API. The advantage is that it makes unit testing incredibly easy (you can just mock the interface). However, in modern .NET, `DbContext` itself is a Unit of Work, and `DbSet<T>` is a Repository. Wrapping EF Core in a generic repository is often considered an anti-pattern because it hides EF Core's powerful features (like `IQueryable` projection) while adding useless boilerplate. I only use specific, custom repositories (e.g., `IUserRepository`), never generic ones.",
+    "explanation": "**\ud83d\udce6 The Warehouse Analogy:**\nImagine the database is a massive, complex warehouse full of forklifts and shelves.\nYour application is the Store Manager.\n\nThe Store Manager shouldn't have to learn how to drive a forklift to get a box of apples. Instead, they just ask the Warehouse Worker (The Repository): \"Hey, go get me the apples.\" The worker deals with the complexity of the warehouse and just hands the apples to the manager.",
+    "diagram": "flowchart TD\n    subgraph Bad (Tight Coupling)\n    C[Controller] -->|Directly calls DbContext| DB[(SQL Server)]\n    end\n    \n    subgraph Good (Repository Pattern)\n    C2[Controller] -->|Calls| Repo[IUserRepository]\n    Repo -->|Implements SQL Logic| DB2[(SQL Server)]\n    Note over C2, Repo: Controller can be Unit Tested by MOCKING IUserRepository!\n    end",
+    "example": "// \u274c ANTI-PATTERN: The Generic Repository (Useless boilerplate)\npublic class GenericRepository<T> {\n    public void Add(T entity) => _db.Set<T>().Add(entity);\n}\n\n// \u2705 THE GOLD STANDARD: Specific Repository (Encapsulates complex logic)\npublic class UserRepository : IUserRepository {\n    public async Task<List<User>> GetActiveAdminsAsync() {\n        // Hides this complex SQL logic from the controller\n        return await _db.Users.Where(u => u.IsActive && u.Role == \"Admin\").ToListAsync();\n    }\n}",
+    "followUps": []
+  },
+  {
+    "id": 33,
+    "sectionId": "architecture",
+    "difficulty": "hard",
+    "question": "What is the Saga Pattern in microservices?",
+    "answer": "The Saga Pattern is a way to manage distributed transactions across multiple microservices without using traditional database locks. It uses a sequence of local transactions, with compensating actions if a step fails.",
+    "whyAsked": "This is the ultimate test of your distributed systems knowledge. If you can't explain how to rollback a failed microservice transaction, you can't build microservices.",
+    "mistakes": [
+      "Saying you would use 'Distributed Transactions' or 'Two-Phase Commit (2PC)'. (These lock databases and destroy performance).",
+      "Not understanding the difference between Choreography and Orchestration."
+    ],
+    "interviewPitch": "In a monolith, you can use an ACID database transaction to commit an Order and reduce Inventory at the same time. If one fails, they both rollback. In microservices, the Order DB and Inventory DB are completely separate. You cannot lock them both. The Saga pattern solves this by breaking the transaction into local steps. If Step 1 (Create Order) succeeds, but Step 2 (Reduce Inventory) fails, the Saga automatically triggers a 'Compensating Transaction' (Cancel Order) to undo Step 1 and maintain eventual consistency.",
+    "explanation": "**\ud83c\udfe8 The Vacation Booking Analogy:**\nYou want to book a Flight, a Hotel, and a Rental Car. You can't put a \"Lock\" on all 3 companies at once.\n\n1. You book the Flight (Success).\n2. You book the Hotel (Success).\n3. You try to book the Car, but they are sold out! (Failure).\n\nBecause the car failed, you don't want the flight or hotel anymore. You can't just 'rollback' a database. You have to actively call the airline and say \"Cancel my ticket\", and call the hotel and say \"Cancel my room\". These are **Compensating Transactions**.",
+    "diagram": "sequenceDiagram\n    participant O as Order Service\n    participant P as Payment Service\n    participant I as Inventory Service\n    \n    O->>P: 1. Create Order & Request Payment\n    P-->>O: 2. Payment SUCCESS\n    O->>I: 3. Request Inventory Deduction\n    I-->>O: 4. Inventory FAILED (Out of stock)\n    Note over O, P: The Saga triggers a Rollback!\n    O->>P: 5. COMPENSATING TRANSACTION: Refund Payment\n    O->>O: 6. Mark Order as Cancelled",
+    "example": "// 1. SUCCESS PATH\nawait _orderService.CreatePendingOrder();\nbool paid = await _paymentService.ChargeCard();\nbool shipped = await _inventoryService.Ship();\n\n// 2. COMPENSATING PATH (The Rollback)\nif (!shipped) {\n    await _paymentService.RefundCard(); // Undo Step 2\n    await _orderService.CancelOrder();  // Undo Step 1\n}",
+    "followUps": []
+  },
+  {
+    "id": 34,
+    "sectionId": "architecture",
+    "difficulty": "medium",
+    "question": "What is a Modular Monolith and how does it differ from Microservices?",
+    "answer": "A Modular Monolith is a single, unified application that is strictly divided into independent, decoupled modules. It provides the architectural cleanliness of microservices without the massive network and infrastructure overhead.",
+    "whyAsked": "Microservice fatigue is real. Senior architects are moving back to Modular Monoliths because microservices are often overkill. This tests your pragmatism.",
+    "mistakes": [
+      "Assuming 'Monolith' means 'Spaghetti Code'.",
+      "Building 15 microservices for a startup with 2 developers."
+    ],
+    "interviewPitch": "For the last decade, everyone rushed to microservices, resulting in distributed monoliths with massive network latency, complex CI/CD, and nightmare debugging. A **Modular Monolith** is a single deployable application (one EXE) running on a single server, but internally, the code is strictly separated into bounded contexts (Modules). The Sales module cannot directly query the Inventory database tables; they must communicate through defined interfaces or in-memory events. This gives you the clean separation of microservices, but with the blazing speed of local method calls.",
+    "explanation": "**\ud83c\udfe2 The Office Building Analogy:**\n\u2022 **Spaghetti Monolith (The Open Floor Plan):** 500 workers in one giant room. Everyone is screaming, stealing each other's pens, and total chaos.\n\u2022 **Microservices (Different Buildings):** You put the Sales team in New York, and the Inventory team in London. To ask a question, they have to mail a letter across the ocean (Network Latency). It takes forever.\n\u2022 **Modular Monolith (The Office Building):** Everyone is in the same building (One Server), but Sales is on Floor 1, and Inventory is on Floor 2. They have locked doors. To talk, Sales has to call the Inventory front desk. It is organized, secure, and blazing fast.",
+    "diagram": "flowchart TD\n    subgraph Microservices (Slow & Expensive)\n    M1[Sales API] <-->|HTTP/Network| M2[Inventory API]\n    end\n    \n    subgraph Modular Monolith (Fast & Cheap)\n    Monolith[Single Web API Process]\n    subgraph Modules\n    Mod1[Sales Module] <-->|In-Memory Event| Mod2[Inventory Module]\n    end\n    Monolith --- Modules\n    end\n    style Monolith fill:#ccffcc,stroke:#00cc00",
+    "example": "// Inside a Modular Monolith, modules communicate via MediatR (In-Memory),\n// NOT via HTTP calls to other servers.\n\n// Sales Module\npublic async Task Checkout() {\n    // Publish an event to the internal bus\n    await _mediator.Publish(new OrderPlacedEvent(orderId)); \n}\n\n// Inventory Module\npublic class InventoryHandler : INotificationHandler<OrderPlacedEvent> {\n    public async Task Handle(OrderPlacedEvent event) {\n        // Deduct inventory instantly in the same process!\n    }\n}",
+    "followUps": []
+  }
+]
