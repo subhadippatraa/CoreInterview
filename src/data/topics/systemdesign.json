@@ -1,6 +1,6 @@
 [
   {
-    "id": 63,
+    "id": 61,
     "sectionId": "systemdesign",
     "difficulty": "easy",
     "question": "What is the difference between Horizontal and Vertical Scaling?",
@@ -14,10 +14,16 @@
     "explanation": "**\ud83c\udf55 The Pizza Shop Analogy:**\n\u2022 **Vertical Scaling (The Super-Chef):** You have one chef making pizzas. Orders pile up. To scale vertically, you buy the chef a huge energy drink, 4 extra arms, and a massive oven. He cooks faster, but eventually, he reaches his physical limit. If he gets sick, the shop closes.\n\u2022 **Horizontal Scaling (Hiring More Chefs):** Orders pile up. To scale horizontally, you hire 5 more normal chefs and put a manager (Load Balancer) at the front counter to hand out tickets to whoever is free. If one chef gets sick, the shop stays open. You can hire an infinite amount of chefs.\n\n**When to use what:**\n\u2022 Start with **Vertical** because it's cheap and requires zero code changes.\n\u2022 Move to **Horizontal** when you need 100% uptime or exceed the limits of a single machine.",
     "diagram": "flowchart TD\n    subgraph Vertical Scaling (Up)\n    V1[Small Server] --> V2[MASSIVE Server]\n    end\n    \n    subgraph Horizontal Scaling (Out)\n    H1[Server 1] --> LB[Load Balancer]\n    LB --> S1[Server 1]\n    LB --> S2[Server 2]\n    LB --> S3[Server 3]\n    end",
     "example": "# \u274c THE LIMITS OF VERTICAL SCALING\n# AWS largest server: 448 vCPUs and 12,288 GiB of RAM.\n# It costs ~$100,000 a month. Once you max this out, you are stuck.\n\n# \u2705 THE POWER OF HORIZONTAL SCALING\n# Netflix doesn't run on one $100,000 server.\n# Netflix runs on 100,000 cheap, small servers.",
-    "companies": []
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Accenture",
+      "Capgemini"
+    ]
   },
   {
-    "id": 64,
+    "id": 62,
     "sectionId": "systemdesign",
     "difficulty": "medium",
     "question": "What is Caching and when should you use it?",
@@ -31,10 +37,15 @@
     "explanation": "**\ud83d\udcd6 The Math Test Analogy:**\nImagine I ask you: \"What is 1,452 x 8,921?\"\n\n\u2022 **No Cache:** You pull out a piece of paper, do long division for 2 minutes, and say \"12,953,292\". If I ask you the exact same question 5 seconds later, you do the long division all over again.\n\u2022 **With Cache:** You do the math once, and write the answer on your hand (The Cache). If I ask you again 5 seconds later, you just look at your hand and answer instantly. \n\n**Common Cache Patterns:**\n\u2022 **Cache-Aside:** The App asks the Cache. If empty, the App asks the DB, saves it to the Cache, and returns it.\n\u2022 **Write-Through:** The App writes to the Cache and DB at the exact same time.",
     "diagram": "sequenceDiagram\n    participant App as Web Server\n    participant Cache as Redis (RAM)\n    participant DB as SQL Database\n    \n    App->>Cache: 1. Get User Profile\n    alt Cache Miss (Empty)\n        Cache--xApp: Not Found\n        App->>DB: 2. Query Database (Slow!)\n        DB-->>App: Data\n        App->>Cache: 3. Save Data for next time\n    else Cache Hit (Found)\n        Cache-->>App: 2. Return Data instantly (Fast!)\n    end",
     "example": "// \u2705 THE CACHE-ASIDE PATTERN IN C#\npublic async Task<User> GetUserAsync(int id)\n{\n    // 1. Check the fast Cache first\n    var user = await _cache.GetAsync($\"user_{id}\");\n    \n    if (user == null)\n    {\n        // 2. Cache miss! Do the slow Database work\n        user = await _db.Users.FindAsync(id);\n        \n        // 3. Save it in the cache for 10 minutes\n        await _cache.SetAsync($\"user_{id}\", user, TimeSpan.FromMinutes(10));\n    }\n    \n    return user;\n}",
-    "companies": []
+    "companies": [
+      "TCS",
+      "Cognizant",
+      "Accenture",
+      "Microsoft"
+    ]
   },
   {
-    "id": 65,
+    "id": 63,
     "sectionId": "systemdesign",
     "difficulty": "easy",
     "question": "What is a Load Balancer and how does it work?",
@@ -48,10 +59,18 @@
     "explanation": "**\ud83d\udea6 The Grocery Store Analogy:**\nImagine a grocery store with 10 cash registers.\n\n\u2022 **Without a Load Balancer:** Everyone walks into the store and arbitrarily lines up at Register 1. Register 1 has a line of 500 people, the cashier has a mental breakdown, and Registers 2-10 are completely empty.\n\u2022 **With a Load Balancer:** The store manager stands at the front. When you want to check out, the manager points you to the shortest line. If Register 3's cash drawer breaks (Health Check fails), the manager stops sending people to Register 3.\n\n**Sticky Sessions (A warning):**\nIf a user logs into Server A, and the Load Balancer sends their next request to Server B, they will be logged out! This is why modern apps use JWTs or Redis to store login state completely outside of the web servers.",
     "diagram": "flowchart TD\n    U1[User 1] --> LB{Load Balancer}\n    U2[User 2] --> LB\n    U3[User 3] --> LB\n    \n    LB -->|Round Robin| S1[Server A]\n    LB -->|Round Robin| S2[Server B]\n    LB -.->|Health Check Failed!| S3[Server C \ud83d\udca5]\n    \n    style S3 fill:#ffcccc,stroke:#ff0000",
     "example": "# \u2699\ufe0f LOAD BALANCING ALGORITHMS\n\n# 1. Round Robin:\n# Gives 1 request to A, 1 to B, 1 to C. Then repeats.\n\n# 2. Least Connections:\n# Checks which server is currently handling the fewest active requests.\n\n# 3. IP Hash:\n# Does math on the User's IP Address to ensure Bob ALWAYS goes to Server B.\n# (Useful for legacy apps that require Sticky Sessions).",
-    "companies": []
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "Zoho"
+    ]
   },
   {
-    "id": 66,
+    "id": 64,
     "sectionId": "systemdesign",
     "difficulty": "medium",
     "question": "What are Message Queues (RabbitMQ/Kafka) and when should you use them?",
@@ -65,6 +84,12 @@
     "explanation": "**\ud83d\udce7 The Post Office Analogy:**\n\u2022 **Synchronous (HTTP API):** I walk to your house, knock on the door, and hand you a letter. If you aren't home, I stand on your porch forever until you get back. If you take 5 hours to read it, I am stuck on your porch.\n\u2022 **Asynchronous (Message Queue):** I write a letter and drop it in the mailbox at the Post Office (The Queue). I immediately go back to work. You check your mailbox whenever you are ready. If your house burns down, the Post Office safely holds the letter until you build a new house.\n\n**Perfect Use Cases:**\n\u2022 Sending emails/SMS after a user registers.\n\u2022 Processing high-CPU video uploads.\n\u2022 Generating heavy PDF reports.",
     "diagram": "sequenceDiagram\n    participant API as Web API\n    participant Q as RabbitMQ (Queue)\n    participant W as Worker Service\n    \n    API->>Q: 1. Send \"ProcessVideo\" Message\n    Note over API: API instantly returns 200 OK to User\n    Q->>W: 2. Worker pulls message\n    Note over W: Worker takes 15 minutes<br>to process video...\n    W->>Q: 3. Acknowledge (Delete Message)",
     "example": "// \u2705 PUBLISHER (Fast Web API)\n[HttpPost(\"upload-video\")]\npublic IActionResult Upload()\n{\n    // We don't process the video here! It takes too long.\n    // We just drop a sticky note in the queue.\n    _messageQueue.Publish(new VideoEvent { VideoId = 123 });\n    \n    return Accepted(\"Your video is processing!\");\n}\n\n\n// \u2705 CONSUMER (Background Worker Service)\npublic void OnMessageReceived(VideoEvent message)\n{\n    // I read from the queue.\n    // Even if 1,000 videos are uploaded at once, \n    // I will safely process them 1 by 1 without crashing.\n    HeavyVideoEncodingLogic(message.VideoId);\n}",
-    "companies": []
+    "companies": [
+      "TCS",
+      "Cognizant",
+      "Accenture",
+      "Microsoft",
+      "Zoho"
+    ]
   }
 ]

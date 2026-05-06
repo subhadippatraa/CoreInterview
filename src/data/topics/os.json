@@ -1,6 +1,6 @@
 [
   {
-    "id": 56,
+    "id": 54,
     "sectionId": "os",
     "difficulty": "medium",
     "question": "What is the difference between a Process and a Thread?",
@@ -14,10 +14,17 @@
     "explanation": "**\ud83c\udfe2 The Office Building Analogy:**\n\u2022 **A Process (The Company):** Imagine a company renting an office building. The company has its own isolated walls, its own coffee machine, and its own filing cabinets (Memory). If Company A goes bankrupt (Crashes), it doesn't affect Company B next door.\n\u2022 **A Thread (The Employee):** A Thread is an employee working inside the company. You can have 1 employee, or 500 employees. They all share the exact same coffee machine and filing cabinets. Because they share the filing cabinets, if two employees try to write in the same folder at the exact same millisecond, the folder gets ripped in half (A Race Condition).\n\n**Key Takeaway:**\nCreating a new Process is expensive (Renting a new building). Creating a new Thread is cheap (Hiring a new employee).",
     "diagram": "flowchart TD\n    subgraph Process [Process (Isolated Memory Space)]\n        T1[Thread 1: UI]\n        T2[Thread 2: Network Download]\n        T3[Thread 3: File Save]\n        Mem[(Shared Memory/Heap)]\n        \n        T1 -.-> Mem\n        T2 -.-> Mem\n        T3 -.-> Mem\n    end",
     "example": "// \u2705 IN C# (Creating a Thread is incredibly easy)\n\n// 1. We start the main Process (The Console App)\nConsole.WriteLine(\"Main thread is running...\");\n\n// 2. We hire a background worker (A Thread) to do heavy lifting\nThread worker = new Thread(() => \n{\n    Console.WriteLine(\"Background thread is downloading a file...\");\n});\nworker.Start();\n\nConsole.WriteLine(\"Main thread is still responsive!\");",
-    "companies": []
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Accenture",
+      "Microsoft",
+      "Amazon"
+    ]
   },
   {
-    "id": 57,
+    "id": 55,
     "sectionId": "os",
     "difficulty": "hard",
     "question": "What is a Deadlock in an Operating System? What are the 4 Coffman conditions?",
@@ -31,10 +38,19 @@
     "explanation": "**\ud83d\udea6 The 4-Way Stop Analogy:**\nImagine a 4-way intersection with four cars arriving at the exact same time.\n\n1. **Mutual Exclusion:** Only one car can physically be in the middle of the intersection at a time.\n2. **Hold and Wait:** Each car is taking up its lane (Hold), while waiting for the intersection to clear (Wait).\n3. **No Preemption:** A police officer isn't there to force someone to back up or get out of the way.\n4. **Circular Wait:** Car North is waiting for Car East. Car East is waiting for Car South. Car South is waiting for Car West. Car West is waiting for Car North.\n\nBecause all 4 conditions are met, the cars sit there honking at each other forever until they run out of gas. This is a Deadlock.",
     "diagram": "sequenceDiagram\n    participant T1 as Thread 1\n    participant T2 as Thread 2\n    \n    T1->>T1: Lock(File A)\n    T2->>T2: Lock(File B)\n    T1->>T2: I need File B (Waits)\n    T2->>T1: I need File A (Waits)\n    Note over T1, T2: \ud83d\udca5 DEADLOCK FOREVER!",
     "example": "// \u274c HOW TO CREATE A DEADLOCK IN C#\nobject lockA = new object();\nobject lockB = new object();\n\n// Thread 1\nlock (lockA)\n{\n    Thread.Sleep(100); // Wait a millisecond...\n    lock (lockB) // Thread 1 freezes here forever\n    {\n        Console.WriteLine(\"Thread 1 got both locks\");\n    }\n}\n\n// Thread 2 (Running at the exact same time)\nlock (lockB)\n{\n    Thread.Sleep(100); // Wait a millisecond...\n    lock (lockA) // Thread 2 freezes here forever\n    {\n        Console.WriteLine(\"Thread 2 got both locks\");\n    }\n}",
-    "companies": []
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
+    ]
   },
   {
-    "id": 58,
+    "id": 56,
     "sectionId": "os",
     "difficulty": "hard",
     "question": "What is Virtual Memory and Paging?",
@@ -48,10 +64,17 @@
     "explanation": "**\ud83d\udcda The Desk and the Filing Cabinet Analogy:**\n\u2022 **Physical RAM (Your Desk):** It's small, but anything on your desk can be read instantly.\n\u2022 **The Hard Drive (A Filing Cabinet in the basement):** It's massive, but walking down to the basement to get a file takes forever.\n\nImagine you are reading 5 books on your desk (Your RAM is full). You suddenly need Book 6. \nThe OS takes Book 1 (which you haven't read in an hour), walks down to the basement, puts it in the filing cabinet (Paging it to disk), grabs Book 6, and puts it on your desk.\n\nYour brain (The Application) still thinks it owns 6 books. It has no idea the OS is secretly running to the basement to swap them out. \n\n**The Danger (Thrashing):** If you try to read Book 1, 2, 3, 4, 5, and 6 at the exact same time, the OS spends its entire life running up and down the stairs. The computer freezes completely.",
     "diagram": "flowchart LR\n    subgraph Virtual Memory (Illusion)\n    V1[Page 1]\n    V2[Page 2]\n    V3[Page 3]\n    V4[Page 4]\n    end\n    \n    subgraph Physical Hardware\n    R[Physical RAM - Fast]\n    H[(Hard Drive Swap - Slow)]\n    end\n    \n    V1 --> R\n    V2 --> R\n    V3 --> H\n    V4 --> H\n    \n    style R fill:#ccffcc,stroke:#00cc00\n    style H fill:#ffcccc,stroke:#cc0000",
     "example": "// Why Virtual Memory Matters in .NET:\n// A 32-bit process can only address 4GB of memory.\n// A 64-bit process has a massive 8 Terabyte virtual memory limit.\n\n// If your C# app allocates massive arrays and Physical RAM is full,\n// the OS won't instantly crash with OutOfMemoryException.\n// Instead, it silently pages memory to the SSD, making your app\n// 10,000x slower. This is why memory profiling is critical.",
-    "companies": []
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Cognizant",
+      "Accenture",
+      "Capgemini"
+    ]
   },
   {
-    "id": 59,
+    "id": 57,
     "sectionId": "os",
     "difficulty": "medium",
     "question": "What is the difference between a Mutex and a Semaphore?",
@@ -65,6 +88,11 @@
     "explanation": "**\ud83d\udebd The Bathroom vs \ud83c\udfe2 The Nightclub Analogy:**\n\u2022 **Mutex (The Gas Station Bathroom Key):** There is one toilet. You take the physical key, go inside, and lock the door. If 10 other people want to use it, they must stand in line outside. Only YOU can unlock the door from the inside when you are done.\n\u2022 **Semaphore (The Bouncer):** The fire marshal says only 50 people are allowed in the club at once. The bouncer (The Semaphore) counts people as they go in. When he reaches 50, he puts up the velvet rope and makes everyone else wait. When 3 people leave, he lets 3 new people in.\n\n**When to use what in C#:**\n\u2022 Use `lock` (a basic Mutex) to protect a single variable from race conditions.\n\u2022 Use `SemaphoreSlim` to limit an API from making more than 5 outbound HTTP requests at the same time.",
     "diagram": "flowchart TD\n    subgraph Mutex (Max 1)\n    M_Wait[Threads Waiting] -->|Only 1 allowed| M_Res[Shared File]\n    end\n    \n    subgraph Semaphore (Max 3)\n    S_Wait[Threads Waiting] -->|3 allowed| S_Res1[API Connection 1]\n    S_Wait -->|3 allowed| S_Res2[API Connection 2]\n    S_Wait -->|3 allowed| S_Res3[API Connection 3]\n    end",
     "example": "// \u2705 MUTEX (Using C#'s built-in lock)\nprivate readonly object _doorLock = new object();\n\npublic void UpdateBankBalance()\n{\n    // Only 1 thread can enter this block at a time.\n    lock (_doorLock) \n    {\n        balance += 100;\n    }\n}\n\n// \u2705 SEMAPHORE (Limiting concurrency to 3)\n// We allow a maximum of 3 threads to do this heavy work at once.\nprivate SemaphoreSlim _bouncer = new SemaphoreSlim(3);\n\npublic async Task DownloadFileAsync()\n{\n    await _bouncer.WaitAsync(); // Bouncer lets me in (or makes me wait)\n    try\n    {\n        await HeavyDownloadLogic();\n    }\n    finally\n    {\n        _bouncer.Release(); // I leave, bouncer lets the next guy in\n    }\n}",
-    "companies": []
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Cognizant"
+    ]
   }
 ]

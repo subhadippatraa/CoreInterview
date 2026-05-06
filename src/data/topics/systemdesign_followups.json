@@ -1,6 +1,6 @@
 [
   {
-    "questionId": 63,
+    "questionId": 61,
     "followUps": [
       {
         "question": "What problems does horizontal scaling introduce?",
@@ -28,18 +28,15 @@
           "Forgetting that the load balancer itself can be a SPOF \u2014 use redundant LBs or cloud-managed ones."
         ],
         "diagram": "flowchart LR\n    U1[User Bob] -->|Logs In| LB[Load Balancer]\n    LB -->|Creates Sticky Cookie| S1[Server A]\n    \n    U1 -->|Next Request| LB\n    LB -.->|Forces routing| S1\n    \n    Note over S1: If Server A crashes, Bob loses his session!",
-        "companies": []
+        "companies": [
+          "TCS",
+          "Infosys",
+          "Wipro",
+          "Cognizant",
+          "Accenture"
+        ]
       }
     ],
-    "companies": [
-      "TCS",
-      "Infosys",
-      "Cognizant",
-      "Wipro",
-      "Accenture",
-      "Capgemini",
-      "HCL",
-      "Microsoft"
-    ]
+    "companies": []
   }
 ]

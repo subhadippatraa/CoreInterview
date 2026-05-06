@@ -1,6 +1,6 @@
 [
   {
-    "id": 22,
+    "id": 20,
     "sectionId": "dotnet",
     "difficulty": "easy",
     "question": "What is the difference between .NET Framework, .NET Core, and .NET?",
@@ -26,7 +26,7 @@
     ]
   },
   {
-    "id": 23,
+    "id": 21,
     "sectionId": "dotnet",
     "difficulty": "medium",
     "question": "What is the CLR (Common Language Runtime)?",
@@ -51,7 +51,7 @@
     ]
   },
   {
-    "id": 24,
+    "id": 22,
     "sectionId": "dotnet",
     "difficulty": "medium",
     "question": "What is JIT (Just-In-Time) compilation?",
@@ -75,7 +75,7 @@
     ]
   },
   {
-    "id": 25,
+    "id": 23,
     "sectionId": "dotnet",
     "difficulty": "medium",
     "question": "What is the difference between Managed and Unmanaged code?",
@@ -98,7 +98,7 @@
     ]
   },
   {
-    "id": 26,
+    "id": 24,
     "sectionId": "dotnet",
     "difficulty": "hard",
     "question": "What are Assemblies in .NET?",
@@ -122,7 +122,7 @@
     ]
   },
   {
-    "id": 27,
+    "id": 25,
     "sectionId": "dotnet",
     "difficulty": "hard",
     "question": "What are Span<T> and Memory<T> in .NET?",

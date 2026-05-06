@@ -1,6 +1,6 @@
 [
   {
-    "questionId": 56,
+    "questionId": 54,
     "followUps": [
       {
         "question": "What is a race condition?",
@@ -14,7 +14,15 @@
           "Using lock everywhere \u2014 over-locking causes contention and deadlocks."
         ],
         "diagram": "sequenceDiagram\n    participant T1 as Thread 1\n    participant T2 as Thread 2\n    participant Mem as Memory (x=0)\n    \n    T1->>Mem: Reads x=0\n    T2->>Mem: Reads x=0\n    T1->>Mem: Writes x=1 (0+1)\n    T2->>Mem: Writes x=1 (0+1)\n    Note over Mem: We added 1 twice, but x is only 1! Data corrupted!",
-        "companies": []
+        "companies": [
+          "TCS",
+          "Infosys",
+          "Cognizant",
+          "Wipro",
+          "Accenture",
+          "Capgemini",
+          "Zoho"
+        ]
       },
       {
         "question": "How does C# async/await relate to threads?",
@@ -28,18 +36,17 @@
           "Using Task.Run for I/O work \u2014 wasteful, blocks a ThreadPool thread."
         ],
         "diagram": "flowchart LR\n    T[Thread 1] -->|Awaits HTTP Call| N[Network Card does the work]\n    T -.->|Thread is free!| UI[Thread handles UI clicks!]\n    N -->|Finished| T[Thread resumes HTTP method]",
-        "companies": []
+        "companies": [
+          "TCS",
+          "Infosys",
+          "Cognizant",
+          "Accenture",
+          "Capgemini",
+          "Microsoft",
+          "Amazon"
+        ]
       }
     ],
-    "companies": [
-      "TCS",
-      "Infosys",
-      "Cognizant",
-      "Wipro",
-      "Accenture",
-      "Capgemini",
-      "HCL",
-      "Microsoft"
-    ]
+    "companies": []
   }
 ]

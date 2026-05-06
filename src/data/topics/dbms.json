@@ -1,6 +1,6 @@
 [
   {
-    "id": 51,
+    "id": 49,
     "sectionId": "dbms",
     "difficulty": "medium",
     "question": "What is the difference between clustered and non-clustered indexes?",
@@ -14,10 +14,16 @@
     "explanation": "**\ud83d\udcd6 The Book Analogy:**\n\u2022 **Clustered Index (A Dictionary):** The actual words in the book are sorted alphabetically. If you want to find \"Apple\", you just open the book to 'A'. You don't need a separate list telling you where 'A' is. \n\u2022 **Non-Clustered Index (A Textbook Index):** The chapters in a textbook are arranged chronologically. If you want to find every time the word \"Abraham Lincoln\" is mentioned, you go to the back of the book (The Index), look up \"A\", find the page numbers (The Pointers), and then flip to those specific pages.\n\n**When to use what:**\n\u2022 Use **Clustered** for the Primary Key (e.g., `UserId`).\n\u2022 Use **Non-Clustered** for columns you search by often, but aren't the primary key (e.g., `Email` or `LastName`).",
     "diagram": "flowchart TD\n    subgraph Clustered Index (Physical Data)\n    C1[Row 1: Alice] --> C2[Row 2: Bob]\n    C2 --> C3[Row 3: Charlie]\n    end\n    \n    subgraph Non-Clustered Index (Pointers)\n    N1[Age: 25] -.->|Pointer| C2\n    N2[Age: 30] -.->|Pointer| C3\n    N3[Age: 40] -.->|Pointer| C1\n    end",
     "example": "-- \u2705 THE CLUSTERED INDEX (Usually happens automatically)\n-- By marking UserId as PRIMARY KEY, SQL Server automatically \n-- physically sorts the table by UserId.\nCREATE TABLE Users (\n    UserId INT PRIMARY KEY, \n    Email VARCHAR(100),\n    Age INT\n);\n\n-- \u2705 THE NON-CLUSTERED INDEX\n-- We search by Email a lot, so we create a separate lookup table.\nCREATE NONCLUSTERED INDEX IX_Users_Email \nON Users (Email);\n\n-- \ud83d\ude80 FAST QUERY:\n-- The database uses IX_Users_Email to instantly find the row pointer!\nSELECT * FROM Users WHERE Email = 'bob@test.com';",
-    "companies": []
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture"
+    ]
   },
   {
-    "id": 52,
+    "id": 50,
     "sectionId": "dbms",
     "difficulty": "hard",
     "question": "What are ACID properties in databases?",
@@ -31,10 +37,16 @@
     "explanation": "**\ud83d\udcb8 The Bank Transfer Analogy:**\nImagine transferring $100 from Alice to Bob. The database must subtract $100 from Alice, and add $100 to Bob.\n\n\u2022 **A - Atomicity (All or Nothing):** What if the server crashes *after* subtracting $100 from Alice, but *before* giving it to Bob? Atomicity guarantees that if the second step fails, the first step is undone. Alice gets her money back.\n\u2022 **C - Consistency (Rules are Rules):** What if Bob's account is closed? Consistency says the transfer is illegal and blocks it.\n\u2022 **I - Isolation (No Peeking):** What if Bob's wife checks his bank account at the exact millisecond the transfer is happening? She won't see half-finished math. She will either see the old balance, or the new balance.\n\u2022 **D - Durability (It's Permanent):** The moment the database says \"Transfer Complete\", the money is physically saved to the hard drive. If someone kicks the power cord out of the wall 1 second later, the money is still there when the server boots back up.",
     "diagram": "sequenceDiagram\n    participant DB as Relational Database\n    \n    Note over DB: ATOMICITY\n    DB->>DB: 1. Subtract $100 from Alice\n    DB--xDB: \ud83d\udca5 POWER OUTAGE at step 2!\n    Note over DB: Database reboots...\n    DB->>DB: Rolls back step 1. Alice is refunded.",
     "example": "-- \u2705 HOW TO ENFORCE ATOMICITY IN SQL\nBEGIN TRANSACTION;\n\nBEGIN TRY\n    -- Step 1: Subtract from Alice\n    UPDATE Accounts SET Balance = Balance - 100 WHERE Name = 'Alice';\n    \n    -- Step 2: Add to Bob\n    UPDATE Accounts SET Balance = Balance + 100 WHERE Name = 'Bob';\n    \n    -- If both steps succeed, we permanently save it (Durability)\n    COMMIT TRANSACTION;\nEND TRY\nBEGIN CATCH\n    -- If ANY step fails, we undo everything! (Atomicity)\n    ROLLBACK TRANSACTION;\nEND CATCH",
-    "companies": []
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Cognizant",
+      "Accenture"
+    ]
   },
   {
-    "id": 53,
+    "id": 51,
     "sectionId": "dbms",
     "difficulty": "medium",
     "question": "What is the difference between Stored Procedures and Inline SQL?",
@@ -48,10 +60,18 @@
     "explanation": "**\ud83c\udf54 The Restaurant Analogy:**\n\u2022 **Stored Procedure (Ordering off the Menu):** You walk into a restaurant and say \"Give me the Number 5\". The kitchen already knows exactly how to make it, so it's fast. But if you want to change the recipe, you have to convince the manager to reprint the menus.\n\u2022 **Inline SQL (Telling the Chef what to do):** You walk into the kitchen and hand the chef a detailed recipe for exactly what you want. It's incredibly flexible, but you have to pass a long note to the chef every single time.\n\n**Pros of Stored Procedures:**\n\u2022 Great for massive, complex reporting queries.\n\u2022 Easy to restrict security (Users can run the procedure, but can't see the tables).\n\n**Pros of Inline SQL (EF Core):**\n\u2022 Business logic lives in C#, not in the database.\n\u2022 Much easier to track changes in Git.",
     "diagram": "flowchart LR\n    subgraph Stored Procedure\n    App1[C#: \"Exec GetUsers\"] --> DB1[(Database)]\n    DB1 --> SP[Runs Saved Script]\n    end\n    \n    subgraph Inline SQL\n    App2[C#: \"SELECT * FROM Users\"] --> DB2[(Database)]\n    DB2 --> P[Parses & Executes]\n    end",
     "example": "// \u274c INLINE SQL (The old, dangerous way)\n// Vulnerable to SQL Injection!\nstring sql = \"SELECT * FROM Users WHERE Name = '\" + userName + \"'\";\ndbCommand.CommandText = sql;\n\n// \u2705 INLINE SQL (The modern Entity Framework way)\n// EF Core safely generates parameterized SQL for you.\nvar users = dbContext.Users.Where(u => u.Name == userName).ToList();\n\n\n// \u2699\ufe0f CALLING A STORED PROCEDURE\n// The actual SQL logic is hidden inside the database.\nvar users = dbContext.Users.FromSqlRaw(\"EXECUTE dbo.GetActiveUsers\").ToList();",
-    "companies": []
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL"
+    ]
   },
   {
-    "id": 54,
+    "id": 52,
     "sectionId": "dbms",
     "difficulty": "easy",
     "question": "What is the difference between SQL and NoSQL databases?",
@@ -65,10 +85,18 @@
     "explanation": "**\ud83d\udcca The Excel vs Word Document Analogy:**\n\u2022 **SQL (An Excel Spreadsheet):** Every row MUST have the exact same columns. If you want to add a \"Middle Name\" column, you have to add it to the entire spreadsheet for everyone. It is incredibly organized.\n\u2022 **NoSQL (A folder of Word Documents):** Every document is separate. Document 1 can have a name and age. Document 2 can have a name, 3 addresses, and a list of favorite movies. It is incredibly flexible.\n\n**When to use what:**\n\u2022 **Use SQL (90% of the time):** E-commerce, banking, inventory systems. Any app where a User has many Orders, and Orders have many Products.\n\u2022 **Use NoSQL (10% of the time):** IoT sensor data, massive logging systems, or gaming profiles where the player's stats change shape constantly.",
     "diagram": "flowchart TD\n    subgraph SQL (Relational)\n    U[Users Table] -->|Foreign Key| O[Orders Table]\n    O -->|Foreign Key| P[Products Table]\n    end\n    \n    subgraph NoSQL (Document)\n    Doc1{ JSON Document \n    User: Alice \n    Orders: [ {Item: Laptop} ] }\n    end",
     "example": "-- \u2705 SQL (Rigid Schema)\n-- You MUST define the exact data types beforehand.\nCREATE TABLE Users (\n    Id INT PRIMARY KEY,\n    Name VARCHAR(100) NOT NULL,\n    Age INT\n);\n\n\n// \u2705 NoSQL (Flexible JSON)\n// You can just throw this straight into MongoDB.\n{\n    \"id\": 1,\n    \"name\": \"Alice\",\n    \"age\": 25,\n    \"favoriteFoods\": [\"Pizza\", \"Tacos\"], // Lists are easy!\n    \"address\": {                         // Nested objects are easy!\n        \"city\": \"New York\",\n        \"zip\": \"10001\"\n    }\n}",
-    "companies": []
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL"
+    ]
   },
   {
-    "id": 55,
+    "id": 53,
     "sectionId": "dbms",
     "difficulty": "hard",
     "question": "What are database transactions and how do deadlocks occur?",
@@ -82,6 +110,11 @@
     "explanation": "**\ud83d\ude97 The Narrow Bridge Analogy:**\nImagine a very narrow, one-way bridge.\n\u2022 **Car A (Transaction A)** drives onto the bridge from the left.\n\u2022 **Car B (Transaction B)** drives onto the bridge from the right.\n\u2022 They meet in the middle. Car A refuses to reverse. Car B refuses to reverse. They are both stuck forever. This is a **Deadlock**.\n\u2022 Eventually, the **Bridge Police (SQL Server)** shows up, picks up Car B with a crane, throws it off the bridge (The Deadlock Victim), and lets Car A finish crossing.\n\n**How to prevent Deadlocks:**\nAlways update tables in the exact same order everywhere in your code. If everyone accesses Table 1 *before* Table 2, a circular deadlock is mathematically impossible.",
     "diagram": "sequenceDiagram\n    participant TA as Transaction A\n    participant TB as Transaction B\n    \n    TA->>TA: Locks Row 1\n    TB->>TB: Locks Row 2\n    TA->>TB: Needs Row 2 (Waits)\n    TB->>TA: Needs Row 1 (Waits)\n    Note over TA, TB: \ud83d\udca5 DEADLOCK!\n    Note over TA, TB: SQL Server kills Transaction B",
     "example": "-- \u274c HOW A DEADLOCK IS CREATED\n\n-- User 1 runs this script:\nBEGIN TRANSACTION;\nUPDATE TableA SET Value = 1; -- Gets Lock on A\nWAITFOR DELAY '00:00:05';\nUPDATE TableB SET Value = 1; -- Needs Lock on B (WAITS)\nCOMMIT;\n\n-- User 2 runs this script at the exact same time:\nBEGIN TRANSACTION;\nUPDATE TableB SET Value = 1; -- Gets Lock on B\nWAITFOR DELAY '00:00:05';\nUPDATE TableA SET Value = 1; -- Needs Lock on A (WAITS FOR USER 1)\nCOMMIT;\n\n-- RESULT: SQL Server kills one of them with Error 1205.",
-    "companies": []
+    "companies": [
+      "Accenture",
+      "Microsoft",
+      "Amazon",
+      "Zoho"
+    ]
   }
 ]

@@ -1,6 +1,6 @@
 [
   {
-    "questionId": 35,
+    "questionId": 33,
     "followUps": [
       {
         "question": "What is the difference between Use, Run, and Map?",
@@ -16,9 +16,10 @@
         "diagram": "flowchart LR\n    Start[Request] --> Use1[app.Use (Auth)]\n    Use1 --> Map{app.Map ('/api')}\n    \n    Map -->|Path is /api| Branch1[app.Run (Return JSON)]\n    Map -->|Path is NOT /api| Use2[app.Use (Static Files)]\n    \n    Use2 --> Run1[app.Run (Return HTML)]",
         "companies": [
           "TCS",
+          "Infosys",
           "Cognizant",
           "Accenture",
-          "Microsoft"
+          "Capgemini"
         ]
       },
       {
@@ -33,18 +34,13 @@
           "Placing UseAuthorization before UseAuthentication \u2014 user identity is always null."
         ],
         "diagram": "sequenceDiagram\n    participant R as UseRouting()\n    participant AuthN as UseAuthentication()\n    participant AuthZ as UseAuthorization()\n    participant E as MapControllers()\n    \n    R->>AuthN: 1. Matched /api/vip. Requires [Authorize]\n    AuthN->>AuthZ: 2. Parsed JWT. User is \"Bob\".\n    AuthZ->>E: 3. Bob is an Admin. Allowed!\n    Note over E: 4. Executes the C# Controller Action",
-        "companies": []
+        "companies": [
+          "Microsoft",
+          "Accenture",
+          "Amazon"
+        ]
       }
     ],
-    "companies": [
-      "TCS",
-      "Infosys",
-      "Cognizant",
-      "Wipro",
-      "Accenture",
-      "Capgemini",
-      "HCL",
-      "Microsoft"
-    ]
+    "companies": []
   }
 ]

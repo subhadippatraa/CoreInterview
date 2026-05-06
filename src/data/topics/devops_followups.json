@@ -1,6 +1,6 @@
 [
   {
-    "questionId": 67,
+    "questionId": 65,
     "followUps": [
       {
         "question": "What is the difference between a Docker image and a container?",
@@ -14,7 +14,12 @@
           "Forgetting containers are ephemeral \u2014 data is lost without volumes."
         ],
         "diagram": "flowchart LR\n    I[Docker Image (Recipe)] -->|docker run| C1[Container 1]\n    I -->|docker run| C2[Container 2]\n    I -->|docker run| C3[Container 3]",
-        "companies": []
+        "companies": [
+          "TCS",
+          "Infosys",
+          "Wipro",
+          "Cognizant"
+        ]
       },
       {
         "question": "What is Docker Compose and when do you use it?",
@@ -28,18 +33,14 @@
           "Claiming containers have no security isolation \u2014 namespaces + cgroups provide strong isolation."
         ],
         "diagram": "flowchart TD\n    DC[docker-compose up] --> API[Web API Container]\n    DC --> DB[SQL Server Container]\n    DC --> Redis[Redis Container]\n    Note over API, DB: All connected to the same virtual network!",
-        "companies": []
+        "companies": [
+          "TCS",
+          "Cognizant",
+          "Accenture",
+          "Microsoft"
+        ]
       }
     ],
-    "companies": [
-      "TCS",
-      "Infosys",
-      "Cognizant",
-      "Wipro",
-      "Accenture",
-      "Capgemini",
-      "HCL",
-      "Microsoft"
-    ]
+    "companies": []
   }
 ]

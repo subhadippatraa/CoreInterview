@@ -1,6 +1,6 @@
 [
   {
-    "questionId": 51,
+    "questionId": 49,
     "followUps": [
       {
         "question": "Can a table have no clustered index?",
@@ -28,18 +28,16 @@
           "Confusing INCLUDE columns with index key columns \u2014 INCLUDE columns are not sorted."
         ],
         "diagram": "flowchart LR\n    subgraph Non-Covering (Slow)\n    I1[Find Email in Index] -->|Key Lookup!| T1[(Go to Physical Table to get Age)]\n    end\n    \n    subgraph Covering (Fast)\n    I2[Find Email in Index] -.->|Wait, Age is included here!| Done[Return Data Instantly]\n    end\n    style I1 fill:#ffcccc,stroke:#cc0000\n    style I2 fill:#ccffcc,stroke:#00cc00",
-        "companies": []
+        "companies": [
+          "TCS",
+          "Infosys",
+          "Wipro",
+          "Cognizant",
+          "Accenture",
+          "Capgemini"
+        ]
       }
     ],
-    "companies": [
-      "TCS",
-      "Infosys",
-      "Cognizant",
-      "Wipro",
-      "Accenture",
-      "Capgemini",
-      "HCL",
-      "Microsoft"
-    ]
+    "companies": []
   }
 ]

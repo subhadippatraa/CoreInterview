@@ -1,6 +1,6 @@
 [
   {
-    "id": 60,
+    "id": 58,
     "sectionId": "networking",
     "difficulty": "medium",
     "question": "What happens when you type a URL into your browser and press Enter?",
@@ -14,10 +14,16 @@
     "explanation": "**\ud83d\udcde The Phonebook Analogy:**\nImagine trying to call your friend \"Alice Store\".\n\n1. **DNS (The Phonebook):** You know her name is Alice, but you don't know her phone number. You open the phonebook (DNS), look up \"Alice Store\", and find her number: `192.168.1.5`.\n2. **TCP (Dialing the number):** You dial the number. She picks up and says \"Hello?\". You say \"Hi, it's me\". (This is the TCP 3-way handshake ensuring the connection is open).\n3. **TLS (Speaking in Code):** You agree to speak in a secret language so nobody listening can understand you (HTTPS Encryption).\n4. **HTTP Request (Asking the Question):** You ask, \"Do you have shoes in size 10?\"\n5. **HTTP Response (Getting the Answer):** She checks her back room (The Database), comes back to the phone, and says \"Yes, we have 3 pairs.\"\n6. **Rendering:** You write the answer down on your notepad.",
     "diagram": "sequenceDiagram\n    participant B as Browser\n    participant D as DNS Server\n    participant S as Web Server\n    \n    B->>D: 1. Who is google.com?\n    D-->>B: It is 142.250.190.46\n    B->>S: 2. SYN (TCP Handshake)\n    S-->>B: SYN-ACK\n    B->>S: 3. TLS Handshake (Secure me!)\n    B->>S: 4. HTTP GET /index.html\n    S-->>B: 5. HTTP 200 OK (HTML Data)\n    Note over B: 6. Browser draws the UI!",
     "example": "// \ud83c\udf10 THE DNS LOOKUP (What happens behind the scenes)\n// Domain: www.example.com\n// IP: 93.184.216.34\n\n// \ud83c\udf10 THE RAW HTTP REQUEST\nGET / HTTP/1.1\nHost: www.example.com\nUser-Agent: Mozilla/5.0 (Windows NT 10.0)\nAccept: text/html\n\n// \ud83c\udf10 THE RAW HTTP RESPONSE\nHTTP/1.1 200 OK\nContent-Type: text/html\n\n<html><body>Hello World!</body></html>",
-    "companies": []
+    "companies": [
+      "TCS",
+      "Cognizant",
+      "Accenture",
+      "Microsoft",
+      "Zoho"
+    ]
   },
   {
-    "id": 61,
+    "id": 59,
     "sectionId": "networking",
     "difficulty": "hard",
     "question": "What is the difference between REST and gRPC?",
@@ -31,10 +37,17 @@
     "explanation": "**\ud83d\udce6 The Shipping Box Analogy:**\n\u2022 **REST (A standard cardboard box):** You take a coffee mug, wrap it in bubble wrap, put it in a huge box, and fill it with packing peanuts. It's safe, and anyone who opens it immediately sees what it is. But the box is 90% empty air (JSON boilerplate like brackets and quotes).\n\u2022 **gRPC (A Vacuum-Sealed Bag):** You put the coffee mug in a plastic bag and vacuum out 100% of the air. It takes up a fraction of the space and ships instantly. However, the person receiving it needs a specific instruction manual (The Protobuf file) to safely unseal it.\n\n**When to use what:**\n\u2022 **REST:** Building a public API for mobile apps or React frontends.\n\u2022 **gRPC:** Microservice A (Billing) needs to send 50,000 records to Microservice B (Reporting) in 100 milliseconds.",
     "diagram": "flowchart TD\n    subgraph REST (JSON over HTTP/1.1)\n    UI[React Web App] -->|{ \"name\": \"Alice\" }| API1[Web API]\n    end\n    \n    subgraph gRPC (Binary over HTTP/2)\n    API1 -->|01100001 01101100| MS1[Payment Microservice]\n    API1 -->|01100001 01101100| MS2[Email Microservice]\n    end",
     "example": "// \u274c REST JSON (Heavy - 40 bytes)\n{\n  \"id\": 123,\n  \"name\": \"Alice\",\n  \"isActive\": true\n}\n\n\n// \u2705 gRPC PROTOBUF (Lightweight - ~8 bytes)\n// You define a strict 'contract' file.\nsyntax = \"proto3\";\n\nmessage User {\n  int32 id = 1;\n  string name = 2;\n  bool is_active = 3;\n}\n\n// The code automatically generates the classes for you in C#, Python, Go, etc!",
-    "companies": []
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Accenture",
+      "Microsoft",
+      "Amazon"
+    ]
   },
   {
-    "id": 62,
+    "id": 60,
     "sectionId": "networking",
     "difficulty": "medium",
     "question": "What are WebSockets and how are they different from HTTP?",
@@ -48,6 +61,10 @@
     "explanation": "**\ud83c\udf54 The Fast Food Analogy:**\n\u2022 **HTTP (The Drive-Thru):** You pull up, order a burger, pay, get your food, and drive away. The interaction is completely over. If you want fries 5 minutes later, you have to drive all the way back around and start a brand new interaction.\n\u2022 **WebSockets (Sitting at the Bar):** You sit down at the bar. The bartender stays in front of you. You order a beer, he hands it to you. Without you asking, he notices your bowl of peanuts is empty and slides you a new one. The connection remains \"open\" until you explicitly leave the building.\n\n**When to use WebSockets in .NET:**\nIn C#, we almost never use raw WebSockets. We use **SignalR**, an amazing library that wraps WebSockets and handles automatic reconnections and fallback protocols for us.",
     "diagram": "sequenceDiagram\n    participant C as Client (Browser)\n    participant S as Server\n    \n    Note over C, S: HTTP (Unidirectional)\n    C->>S: \"Any new messages?\"\n    S-->>C: \"No.\"\n    C->>S: \"Any new messages?\"\n    S-->>C: \"Yes, here is 1.\"\n    \n    Note over C, S: WebSockets (Bidirectional)\n    C->>S: Open Connection (Handshake)\n    S-->>C: Connection Established! \ud83e\udd1d\n    Note over S: (Server waits 10 minutes)\n    S-->>C: \"Hey, someone just texted you!\"\n    S-->>C: \"Hey, someone else texted you!\"",
     "example": "// \u274c HTTP POLLING (The bad, old way to do real-time)\nsetInterval(async () => {\n    // Spams the server every 1 second, even if there is no data.\n    var messages = await fetch('/api/chat/latest'); \n}, 1000);\n\n\n// \u2705 SIGNALR / WEBSOCKETS (The modern way)\n// Connect once, and just wait for the server to call YOU.\nvar connection = new signalR.HubConnectionBuilder()\n    .withUrl(\"/chatHub\")\n    .build();\n\nconnection.on(\"ReceiveMessage\", (user, message) => {\n    console.log(`${user} says: ${message}`); // Happens instantly!\n});\n\nawait connection.start();",
-    "companies": []
+    "companies": [
+      "Microsoft",
+      "Amazon",
+      "Accenture"
+    ]
   }
 ]

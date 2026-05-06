@@ -1,6 +1,6 @@
 [
   {
-    "questionId": 60,
+    "questionId": 58,
     "followUps": [
       {
         "question": "What is a DNS record?",
@@ -14,7 +14,15 @@
           "Not understanding TTL \u2014 changing DNS records doesn't take effect instantly due to caching."
         ],
         "diagram": "flowchart TD\n    D[User types www.api.com]\n    D --> CNAME[CNAME Record: 'www.api.com' points to 'api.com']\n    CNAME --> A[A Record: 'api.com' points to 192.168.1.5]\n    A --> Server[(Physical Server)]",
-        "companies": []
+        "companies": [
+          "TCS",
+          "Infosys",
+          "Cognizant",
+          "Wipro",
+          "Accenture",
+          "Capgemini",
+          "Zoho"
+        ]
       },
       {
         "question": "How does the TLS handshake work?",
@@ -28,18 +36,17 @@
           "Not knowing TLS 1.3 exists \u2014 it's faster and more secure than 1.2."
         ],
         "diagram": "sequenceDiagram\n    participant B as Browser\n    participant S as Server\n    \n    B->>S: 1. Hello! Secure me.\n    S-->>B: 2. Here is my Public Key (Certificate)\n    Note over B: Browser creates a random Session Key\n    B->>S: 3. Encrypts Session Key with Public Key\n    Note over S: Server decrypts it using Private Key\n    B->>S: 4. Encrypted HTTP GET (Using Session Key)\n    S-->>B: 5. Encrypted HTTP 200 OK",
-        "companies": []
+        "companies": [
+          "TCS",
+          "Infosys",
+          "Cognizant",
+          "Accenture",
+          "Capgemini",
+          "Microsoft",
+          "Amazon"
+        ]
       }
     ],
-    "companies": [
-      "TCS",
-      "Infosys",
-      "Cognizant",
-      "Wipro",
-      "Accenture",
-      "Capgemini",
-      "HCL",
-      "Microsoft"
-    ]
+    "companies": []
   }
 ]
