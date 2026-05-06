@@ -80,7 +80,7 @@ export function SectionLayout() {
       <aside className="w-[280px] shrink-0 border-r border-[var(--color-border)] bg-[var(--color-bg)] overflow-y-auto hidden lg:block sticky top-14 h-[calc(100vh-56px)]">
         <div className="py-6 px-4">
           <div className="mb-6 px-2">
-            <Link to="/" className="inline-flex items-center gap-2 text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text)] transition-colors group">
+            <Link to="/home" className="inline-flex items-center gap-2 text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text)] transition-colors group">
               <span className="transition-transform group-hover:-translate-x-1">←</span>
               <span>All Topics</span>
             </Link>
@@ -122,7 +122,7 @@ export function SectionLayout() {
 
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-[12px] text-[var(--color-text3)] mb-10 font-mono">
-            <Link to="/" className="hover:text-[var(--color-text2)] transition-colors">Home</Link>
+            <Link to="/home" className="hover:text-[var(--color-text2)] transition-colors">Home</Link>
             <span className="opacity-40">/</span>
             <Link to={`/section/${sectionId}`} className="hover:text-[var(--color-text2)] transition-colors">{section.name}</Link>
             <span className="opacity-40">/</span>
@@ -311,14 +311,24 @@ export function SectionLayout() {
         <div className="py-10 px-5">
           <h4 className="font-heading text-[10px] font-bold text-[var(--color-text3)] uppercase tracking-[0.15em] mb-5">On This Page</h4>
           <nav className="space-y-3">
-            <a href="#section-question" className="block text-[12px] text-[var(--color-text2)] hover:text-[var(--color-text)] transition-colors">Question</a>
-            <a href="#section-answer" className="block text-[12px] text-[var(--color-text2)] hover:text-[var(--color-text)] transition-colors">What to Say</a>
-            <a href="#section-explanation" className="block text-[12px] text-[var(--color-text2)] hover:text-[var(--color-text)] transition-colors">Under the Hood</a>
-            {activeQuestion.example && <a href="#section-example" className="block text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text)] transition-colors">Example</a>}
-            {activeQuestion.diagram && <a href="#section-diagram" className="block text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text)] transition-colors">Diagram</a>}
-            <a href="#section-why-asked" className="block text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text)] transition-colors">Why Asked</a>
-            {activeQuestion.followUps.length > 0 && <a href="#section-follow-ups" className="block text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text)] transition-colors">Follow-ups</a>}
-            {activeQuestion.mistakes.length > 0 && <a href="#section-mistakes" className="block text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text)] transition-colors">Mistakes</a>}
+            {[
+              { id: 'section-question', label: 'Question' },
+              { id: 'section-answer', label: 'What to Say' },
+              { id: 'section-explanation', label: 'Under the Hood' },
+              ...(activeQuestion.example ? [{ id: 'section-example', label: 'Example' }] : []),
+              ...(activeQuestion.diagram ? [{ id: 'section-diagram', label: 'Diagram' }] : []),
+              { id: 'section-why-asked', label: 'Why Asked' },
+              ...(activeQuestion.followUps.length > 0 ? [{ id: 'section-follow-ups', label: 'Follow-ups' }] : []),
+              ...(activeQuestion.mistakes.length > 0 ? [{ id: 'section-mistakes', label: 'Mistakes' }] : []),
+            ].map(item => (
+              <button
+                key={item.id}
+                onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="block text-[12px] text-[var(--color-text3)] hover:text-[var(--color-text)] transition-colors cursor-pointer text-left"
+              >
+                {item.label}
+              </button>
+            ))}
           </nav>
         </div>
       </aside>

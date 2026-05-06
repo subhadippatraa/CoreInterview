@@ -14,11 +14,12 @@ function App() {
         <main className="flex-1 relative flex flex-col">
           <AnimatePresence mode="wait">
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Navigate to="/home" replace />} />
+              <Route path="/home" element={<Home />} />
               <Route path="/section/:sectionId" element={<SectionLayout />} />
               <Route path="/section/:sectionId/question/:questionId" element={<SectionLayout />} />
               <Route path="/mock" element={<MockInterview />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<Navigate to="/home" replace />} />
             </Routes>
           </AnimatePresence>
         </main>

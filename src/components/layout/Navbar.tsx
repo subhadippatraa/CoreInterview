@@ -39,9 +39,9 @@ export function Navbar() {
         {/* Nav Links */}
         <div className="flex items-center gap-2">
           <Link
-            to="/"
+            to="/home"
             className={`px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors ${
-              location.pathname === '/'
+              location.pathname === '/home' || location.pathname === '/'
                 ? 'text-[var(--color-text)] bg-[var(--color-bg2)]'
                 : 'text-[var(--color-text2)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg2)]'
             }`}
