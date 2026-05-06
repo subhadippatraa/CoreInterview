@@ -28,9 +28,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: WHERE filters rows BEFORE grouping. HAVING filters groups AFTER aggregation.",
-    "explanation": "**Quick Overview:**\nInfosys Jan 2025 \u2014 Data Analyst role. Candidate was asked to filter sales data based on region and group total sales per product.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nBoth `WHERE` and `HAVING` are used to filter records, but they operate at completely different stages of the query execution pipeline.\n\n- **`WHERE`** is a row-level filter. It filters raw data *before* any grouping or aggregation takes place. You cannot use aggregate functions (like `SUM()`, `COUNT()`) inside a `WHERE` clause.\n- **`HAVING`** is a group-level filter. It filters the aggregated result set *after* the `GROUP BY` clause has been applied. It is almost exclusively used with aggregate functions.",
+    "example": "```sql\n-- Correct: WHERE filters raw salaries, HAVING filters the grouped average\nSELECT department_id, AVG(salary) as avg_salary\nFROM employees\nWHERE status = 'Active'         -- Filters raw rows BEFORE grouping\nGROUP BY department_id\nHAVING AVG(salary) > 80000;     -- Filters aggregated groups AFTER grouping\n```",
+    "mistakes": [
+      "Trying to use an aggregate function in a WHERE clause (`WHERE SUM(sales) > 1000`).",
+      "Using HAVING to filter non-aggregated columns. (While technically allowed in some DBMS, it's terrible for performance compared to filtering early with WHERE)."
+    ],
     "followUps": []
   },
   {
@@ -68,9 +71,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: INNER = only matches. LEFT = all from left + matches. RIGHT = all from right + matches. FULL = everything.",
-    "explanation": "**Quick Overview:**\nIBM SQL test for Data Analyst. Asked in almost every SQL round at service companies.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nJoins combine rows from two or more tables based on a related column between them.\n\n- **`INNER JOIN`**: Returns *only* the records that have matching values in both tables. It is the intersection.\n- **`LEFT JOIN`**: Returns *all* records from the left table, and the matched records from the right table. If there is no match, the result is `NULL` on the right side.\n- **`RIGHT JOIN`**: Returns *all* records from the right table, and the matched records from the left. (Rarely used, as you can just swap table order with a LEFT JOIN).\n- **`FULL JOIN`**: Returns *all* records when there is a match in either left or right table. Missing matches are filled with `NULL`s. It is the union of left and right joins.",
+    "example": "```sql\n-- LEFT JOIN Example: Get all employees, even those without a department\nSELECT e.name, d.department_name\nFROM employees e\nLEFT JOIN departments d \n  ON e.department_id = d.id;\n```",
+    "mistakes": [
+      "Using a LEFT JOIN but placing a filtering condition for the right table in the WHERE clause instead of the ON clause (this accidentally turns it into an INNER JOIN).",
+      "Not understanding that FULL JOIN can result in massive datasets if not properly constrained."
+    ],
     "followUps": []
   },
   {
@@ -102,9 +108,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: DELETE = row-level, rollback-able. TRUNCATE = all rows, faster, no rollback. DROP = removes entire table structure.",
-    "explanation": "**Quick Overview:**\nTech Mahindra Feb 2025. Asked in almost every SQL fresher round.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nThese three commands remove data, but they belong to different SQL categories and operate very differently under the hood.\n\n- **`DELETE`** (DML): Removes rows one by one. It logs each deleted row in the transaction log, meaning it is slower but **can be rolled back**. Triggers are fired.\n- **`TRUNCATE`** (DDL): Removes all rows by deallocating the data pages used by the table. It logs the page deallocation (not the rows), meaning it is much faster. It **cannot be rolled back** in most databases (except SQL Server inside a transaction). Triggers are NOT fired. Resets identity columns.\n- **`DROP`** (DDL): Completely removes the table structure, data, indexes, and constraints from the database entirely.",
+    "example": "```sql\nDELETE FROM employees WHERE status = 'Terminated'; -- Selective, safe, slow\n\nTRUNCATE TABLE staging_data; -- Nukes all rows, fast, keeps structure\n\nDROP TABLE temp_archive; -- Completely deletes the table from existence\n```",
+    "mistakes": [
+      "Saying TRUNCATE cannot be rolled back under any circumstances (in SQL Server, if wrapped in `BEGIN TRAN`, it can be).",
+      "Using DELETE without a WHERE clause when TRUNCATE would have been 100x faster."
+    ],
     "followUps": []
   },
   {
@@ -130,9 +139,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: PRIMARY KEY = unique + not null + only one per table. UNIQUE KEY = unique + allows one NULL + multiple allowed.",
-    "explanation": "**Quick Overview:**\nCapgemini off-campus drive 2025. One of the most universally asked fresher questions.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nBoth enforce uniqueness, but they serve different architectural purposes.\n\n- **`PRIMARY KEY`**: Uniquely identifies a record in a table. It **cannot accept NULL** values. A table can only have exactly **one** Primary Key. By default, it creates a Clustered Index.\n- **`UNIQUE KEY`**: Ensures all values in a column are different. It **can accept one NULL value** (in SQL Server) or multiple NULLs (in Postgres/MySQL). A table can have **multiple** Unique Keys. By default, it creates a Non-Clustered Index.",
+    "example": "```sql\nCREATE TABLE Users (\n    UserId INT PRIMARY KEY,       -- Cannot be null, uniquely identifies row\n    Email VARCHAR(255) UNIQUE,    -- Can be null, but non-nulls must be unique\n    Username VARCHAR(50) UNIQUE   -- Multiple unique constraints allowed\n);\n```",
+    "mistakes": [
+      "Stating that UNIQUE keys cannot accept NULL values at all.",
+      "Confusing the default index types (PK = Clustered, Unique = Non-Clustered)."
+    ],
     "followUps": []
   },
   {
@@ -163,9 +175,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Correlated subquery references outer query column \u2014 runs once per outer row (slow). Non-correlated is independent.",
-    "explanation": "**Quick Overview:**\nTCS Digital Jan 2025 \u2014 System Engineer Trainee. Infosys SP interview for final year students.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nA subquery is a query nested inside another query (SELECT, INSERT, UPDATE, or DELETE).\n\n- **Non-Correlated Subquery**: Independent of the outer query. It executes exactly **once**, returns its result, and the outer query uses that result.\n- **Correlated Subquery**: Depends on the outer query for its values. It executes **once for every single row** returned by the outer query. This makes them notoriously slow and a common cause of performance bottlenecks.",
+    "example": "```sql\n-- Non-Correlated (Fast: Inner runs once)\nSELECT name FROM employees \nWHERE salary > (SELECT AVG(salary) FROM employees);\n\n-- Correlated (Slow: Inner runs for EVERY employee row)\nSELECT e1.name, e1.salary\nFROM employees e1\nWHERE e1.salary > (\n    SELECT AVG(salary) FROM employees e2 \n    WHERE e2.department_id = e1.department_id -- References outer query e1\n);\n```",
+    "mistakes": [
+      "Using correlated subqueries when a simple `JOIN` or Window Function (`AVG() OVER(...)`) would be exponentially faster.",
+      "Not recognizing the performance implications of `O(N)` execution in correlated queries."
+    ],
     "followUps": []
   },
   {
@@ -197,9 +212,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: All aggregate functions ignore NULLs except COUNT(*). COUNT(col) skips NULLs, COUNT(*) does not.",
-    "explanation": "**Quick Overview:**\nInfosys SP interview for final year students. Mphasis campus round. Universal fresher question.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nAggregate functions perform a calculation on a set of values and return a single scalar value. The core five are `SUM()`, `AVG()`, `COUNT()`, `MIN()`, and `MAX()`.\n\nThe most important interview trap regarding aggregates is **NULL handling**.\n- `SUM()`, `AVG()`, `MIN()`, and `MAX()` absolutely **ignore NULL values**.\n- `COUNT(column_name)` ignores NULL values.\n- `COUNT(*)` counts total rows, **including NULLs**.",
+    "example": "```sql\n-- If column 'bonus' has values: 100, 200, NULL\nSELECT \n    SUM(bonus),       -- Returns 300\n    AVG(bonus),       -- Returns 150 (300 / 2 valid rows, NOT 3)\n    COUNT(bonus),     -- Returns 2\n    COUNT(*)          -- Returns 3\nFROM salary_data;\n```",
+    "mistakes": [
+      "Forgetting that `AVG()` ignores NULLs, which can skew averages. If you want NULLs treated as zero, you must use `AVG(COALESCE(bonus, 0))`.",
+      "Confusing `COUNT(col)` with `COUNT(*)`."
+    ],
     "followUps": []
   },
   {
@@ -231,9 +249,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: CTE = named temporary result set. Prefer over subquery for readability and recursive queries. Runs once.",
-    "explanation": "**Quick Overview:**\nZoho interview for Business Intelligence Developer. Paytm SQL assessment for Junior Data Analyst.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nA Common Table Expression (CTE) is a temporary, named result set created using the `WITH` keyword that exists only within the execution scope of a single SELECT, INSERT, UPDATE, or DELETE statement.\n\n**Why use it over a subquery?**\n1. **Readability**: CTEs allow you to write complex queries top-to-bottom, rather than inside-out like subqueries. This prevents the \"pyramid of doom\" in nested queries.\n2. **Reusability**: You can reference the same CTE multiple times in the main query, whereas a subquery must be rewritten.\n3. **Recursion**: CTEs can be recursive (calling themselves), which is impossible with standard subqueries.",
+    "example": "```sql\nWITH HighEarners AS (\n    SELECT id, name, salary \n    FROM employees \n    WHERE salary > 100000\n)\nSELECT e.name, d.dept_name\nFROM HighEarners e\nJOIN departments d ON e.dept_id = d.id;\n```",
+    "mistakes": [
+      "Thinking CTEs are stored physically on disk. They are purely logical/virtual and do not inherently improve performance over subqueries (the optimizer treats them similarly).",
+      "Trying to use a CTE across multiple distinct statements (they only last for the immediately following query)."
+    ],
     "followUps": []
   },
   {
@@ -266,9 +287,11 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: ROW_NUMBER = always unique. RANK = skips on tie. DENSE_RANK = no skip on tie. All use OVER(ORDER BY).",
-    "explanation": "**Quick Overview:**\nOracle Financial Services MIS role. TCS BFSI Division. Flipkart Data Engineer.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nThese are all ranking window functions, but they handle **ties** (identical values) differently.\n\n- **`ROW_NUMBER()`**: Gives a strictly unique, sequential integer to every row. (1, 2, 3, 4). Ties are broken arbitrarily.\n- **`RANK()`**: Gives the same rank to ties, but **skips** the next numbers. (1, 2, 2, 4). Notice rank 3 is skipped.\n- **`DENSE_RANK()`**: Gives the same rank to ties, but **does not skip** the next numbers. (1, 2, 2, 3).",
+    "example": "```sql\n-- Given salaries: 100k, 100k, 90k\nSELECT salary,\n       ROW_NUMBER() OVER(ORDER BY salary DESC) as rn,   -- 1, 2, 3\n       RANK() OVER(ORDER BY salary DESC) as r,          -- 1, 1, 3\n       DENSE_RANK() OVER(ORDER BY salary DESC) as dr    -- 1, 1, 2\nFROM employees;\n```",
+    "mistakes": [
+      "Using `RANK()` when finding the Nth highest salary. If two people share the 1st highest salary, `RANK()` will make the next person 3rd, meaning there is no 2nd highest. Always use `DENSE_RANK()` for Nth highest queries."
+    ],
     "followUps": []
   },
   {
@@ -301,9 +324,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Window functions don't collapse rows unlike aggregates. They compute over a window \u2014 OVER(PARTITION BY ... ORDER BY ...).",
-    "explanation": "**Quick Overview:**\nZS Associates Business Analyst interview. Flipkart Data Engineer Level 2. Ola backend data team.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nWindow functions perform calculations across a set of table rows that are related to the current row (the \"window\").\n\nThe critical difference from aggregate functions:\n- **Aggregate functions (`GROUP BY`)** collapse multiple rows into a single summary row. You lose the individual row details.\n- **Window functions (`OVER()`)** append the aggregated result as a new column to the result set, while **keeping all original rows intact**.",
+    "example": "```sql\n-- Aggregate: Collapses to 1 row per department\nSELECT dept_id, AVG(salary) FROM employees GROUP BY dept_id;\n\n-- Window Function: Keeps all employee rows, adds the avg as a column\nSELECT name, salary, dept_id,\n       AVG(salary) OVER(PARTITION BY dept_id) as dept_avg_salary\nFROM employees;\n```",
+    "mistakes": [
+      "Trying to put a window function inside a `WHERE` clause. You cannot filter by a window function directly; you must wrap it in a CTE or Subquery first.",
+      "Forgetting the `ORDER BY` inside the `OVER()` clause when using cumulative functions like `SUM()` for running totals."
+    ],
     "followUps": []
   },
   {
@@ -334,9 +360,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: UNION removes duplicates (slower). UNION ALL keeps all rows (faster). Both require same column count and types.",
-    "explanation": "**Quick Overview:**\nInfosys lateral hiring SQL test. LTI (L&T Infotech) automation analyst interview.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nBoth are set operations used to combine the result sets of two or more `SELECT` statements into a single column structure.\n\n- **`UNION`**: Combines results and **removes all duplicate rows**. To do this, the database engine must perform a sort/deduplication operation under the hood, making it significantly slower.\n- **`UNION ALL`**: Combines results and **keeps all duplicate rows**. Because it just concatenates the sets without sorting, it is much faster.",
+    "example": "```sql\n-- Slow: Performs an implicit DISTINCT operation\nSELECT email FROM customers\nUNION \nSELECT email FROM leads;\n\n-- Fast: Just appends the rows blindly\nSELECT email FROM customers\nUNION ALL \nSELECT email FROM leads;\n```",
+    "mistakes": [
+      "Defaulting to `UNION` out of habit when duplicates don't exist or don't matter, unnecessarily wasting CPU cycles on sorting.",
+      "Trying to UNION tables with different column counts or mismatched data types."
+    ],
     "followUps": []
   },
   {
@@ -368,9 +397,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Index speeds up reads but slows down writes. Clustered = physical order. Non-clustered = separate lookup structure.",
-    "explanation": "**Quick Overview:**\nDeloitte Data Consultant round. Scribd TCS/EY/Deloitte SQL guide core topic.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nAn Index is a database data structure (usually a B-Tree) that improves the speed of data retrieval operations. Think of it like the index at the back of a textbook\u2014instead of reading the whole book (a Full Table Scan), the database looks up the index to find the exact memory address of the row.\n\n**Impact on Performance:**\n- **Reads:** Drastically speeds up `SELECT` queries, especially those with `WHERE`, `JOIN`, or `ORDER BY` clauses.\n- **Writes:** Slows down `INSERT`, `UPDATE`, and `DELETE` operations, because every time the table data changes, the index tree must be synchronously updated to reflect the change.",
+    "example": "```sql\n-- Create an index to speed up email lookups\nCREATE INDEX idx_users_email \nON Users (email);\n\n-- This query now uses an Index Seek instead of a Table Scan\nSELECT * FROM Users WHERE email = 'test@example.com';\n```",
+    "mistakes": [
+      "Believing you should \"just index every column\" to make the database fast. This will destroy write performance and waste disk space.",
+      "Not understanding that functions in a WHERE clause (e.g., `WHERE YEAR(date) = 2023`) will bypass the index entirely (Index Fragmentation/SARGability rules)."
+    ],
     "followUps": []
   },
   {
@@ -401,9 +433,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Clustered = data rows physically sorted by index (one per table). Non-clustered = separate structure pointing to rows (many allowed).",
-    "explanation": "**Quick Overview:**\nConsistent topic in TCS, EY, Deloitte SQL rounds. Microsoft SQL Server specific knowledge.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\n- **Clustered Index**: Determines the *physical sorting order* of the data rows on the disk. Because data can only be physically sorted one way, a table can only have **exactly one** clustered index. (Usually automatically created on the Primary Key). The \"leaf nodes\" of the index contain the actual data rows.\n- **Non-Clustered Index**: A separate structure from the data rows. It contains the indexed columns and a pointer (bookmark) back to the actual row in the clustered index. A table can have **multiple** non-clustered indexes.",
+    "example": "```sql\n-- The Primary Key automatically becomes the Clustered Index\nCREATE TABLE Orders (\n    OrderId INT PRIMARY KEY, \n    CustomerId INT,\n    OrderDate DATETIME\n);\n\n-- Create a Non-Clustered index for fast lookups by Customer\nCREATE NONCLUSTERED INDEX IX_Orders_CustomerId \nON Orders(CustomerId);\n```",
+    "mistakes": [
+      "Failing to explain that the clustered index *is* the table data itself, while the non-clustered index is a secondary lookup map.",
+      "Stating you can have multiple clustered indexes."
+    ],
     "followUps": []
   },
   {
@@ -434,9 +469,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: CASE WHEN is SQL's IF-ELSE. Works in SELECT, WHERE, ORDER BY. Used for conditional columns and pivoting.",
-    "explanation": "**Quick Overview:**\nCapgemini 2025 Analyst Interview. Microsoft Data Associate case round for PIVOT.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\n`CASE WHEN` is SQL's version of an `IF-THEN-ELSE` statement. It allows you to embed conditional logic directly within a SQL query.\n\nIt is incredibly versatile and can be used in:\n- The `SELECT` clause (to categorize or pivot data)\n- The `WHERE` clause (for dynamic filtering)\n- The `ORDER BY` clause (for custom sorting)\n- Inside aggregate functions (for conditional counting/summing)",
+    "example": "```sql\n-- Example: Conditional Aggregation (Pivoting)\nSELECT department,\n    SUM(CASE WHEN gender = 'M' THEN 1 ELSE 0 END) as MaleCount,\n    SUM(CASE WHEN gender = 'F' THEN 1 ELSE 0 END) as FemaleCount\nFROM Employees\nGROUP BY department;\n```",
+    "mistakes": [
+      "Forgetting the `END` keyword, which causes a syntax error.",
+      "Overcomplicating multiple `OR` conditions when a `CASE` statement would be cleaner."
+    ],
     "followUps": []
   },
   {
@@ -462,9 +500,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Foreign key links child table column to parent PK. Referential integrity prevents orphan records.",
-    "explanation": "**Quick Overview:**\nAccenture Junior SQL Developer round. ZELL SQL fresher guide \u2014 very common at TCS and Wipro.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nA **Foreign Key** is a column (or group of columns) in one table that references the Primary Key of another table. It establishes a link between the two tables.\n\n**Referential Integrity** is the rule that ensures this relationship remains valid. It guarantees that you cannot insert a foreign key value if it doesn't exist in the parent table, and you cannot delete a parent row if child rows still reference it (unless using `CASCADE`).",
+    "example": "```sql\nCREATE TABLE Orders (\n    OrderId INT PRIMARY KEY,\n    ProductId INT,\n    -- Ensures ProductId MUST exist in the Products table\n    FOREIGN KEY (ProductId) REFERENCES Products(Id) ON DELETE CASCADE\n);\n```",
+    "mistakes": [
+      "Confusing the parent and child tables. The table *containing* the foreign key is the child.",
+      "Thinking Foreign Keys automatically create an index. They do not. You must manually create an index on the FK column to speed up joins."
+    ],
     "followUps": []
   },
   {
@@ -490,9 +531,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: IN = checks value list (evaluates subquery fully). EXISTS = stops at first match (faster for large datasets).",
-    "explanation": "**Quick Overview:**\nL&T Infotech database interview for interns. Commonly tested at SQL assessment rounds.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nBoth are used to check if a value exists within a subquery result, but their internal execution engines differ vastly.\n\n- **`IN`**: Compares a value against a literal list or a subquery. It **evaluates the entire subquery first**, stores it in memory, and then compares against it. If the subquery contains a `NULL`, the `IN` clause can behave unexpectedly.\n- **`EXISTS`**: Evaluates true/false based on whether the subquery returns *any* rows. It **stops processing the subquery the moment it finds a single match** (short-circuiting), making it much faster for large datasets.",
+    "example": "```sql\n-- Slower for large data: Fetches all active dept IDs into memory first\nSELECT name FROM employees \nWHERE dept_id IN (SELECT id FROM departments WHERE is_active = 1);\n\n-- Faster: Stops checking as soon as it confirms the department is active\nSELECT name FROM employees e\nWHERE EXISTS (\n    SELECT 1 FROM departments d \n    WHERE d.id = e.dept_id AND d.is_active = 1\n);\n```",
+    "mistakes": [
+      "Using `IN` with a subquery that might return `NULL` values. (`NOT IN (1, 2, NULL)` will evaluate to UNKNOWN and filter out everything).",
+      "Not understanding that `EXISTS` is optimized for short-circuit evaluation."
+    ],
     "followUps": []
   },
   {
@@ -517,9 +561,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Self join joins a table to itself. Classic use: employees who earn more than their manager.",
-    "explanation": "**Quick Overview:**\nZELL SQL fresher guide \u2014 TCS and Wipro frequently ask this. Employee-manager relationship is the classic example.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nA Self Join is not a unique SQL keyword; it is simply a standard `JOIN` (Inner, Left, or Right) where a table is joined to **itself**.\n\nTo achieve this without syntax errors, you **must use table aliases** to differentiate the two instances of the same table.\n\n**Real-World Example:**\nThe most classic interview example is an Employee table that contains a `ManagerId` column, which points to the `EmployeeId` in the exact same table.",
+    "example": "```sql\n-- Find the names of employees and the names of their managers\nSELECT \n    e.Name as EmployeeName, \n    m.Name as ManagerName\nFROM Employees e\nLEFT JOIN Employees m         -- Joining the table to itself\n  ON e.ManagerId = m.EmployeeId;\n```",
+    "mistakes": [
+      "Forgetting to alias the tables, which causes an \"Ambiguous column name\" error.",
+      "Using an INNER JOIN when some employees (like the CEO) don't have a manager, meaning the CEO gets filtered out of the result set (should use LEFT JOIN)."
+    ],
     "followUps": []
   },
   {
@@ -550,9 +597,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: GROUP BY collapses rows with same value into one group. Always used with aggregate functions.",
-    "explanation": "**Quick Overview:**\nWipro Graduate Trainee SQL assessment. Universal fresher round question.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nThe `GROUP BY` clause groups rows that have the same values in specified columns into aggregate summary rows.\n\nIt is almost always used in conjunction with aggregate functions (`COUNT()`, `MAX()`, `MIN()`, `SUM()`, `AVG()`).\n\nThe golden rule of `GROUP BY`: **Every column in your `SELECT` statement must either be explicitly listed in the `GROUP BY` clause, or be wrapped in an aggregate function.**",
+    "example": "```sql\n-- Correct: Grouping by department to find total salaries per dept\nSELECT department_id, SUM(salary) as TotalSalary\nFROM employees\nGROUP BY department_id;\n\n-- WRONG (Will throw an error):\n-- SELECT department_id, name, SUM(salary) ... GROUP BY department_id\n-- (You cannot select 'name' without grouping by it or aggregating it)\n```",
+    "mistakes": [
+      "Violating the golden rule by selecting a non-aggregated column that isn't in the GROUP BY list.",
+      "Trying to filter the grouped results using a `WHERE` clause instead of `HAVING`."
+    ],
     "followUps": []
   },
   {
@@ -578,9 +628,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: COALESCE returns first non-null from a list (ANSI standard, works everywhere). ISNULL is SQL Server only (2 args).",
-    "explanation": "**Quick Overview:**\nEY GDS SQL round. Accenture reporting project interview.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nBoth functions replace `NULL` values with a specified replacement value, but they have key differences.\n\n- **`COALESCE()`**: An ANSI SQL standard function. It accepts **multiple arguments** and returns the first non-null expression in the list. `COALESCE(val1, val2, val3, 'fallback')`.\n- **`ISNULL()`**: A proprietary function specific to SQL Server (T-SQL). It only accepts exactly **two arguments**. `ISNULL(val, 'fallback')`.",
+    "example": "```sql\n-- COALESCE checks multiple columns in order until it hits a non-null\nSELECT \n    EmployeeId,\n    COALESCE(MobilePhone, HomePhone, WorkPhone, 'No Contact Provided') as ContactNumber\nFROM Employees;\n```",
+    "mistakes": [
+      "Not knowing that `COALESCE` is ANSI standard and works in Postgres, MySQL, Oracle, and SQL Server, whereas `ISNULL` is dialect-specific.",
+      "Not knowing the data type resolution rules (COALESCE returns the data type of the value with the highest precedence, ISNULL strictly uses the data type of the first argument)."
+    ],
     "followUps": []
   },
   {
@@ -606,9 +659,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: View = virtual, always runs live query. Materialized View = physically stores results, needs manual/scheduled refresh but faster.",
-    "explanation": "**Quick Overview:**\nGoogle Cloud Platform SQL architecture interview. Deloitte architecture-level interview.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\n- **View**: A virtual table defined by a saved SQL query. It does not store physical data. Every time you query the view, the database engine executes the underlying SQL query live. Used for security, abstraction, and simplifying complex joins.\n- **Materialized View**: A database object that physically stores the result set of the query on disk, like a real table. Querying it is blazingly fast, but the data becomes stale. It must be refreshed manually or on a scheduled trigger.\n\n*Note: SQL Server calls them \"Indexed Views\" instead of Materialized Views.*",
+    "example": "```sql\n-- Standard View (Virtual, runs live)\nCREATE VIEW ActiveUsers AS\nSELECT id, name FROM users WHERE status = 'active';\n\n-- Materialized View (PostgreSQL syntax - Physically stored)\nCREATE MATERIALIZED VIEW MonthlySales AS\nSELECT month, sum(amount) FROM sales GROUP BY month;\n-- Must be refreshed later via: REFRESH MATERIALIZED VIEW MonthlySales;\n```",
+    "mistakes": [
+      "Suggesting a standard View improves read performance. It doesn't; it just abstracts the query. Only Materialized/Indexed views improve performance.",
+      "Using a Materialized view for highly transactional (OLTP) tables where real-time data accuracy is strictly required."
+    ],
     "followUps": []
   },
   {
@@ -639,9 +695,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Stored Procedure = can have side effects, no mandatory return. Function = must return value, used in SELECT, no side effects.",
-    "explanation": "**Quick Overview:**\nTCS Glassdoor reviews specifically mention stored procedures as a consistent interview topic.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nBoth execute procedural SQL code, but they have distinct architectural rules:\n\n**Stored Procedure:**\n- Designed to perform business logic and actions (INSERT, UPDATE, DELETE).\n- Can return zero, one, or multiple result sets.\n- Cannot be embedded in a `SELECT` statement.\n- Can use transaction control (`BEGIN TRAN`, `COMMIT`).\n\n**Function (UDF):**\n- Designed specifically to compute and return a value.\n- Must return exactly one value (scalar) or one table (table-valued).\n- Can be embedded directly inside a `SELECT`, `WHERE`, or `JOIN` statement.\n- **Cannot have side effects** (you cannot INSERT/UPDATE/DELETE tables inside a function).",
+    "example": "```sql\n-- Function: Used inside a SELECT query\nSELECT EmployeeName, dbo.CalculateTax(Salary) FROM Employees;\n\n-- Stored Procedure: Executed independently to run logic\nEXECUTE ProcessMonthlyPayroll @Month = 'May';\n```",
+    "mistakes": [
+      "Saying functions are \"just like stored procedures but smaller\". The critical difference is the restriction on side-effects (DML operations).",
+      "Trying to execute a Stored Procedure from inside a Function (which is illegal)."
+    ],
     "followUps": []
   },
   {
@@ -671,9 +730,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Trigger = auto-executes SQL on INSERT/UPDATE/DELETE. Use for audit logging, enforcing rules. AFTER vs INSTEAD OF.",
-    "explanation": "**Quick Overview:**\nGlassdoor TCS review mentions triggers alongside stored procedures as consistent SQL topics.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nA Trigger is a special type of stored procedure that automatically executes (\"fires\") when a specific Data Manipulation Language (DML) or Data Definition Language (DDL) event occurs in the database.\n\nThere are generally two main types of DML triggers:\n- **`AFTER` (or `FOR`) Triggers:** Execute *after* the insert/update/delete action has successfully completed.\n- **`INSTEAD OF` Triggers:** Execute *in place of* the triggering action. Used to override the default action.\n\n**Common Use Cases:**\n- **Audit Logging:** Automatically recording who changed a row and when into an `Audit_Log` table.\n- **Complex Validation:** Enforcing business rules that are too complex for a standard `CHECK` constraint.",
+    "example": "```sql\n-- Create an audit trigger that fires AFTER an employee gets deleted\nCREATE TRIGGER trg_AuditEmployeeDeletion\nON Employees\nAFTER DELETE\nAS\nBEGIN\n    INSERT INTO AuditLog (Action, EmployeeId, DeletedAt)\n    SELECT 'DELETE', deleted.Id, GETDATE()\n    FROM deleted; -- 'deleted' is a magical temporary table available inside triggers\nEND;\n```",
+    "mistakes": [
+      "Overusing triggers for core business logic. They are \"invisible\" magic to application developers and can make debugging nightmarish.",
+      "Not accounting for bulk operations. A trigger fires once per *statement*, not once per *row*. The `deleted` or `inserted` tables might contain 1,000 rows, so your trigger logic must be set-based, not scalar."
+    ],
     "followUps": []
   },
   {
@@ -699,9 +761,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: CHAR = fixed length (padded with spaces). VARCHAR = variable length (only uses what it needs). VARCHAR saves space.",
-    "explanation": "**Quick Overview:**\nOracle campus selection March 2025. Very common in written/online SQL tests.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nBoth store string data, but they manage physical storage space differently.\n\n- **`CHAR(n)`**: Fixed-length character data. If you define `CHAR(10)` and insert \"ABC\", the database will pad it with 7 trailing spaces to fill the 10 bytes. It is slightly faster for retrieving data because the DB engine always knows exactly where the next string begins in memory.\n- **`VARCHAR(n)`**: Variable-length character data. If you define `VARCHAR(10)` and insert \"ABC\", it only uses 3 bytes (plus a 2-byte overhead to store the length). It saves significant disk space.",
+    "example": "```sql\n-- CHAR is perfect for fixed-length data like State Abbreviations or Hashes\nStateCode CHAR(2)       -- 'NY', 'CA'\n\n-- VARCHAR is perfect for variable-length data like Names or Emails\nEmail VARCHAR(255)      -- 'john.doe@example.com'\n```",
+    "mistakes": [
+      "Using `CHAR` for a \"Comments\" or \"Description\" field, wasting massive amounts of disk space with empty space padding.",
+      "Using `VARCHAR(255)` for everything \"just to be safe\", which can inflate index sizes and memory grants during query execution."
+    ],
     "followUps": []
   },
   {
@@ -726,9 +791,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: NOT NULL = no nulls. UNIQUE = no duplicates. CHECK = custom rule. DEFAULT = fallback value. PRIMARY KEY = NOT NULL + UNIQUE.",
-    "explanation": "**Quick Overview:**\nHDFC Tech interview for Data Ops role. Fundamental constraint knowledge tested at all service companies.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nSQL Constraints are rules applied to columns to enforce data integrity and accuracy.\n\n1. **`NOT NULL`**: Ensures a column cannot contain a NULL value.\n2. **`UNIQUE`**: Ensures all values in a column are distinctly different.\n3. **`PRIMARY KEY`**: A combination of `NOT NULL` and `UNIQUE`. Uniquely identifies a row.\n4. **`FOREIGN KEY`**: Prevents actions that would destroy links between tables (Referential Integrity).\n5. **`CHECK`**: Ensures that values in a column satisfy a specific boolean condition.\n6. **`DEFAULT`**: Provides a fallback value if no value is explicitly inserted.",
+    "example": "```sql\nCREATE TABLE Employees (\n    Id INT PRIMARY KEY,                       -- Unique + Not Null\n    Email VARCHAR(100) UNIQUE,                -- Unique\n    Age INT CHECK (Age >= 18),                -- Custom validation\n    Status VARCHAR(20) DEFAULT 'Active'       -- Fallback value\n);\n```",
+    "mistakes": [
+      "Using an application-level validation (like checking age in C#) instead of a database-level `CHECK` constraint. The database is the final line of defense against bad data.",
+      "Confusing `UNIQUE` and `PRIMARY KEY`."
+    ],
     "followUps": []
   },
   {
@@ -753,9 +821,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: CTE = query-scoped alias, not stored physically. Temp table = stored in tempdb, persists for session, better for repeated use.",
-    "explanation": "**Quick Overview:**\nFreshworks Data role technical round. Performance-sensitive role question.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nBoth are used to store intermediate query results, but their lifespans and physical storage differ.\n\n- **CTE (Common Table Expression)**: A logical, named query result that exists **only** for the duration of the immediately following `SELECT`, `INSERT`, `UPDATE`, or `DELETE` statement. It is not physically stored.\n- **Temp Table (`#Temp`)**: A physical table created in the database's temporary storage (e.g., `tempdb` in SQL Server). It persists for the duration of the entire user session (or stored procedure) and can be queried multiple times. You can even add Indexes to a Temp Table to speed up queries.",
+    "example": "```sql\n-- CTE: Dies immediately after the SELECT statement\nWITH HighEarners AS (SELECT * FROM Employees WHERE Salary > 100k)\nSELECT * FROM HighEarners;\n\n-- Temp Table: Persists in the session, can be indexed and queried repeatedly\nSELECT * INTO #HighEarners FROM Employees WHERE Salary > 100k;\nCREATE INDEX IX_Temp_Salary ON #HighEarners(Salary);\nSELECT * FROM #HighEarners;\n```",
+    "mistakes": [
+      "Using a CTE when the result set needs to be referenced in five different queries within a stored procedure (this forces the CTE to be re-evaluated 5 times. A Temp Table is much better here).",
+      "Not dropping Temp Tables explicitly (though they drop at session end, it's a good practice)."
+    ],
     "followUps": []
   },
   {
@@ -785,9 +856,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Recursive CTE = anchor query UNION ALL recursive member. Used for tree traversal, org hierarchy, BOM structures.",
-    "explanation": "**Quick Overview:**\nZoho advanced technical round for BI Developer. Hierarchical data structures (org charts, BOM) are the use case.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nA Recursive CTE is a CTE that references itself. It is primarily used to query **hierarchical data** (like an organizational chart, a file system directory, or a bill of materials).\n\nIt consists of two parts connected by a `UNION ALL`:\n1. **The Anchor Member**: The base query that starts the recursion (e.g., finding the CEO).\n2. **The Recursive Member**: The query that joins the CTE against itself to find the next level down (e.g., finding the people who report to the CEO, then the people who report to them).",
+    "example": "```sql\nWITH OrgChart AS (\n    -- 1. Anchor: Start with the CEO (ManagerId is NULL)\n    SELECT EmployeeId, Name, ManagerId, 1 as Level\n    FROM Employees \n    WHERE ManagerId IS NULL\n    \n    UNION ALL\n    \n    -- 2. Recursive Member: Join CTE to the table to find direct reports\n    SELECT e.EmployeeId, e.Name, e.ManagerId, o.Level + 1\n    FROM Employees e\n    INNER JOIN OrgChart o ON e.ManagerId = o.EmployeeId\n)\nSELECT * FROM OrgChart;\n```",
+    "mistakes": [
+      "Forgetting to include a termination condition, resulting in an infinite recursive loop.",
+      "Using `UNION` instead of `UNION ALL`. Recursive CTEs strictly require `UNION ALL`."
+    ],
     "followUps": []
   },
   {
@@ -812,9 +886,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: N+1 = fetching parent rows (1 query) then child rows per parent (N queries). Fix with JOIN or eager loading.",
-    "explanation": "**Quick Overview:**\nEF Core senior interview question. Newtum SQL blog cross-links it as a key performance issue.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nThe N+1 Query Problem is a severe performance anti-pattern. It occurs when an application executes **1 query** to retrieve a list of parent entities, and then executes **N additional queries** (in a loop) to retrieve the child entities for each parent.\n\nIf you fetch 1000 orders, your application makes 1001 database calls instead of 1. This destroys performance due to network latency and database connection overhead.\n\n**The Fix:**\nInstead of querying in a loop, write a single SQL query using `JOIN`, or use an `IN` clause to fetch all children at once (eager loading).",
+    "example": "```sql\n-- THE PROBLEM (Application code running in a loop):\n-- 1 query: SELECT * FROM Orders;\n-- N queries: foreach(order in orders) { SELECT * FROM OrderItems WHERE OrderId = order.Id; }\n\n-- THE FIX (One single database call):\nSELECT o.OrderId, o.OrderDate, i.ItemName, i.Price\nFROM Orders o\nINNER JOIN OrderItems i ON o.OrderId = i.OrderId;\n```",
+    "mistakes": [
+      "Failing to recognize that ORMs (like Entity Framework or Hibernate) are notorious for causing the N+1 problem if you use \"Lazy Loading\" inside a loop.",
+      "Thinking that indexes will solve this problem. Indexes speed up the query, but executing 1000 fast queries over a network is still astronomically slower than executing 1 query."
+    ],
     "followUps": []
   },
   {
@@ -845,9 +922,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: LAG = previous row value. LEAD = next row value. Both use OVER(PARTITION BY ... ORDER BY ...).",
-    "explanation": "**Quick Overview:**\nSwiggy customer frequency analysis. Used for time-series analysis and gap/trend detection.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\n`LEAD()` and `LAG()` are powerful window functions used for time-series or sequential data analysis. They allow you to look forward or backward at rows relative to the current row, **without using a self-join**.\n\n- **`LAG(column, offset)`**: Looks *backward* at previous rows. Useful for calculating Year-over-Year growth or finding the time between events.\n- **`LEAD(column, offset)`**: Looks *forward* at upcoming rows.",
+    "example": "```sql\n-- Calculate difference from previous day's revenue\nSELECT \n    SaleDate, \n    Revenue,\n    LAG(Revenue, 1) OVER (ORDER BY SaleDate) AS PrevDayRevenue,\n    Revenue - LAG(Revenue, 1) OVER (ORDER BY SaleDate) AS DailyGrowth\nFROM DailySales;\n```",
+    "mistakes": [
+      "Trying to use LEAD/LAG without an `ORDER BY` clause inside the `OVER()` partition. Sequential functions fundamentally require a sorted context to know what \"previous\" and \"next\" mean.",
+      "Using complex, slow Self-Joins to compare previous rows when LAG() is built exactly for this purpose."
+    ],
     "followUps": []
   },
   {
@@ -872,9 +952,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Composite key = primary key made of 2+ columns. Together they uniquely identify a row, individually they don't.",
-    "explanation": "**Quick Overview:**\nInfosys Data Operations Support interview. Standard constraint knowledge question.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nA Composite Key is a Primary Key (or Unique Key) that is made up of **two or more columns** instead of just one.\n\nWhile neither column is unique on its own, the *combination* of the two columns is strictly unique across the entire table. This is heavily used in **junction tables** (many-to-many relationship mapping tables).",
+    "example": "```sql\n-- A student can enroll in many classes, a class has many students.\nCREATE TABLE StudentClasses (\n    StudentId INT,\n    ClassId INT,\n    EnrollmentDate DATETIME,\n    \n    -- Composite Primary Key\n    PRIMARY KEY (StudentId, ClassId)\n);\n-- Student 1 can be in Class A and Class B.\n-- But Student 1 cannot enroll in Class A twice.\n```",
+    "mistakes": [
+      "Thinking a table with a Composite Key has \"two primary keys\". A table strictly has *one* Primary Key constraint; it just happens to encompass multiple columns.",
+      "Overcomplicating the table by adding a redundant auto-incrementing `Id` column when the composite columns perfectly identify the row naturally."
+    ],
     "followUps": []
   },
   {
@@ -899,9 +982,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Partition by range (date), list (region), or hash. Queries on a partition don't scan others \u2014 major I/O reduction.",
-    "explanation": "**Quick Overview:**\nPaytm architecture round. Used in large-scale databases where table size exceeds hundreds of millions of rows.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nTable Partitioning is a database optimization technique where a massive, monolithic table (e.g., hundreds of millions of rows) is physically broken down into smaller, more manageable pieces called \"partitions\", while remaining logically as one single table to the application.\n\n**Why do it?**\n- **Query Performance:** If partitioned by Year, querying for \"2023 data\" allows the DB engine to entirely skip scanning the 2021 and 2022 partitions (Partition Elimination).\n- **Maintenance:** You can quickly drop or archive old data by simply dropping an entire partition, rather than running a massive `DELETE` statement that locks the table.",
+    "example": "```sql\n-- Logical concept, syntax varies heavily by DBMS\nCREATE TABLE SalesLogs (\n    LogId INT,\n    SaleDate DATETIME,\n    Amount DECIMAL\n)\nPARTITION BY RANGE (YEAR(SaleDate)) (\n    PARTITION p2021 VALUES LESS THAN (2022),\n    PARTITION p2022 VALUES LESS THAN (2023),\n    PARTITION p_future VALUES LESS THAN MAXVALUE\n);\n```",
+    "mistakes": [
+      "Confusing Partitioning (vertical/horizontal slicing within *one* database server) with Sharding (distributing the table across *multiple physical database servers*).",
+      "Partitioning a small table (< 10GB). The overhead of managing partitions will outweigh any performance benefits."
+    ],
     "followUps": []
   },
   {
@@ -931,9 +1017,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SELECT *, no indexes on filters, functions on indexed columns in WHERE, N+1 queries, unnecessary DISTINCT, correlated subqueries in loops.",
-    "explanation": "**Quick Overview:**\nPhonePe SQL review discussion. Meesho performance audit. Senior-level code review question.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nSQL anti-patterns are common coding practices that severely degrade database performance or maintainability.\n\n**Top Anti-Patterns to mention in interviews:**\n1. **`SELECT *`**: Fetches unnecessary columns, wastes memory/network bandwidth, and breaks if table schemas change.\n2. **The N+1 Query Problem**: Executing queries inside a loop instead of using a `JOIN`.\n3. **Functions on Indexed Columns**: `WHERE YEAR(OrderDate) = 2023`. Wrapping an indexed column in a function ruins SARGability, forcing a Full Table Scan. (Fix: `WHERE OrderDate >= '2023-01-01' AND OrderDate < '2024-01-01'`).\n4. **Unnecessary `DISTINCT` or `UNION`**: Forcing the database to run expensive sorting/deduplication algorithms when the data is already unique.\n5. **Correlated Subqueries**: Forcing a subquery to execute `O(N)` times (once per outer row) instead of doing a simple join.",
+    "example": "```sql\n-- BAD: Breaks index usage (Table Scan)\nSELECT name FROM employees WHERE SUBSTRING(name, 1, 1) = 'A';\n\n-- GOOD: Preserves index usage (Index Seek)\nSELECT name FROM employees WHERE name LIKE 'A%';\n```",
+    "mistakes": [
+      "Failing to recognize when an ORM is generating one of these anti-patterns behind the scenes.",
+      "Optimizing queries blindly without looking at the Execution Plan."
+    ],
     "followUps": []
   }
 ]
