@@ -28,9 +28,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SELECT MAX(salary) FROM employees WHERE salary < (SELECT MAX(salary) FROM employees)",
-    "explanation": "**Quick Overview:**\nCommonly asked by TCS and Amazon in L1 rounds. Classic benchmark question.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nFinding the second highest value is a classic SQL benchmark question. It tests your knowledge of subqueries and aggregation.\n\nThe most standard, cross-database compatible way to solve this is to use a subquery that finds the absolute maximum salary, and then the outer query finds the maximum salary that is strictly less than that absolute maximum.",
+    "example": "```sql\n-- The standard ANSI SQL approach (works everywhere)\nSELECT MAX(salary) AS SecondHighestSalary\nFROM employees\nWHERE salary < (SELECT MAX(salary) FROM employees);\n\n-- Alternative: Using LIMIT / OFFSET (PostgreSQL / MySQL)\nSELECT salary AS SecondHighestSalary\nFROM employees\nORDER BY salary DESC\nLIMIT 1 OFFSET 1;\n```",
+    "mistakes": [
+      "Using `LIMIT 1 OFFSET 1` without accounting for duplicate salaries. If the top two salaries are both 100k, OFFSET 1 will incorrectly return 100k instead of the *actual* second highest. (You must use `DISTINCT` or `DENSE_RANK()`).",
+      "Not handling the edge case where the table only has one row (the `MAX(<MAX)` approach handles this gracefully by returning NULL)."
+    ],
     "followUps": []
   },
   {
@@ -61,9 +64,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use ROW_NUMBER() in a CTE, DELETE WHERE rn > 1. Never use DISTINCT for this \u2014 it only affects SELECT.",
-    "explanation": "**Quick Overview:**\nPaytm SQL assessment for Junior Data Analyst. Classic hands-on query round question.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nThis is a common data-cleanup question. You have a table with duplicate rows, and you need to permanently `DELETE` the duplicates while ensuring exactly one copy remains.\n\nThe safest and most professional way to do this is using the `ROW_NUMBER()` window function wrapped in a CTE.",
+    "example": "```sql\n-- Step 1: Assign a row number to duplicates\nWITH DuplicateCTE AS (\n    SELECT \n        id,\n        email,\n        ROW_NUMBER() OVER(\n            PARTITION BY email      -- Group by the duplicate column\n            ORDER BY id             -- Decide which one to keep (e.g., lowest ID)\n        ) as row_num\n    FROM users\n)\n-- Step 2: Delete everything that isn't row number 1\nDELETE FROM DuplicateCTE \nWHERE row_num > 1;\n```",
+    "mistakes": [
+      "Using `DISTINCT` in your answer. `DISTINCT` only affects `SELECT` statements (reads), it does absolutely nothing for `DELETE` statements (writes).",
+      "Using a self-join with a `<` operator to delete duplicates. While it works in some engines like MySQL, it is notoriously slow and unreadable compared to the CTE approach."
+    ],
     "followUps": []
   },
   {
@@ -94,9 +100,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: NULL = unknown, not zero or empty. Use IS NULL / IS NOT NULL. COALESCE() or ISNULL() to replace NULLs.",
-    "explanation": "**Quick Overview:**\nCognizant online aptitude test. Hexaware SQL MCQ round March 2025.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nNULL is a special marker used in SQL to indicate that a data value does not exist in the database. It is **not** equal to zero, and it is **not** equal to an empty string. It represents \"Unknown\".\n\nBecause NULL is unknown, you cannot use standard comparison operators like `=` or `!=` against it. `NULL = NULL` evaluates to Unknown, not True.",
+    "example": "```sql\n-- WRONG: This will return exactly 0 rows, always.\nSELECT * FROM Employees WHERE PhoneNumber = NULL;\n\n-- CORRECT: You must use the IS NULL operator.\nSELECT * FROM Employees WHERE PhoneNumber IS NULL;\n\n-- CORRECT: Handling NULLs in calculations using COALESCE\nSELECT Name, Salary + COALESCE(Bonus, 0) as TotalCompensation \nFROM Employees;\n```",
+    "mistakes": [
+      "Using `=` or `!=` to check for NULLs.",
+      "Forgetting that aggregate functions (like `AVG()`) automatically ignore NULL values, which can mathematically skew your results if you expected them to be counted as zeros."
+    ],
     "followUps": []
   },
   {
@@ -127,9 +136,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: GROUP BY the duplicate columns + HAVING COUNT(*) > 1. Don't confuse with deleting duplicates.",
-    "explanation": "**Quick Overview:**\nWipro analytics training test. Standard SQL assessment question at all service companies.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nUnlike *deleting* duplicates, finding duplicates is a purely read-only analytical query.\n\nTo find duplicate records, you group the data by the column(s) that should be unique, and use the `HAVING` clause to filter for groups that have a count greater than 1.",
+    "example": "```sql\n-- Find emails that appear more than once\nSELECT email, COUNT(*) as DuplicateCount\nFROM users\nGROUP BY email\nHAVING COUNT(*) > 1;\n```",
+    "mistakes": [
+      "Trying to use a `WHERE` clause instead of a `HAVING` clause (`WHERE COUNT(*) > 1` throws a syntax error because WHERE evaluates before aggregation).",
+      "Grouping by an identity column (like `id`). Identity columns are inherently unique, so grouping by them will never yield a count > 1."
+    ],
     "followUps": []
   },
   {
@@ -160,9 +172,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use RANK() OVER(PARTITION BY department ORDER BY salary DESC) and filter WHERE rank = 1.",
-    "explanation": "**Quick Overview:**\nTCS BFSI Division. Classic window function query asked across all SQL rounds.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nFinding the \"Max per Group\" is the most frequently asked Window Function question. \n\nWhile you can solve this using a `GROUP BY` and an `INNER JOIN` back to the original table, the modern, gold-standard approach is to use the `RANK()` or `DENSE_RANK()` window function.",
+    "example": "```sql\n-- Modern Approach (Window Function)\nWITH RankedSalaries AS (\n    SELECT \n        Name, \n        DepartmentId, \n        Salary,\n        RANK() OVER(PARTITION BY DepartmentId ORDER BY Salary DESC) as rank_val\n    FROM Employees\n)\nSELECT Name, DepartmentId, Salary \nFROM RankedSalaries \nWHERE rank_val = 1;\n```",
+    "mistakes": [
+      "Using `ROW_NUMBER()` instead of `RANK()`. If two employees tie for the highest salary in a department, `ROW_NUMBER()` will arbitrarily pick just one, whereas `RANK()` will correctly return both.",
+      "Using a basic `GROUP BY` without a self-join. (`SELECT DepartmentId, MAX(Salary), Name GROUP BY DepartmentId` throws an error because Name is not grouped)."
+    ],
     "followUps": []
   },
   {
@@ -193,9 +208,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SUM(amount) OVER(ORDER BY order_date) gives running total. Add PARTITION BY for per-group running totals.",
-    "explanation": "**Quick Overview:**\nSwiggy Analyst role screening. Running totals are a standard window function interview question.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nA running total (or cumulative sum) is calculated by summing a column's values sequentially over time.\n\nIn modern SQL, this is done trivially using the `SUM()` window function with an `ORDER BY` clause inside the `OVER()` partition.",
+    "example": "```sql\n-- Calculate a daily running total of revenue\nSELECT \n    OrderDate, \n    DailyRevenue,\n    SUM(DailyRevenue) OVER(ORDER BY OrderDate) as RunningTotal\nFROM SalesData;\n\n-- Add PARTITION BY to calculate running totals per specific region\nSELECT \n    Region,\n    OrderDate, \n    DailyRevenue,\n    SUM(DailyRevenue) OVER(PARTITION BY Region ORDER BY OrderDate) as RegionalRunningTotal\nFROM SalesData;\n```",
+    "mistakes": [
+      "Forgetting the `ORDER BY` inside the `OVER()` clause. Without an order, the database doesn't know what direction to accumulate the sum, so it will just return the grand total for every row.",
+      "Trying to solve this using a correlated subquery. (While possible, it is O(N^2) complexity and will crash the database on large tables)."
+    ],
     "followUps": []
   },
   {
@@ -220,9 +238,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SQL Server has PIVOT(). For other DBs use CASE WHEN inside MAX/SUM aggregation grouped by entity.",
-    "explanation": "**Quick Overview:**\nMicrosoft Data Associate case round. Freshworks Business Data Engineering round.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nPivoting means converting unique row values into physical columns. \n\nWhile SQL Server has a dedicated `PIVOT()` function, the universal standard approach that works on all database engines (Postgres, MySQL, Oracle, SQL Server) is **Conditional Aggregation** using `CASE WHEN` combined with `SUM()` or `MAX()`.",
+    "example": "```sql\n-- Scenario: You have a table of monthly sales rows, \n-- and you want columns for [Jan], [Feb], [Mar].\n\nSELECT \n    DepartmentId,\n    SUM(CASE WHEN Month = 'Jan' THEN Revenue ELSE 0 END) as Jan_Revenue,\n    SUM(CASE WHEN Month = 'Feb' THEN Revenue ELSE 0 END) as Feb_Revenue,\n    SUM(CASE WHEN Month = 'Mar' THEN Revenue ELSE 0 END) as Mar_Revenue\nFROM MonthlySales\nGROUP BY DepartmentId;\n```",
+    "mistakes": [
+      "Forgetting to wrap the `CASE` statement in an aggregate function like `SUM()` or `MAX()`. Without aggregation, the query will fail because of the `GROUP BY` clause.",
+      "Using proprietary `PIVOT()` syntax in an interview without acknowledging that it is engine-specific."
+    ],
     "followUps": []
   },
   {
@@ -247,9 +268,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: All aggregates ignore NULLs except COUNT(*). Use COALESCE(col, 0) before aggregating to include them as 0.",
-    "explanation": "**Quick Overview:**\nAccenture reporting project interview. NULL handling in aggregates is a classic trap.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nBy design, SQL aggregate functions (`SUM`, `AVG`, `MIN`, `MAX`) inherently ignore `NULL` values. \n\nThis is usually fine for `SUM`, but it can severely distort the math for `AVG`. If you want a `NULL` to be treated as a `0` (so it pulls the average down), you must explicitly handle it before the aggregation happens.",
+    "example": "```sql\n-- If a table has 3 rows: 100, 200, NULL\n\n-- Ignored NULL: (100+200) / 2 valid rows = Average of 150\nSELECT AVG(BonusAmount) FROM Employees;\n\n-- Handled NULL: (100+200+0) / 3 total rows = Average of 100\nSELECT AVG(COALESCE(BonusAmount, 0)) FROM Employees;\n```",
+    "mistakes": [
+      "Trying to use `COALESCE` outside the aggregate function: `COALESCE(AVG(Bonus), 0)`. This only replaces the final result if the *entire average* is null. It does not replace null rows during calculation.",
+      "Confusing `COUNT(col)` with `COUNT(*)`. `COUNT(col)` skips nulls, `COUNT(*)` counts nulls."
+    ],
     "followUps": []
   },
   {
@@ -275,9 +299,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use DENSE_RANK() OVER(ORDER BY salary DESC) = N. Or use LIMIT/OFFSET for simple cases.",
-    "explanation": "**Quick Overview:**\nExtension of the 2nd highest salary question. TCS/Amazon ask this as a follow-up.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nThis is the dynamic generalization of the \"Second Highest Salary\" question. \n\nThe most elegant and universally accepted way to find the Nth highest value is by using the `DENSE_RANK()` window function wrapped in a CTE.",
+    "example": "```sql\n-- Wrap the ranking logic in a CTE\nWITH RankedData AS (\n    SELECT \n        EmployeeId,\n        Salary,\n        DENSE_RANK() OVER(ORDER BY Salary DESC) as RankNum\n    FROM Employees\n)\n-- Select the Nth rank (e.g., the 4th highest)\nSELECT Salary \nFROM RankedData \nWHERE RankNum = 4;\n```",
+    "mistakes": [
+      "Using `RANK()` instead of `DENSE_RANK()`. If the top two salaries are identical, `RANK()` skips the number 2. `DENSE_RANK()` never skips numbers, ensuring the Nth highest always exists.",
+      "Writing a massive chain of nested `MAX(<MAX)` subqueries. This works for the 2nd or 3rd highest, but is physically impossible to scale for the Nth highest."
+    ],
     "followUps": []
   },
   {
@@ -302,9 +329,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Execution plan shows index usage, join types, row estimates. Look for table scans \u2014 replace with index seeks.",
-    "explanation": "**Quick Overview:**\nDeloitte architecture-level interview. EXPLAIN / SET SHOWPLAN tools are the expected knowledge.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nAn Execution Plan is a visual or text-based roadmap generated by the database optimizer. It shows exactly how the database engine decided to execute your SQL query step-by-step (e.g., which indexes it used, what kind of joins it performed, and where the CPU/IO bottlenecks are).\n\n**How to use it to optimize:**\n1. **Look for Table Scans / Clustered Index Scans:** These mean the database had to read every single row in the table. You usually want to replace these with **Index Seeks** by adding a proper index.\n2. **Look for Key Lookups:** This means the non-clustered index found the row, but didn't have all the columns requested in the `SELECT`, so it had to do an expensive jump back to the clustered index. Fix this by creating a **Covering Index** (`INCLUDE` columns).\n3. **Identify the highest cost percentage:** The plan will literally tell you \"This operation took 85% of the query cost\". Target that step.",
+    "example": "```sql\n-- In SQL Server, you can view the plan by prefixing the query:\nSET STATISTICS IO ON;\nSET STATISTICS TIME ON;\n\n-- Or in PostgreSQL/MySQL, use EXPLAIN:\nEXPLAIN ANALYZE \nSELECT * FROM Orders WHERE CustomerId = 90210;\n```",
+    "mistakes": [
+      "Blindly adding indexes to every column without looking at the execution plan to see if the optimizer actually *wants* an index there.",
+      "Ignoring \"Implicit Conversions\" in the execution plan (e.g., passing a `VARCHAR` string into an `INT` column), which silently disables index usage."
+    ],
     "followUps": []
   },
   {
@@ -328,9 +358,12 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use NOT EXISTS self-join or LEFT JOIN on id+1 to find gaps. Works for sequential numeric IDs.",
-    "explanation": "**Quick Overview:**\nRazorpay internal ledger validation round. Common in fintech data validation roles.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
+    "explanation": "**Quick Overview:**\nFinding missing/skipped sequence numbers in an identity or invoice column is a common data validation challenge.\n\nThe cleanest way to find a gap is to take every ID, add `1` to it, and check if that new number exists in the table. If `ID + 1` does not exist (and it's not the maximum ID in the table), you have found the start of a gap.",
+    "example": "```sql\n-- Use a LEFT JOIN to find where the sequence breaks\nSELECT \n    (a.Id + 1) as MissingStartGap\nFROM Invoices a\nLEFT JOIN Invoices b \n  ON a.Id + 1 = b.Id\nWHERE b.Id IS NULL \n  AND a.Id < (SELECT MAX(Id) FROM Invoices);\n```",
+    "mistakes": [
+      "Writing a cursor or a `WHILE` loop to iterate from 1 to 1,000,000 checking for existence. This will lock up the database thread and is entirely against the set-based nature of SQL.",
+      "Forgetting to filter out the maximum ID in the table. Without `a.Id < MAX(Id)`, the query will incorrectly report a gap after the very last row in the table."
+    ],
     "followUps": []
   }
 ]
