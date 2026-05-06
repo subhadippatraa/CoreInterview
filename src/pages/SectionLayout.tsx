@@ -24,6 +24,7 @@ export function SectionLayout() {
   const navigate = useNavigate();
   const { isBookmarked, toggleBookmark, isReviewed, toggleReviewed } = useProgress();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [showExample, setShowExample] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
 
   const section = sections.find(s => s.id === sectionId);
@@ -43,7 +44,8 @@ export function SectionLayout() {
     if (mainRef.current) {
       mainRef.current.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
-  }, [questionId]);
+    setShowExample(false);
+  }, [activeQuestionId]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -200,12 +202,32 @@ export function SectionLayout() {
               {/* ④ Example */}
               {activeQuestion.example && (
                 <motion.div id="section-example" custom={2} variants={staggerChild} initial="hidden" animate="visible" className="mb-8">
-                  <div className="bg-[var(--color-bg2)] border border-[var(--color-border)] p-5 rounded-xl shadow-sm overflow-x-auto nice-scrollbar">
-                    <h3 className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-[var(--color-text3)] mb-4">
-                      <CodeBracketIcon className="w-4 h-4" />
-                      Example
-                    </h3>
-                    <div className="font-mono text-[13px] text-[var(--color-text)] whitespace-pre-wrap bg-[var(--color-bg)] p-4 rounded-lg border border-[var(--color-border)]" dangerouslySetInnerHTML={{ __html: activeQuestion.example }} />
+                  <div className="bg-[var(--color-bg2)] border border-[var(--color-border)] p-5 rounded-xl shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <h3 className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-[var(--color-text3)]">
+                        <CodeBracketIcon className="w-4 h-4" />
+                        Code Example / Query
+                      </h3>
+                      <button 
+                        onClick={() => setShowExample(!showExample)}
+                        className="text-[11px] font-bold px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:brightness-110 transition-all shadow-sm"
+                      >
+                        {showExample ? 'Hide Query' : 'Show Solution / Query'}
+                      </button>
+                    </div>
+                    
+                    <AnimatePresence>
+                      {showExample && (
+                        <motion.div 
+                          initial={{ height: 0, opacity: 0 }} 
+                          animate={{ height: 'auto', opacity: 1 }} 
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="font-mono text-[13px] text-[var(--color-text)] whitespace-pre-wrap bg-[var(--color-bg)] p-4 rounded-lg border border-[var(--color-border)] overflow-x-auto nice-scrollbar mt-5" dangerouslySetInnerHTML={{ __html: activeQuestion.example }} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </motion.div>
               )}
