@@ -6,6 +6,9 @@ import csharpFollowups from './topics/csharp_followups.json';
 import aspnet from './topics/aspnet.json';
 import aspnetFollowups from './topics/aspnet_followups.json';
 
+import efcore from './topics/efcore.json';
+import efcoreFollowups from './topics/efcore_followups.json';
+
 import dbms from './topics/dbms.json';
 import dbmsFollowups from './topics/dbms_followups.json';
 
@@ -24,6 +27,7 @@ import systemdesignFollowups from './topics/systemdesign_followups.json';
 const allQuestions = [
   ...csharp,
   ...aspnet,
+  ...efcore,
   ...dbms,
   ...devops,
   ...networking,
@@ -34,6 +38,7 @@ const allQuestions = [
 const allFollowups = [
   ...csharpFollowups,
   ...aspnetFollowups,
+  ...efcoreFollowups,
   ...dbmsFollowups,
   ...devopsFollowups,
   ...networkingFollowups,

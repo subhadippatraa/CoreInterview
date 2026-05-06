@@ -8,6 +8,7 @@ export interface Section {
 export const sections: Section[] = [
   { id: 'csharp', name: 'C# Fundamentals', description: 'Types, OOP, LINQ, async/await', icon: 'csharp' },
   { id: 'aspnet', name: 'ASP.NET Core', description: 'Middleware, DI, routing, APIs', icon: 'aspnet' },
+  { id: 'efcore', name: 'EF Core', description: 'ORM, loading, migrations, queries', icon: 'efcore' },
   { id: 'dbms', name: 'DBMS Concepts', description: 'SQL, indexing, normalization', icon: 'dbms' },
   { id: 'os', name: 'Operating Systems', description: 'Processes, threads, memory', icon: 'os' },
   { id: 'networking', name: 'Networking Basics', description: 'TCP/IP, HTTP, DNS, REST', icon: 'networking' },

@@ -4,12 +4,12 @@ import { PageWrapper } from '../components/layout/PageWrapper';
 import { sections } from '../data/sections';
 import questions from '../data/questions';
 import { useProgress } from '../hooks/useProgress';
-import { CodeBracketIcon, ServerIcon, CircleStackIcon, CpuChipIcon, GlobeAltIcon, RectangleGroupIcon, CloudIcon } from '@heroicons/react/24/outline';
+import { CodeBracketIcon, ServerIcon, CircleStackIcon, CpuChipIcon, GlobeAltIcon, RectangleGroupIcon, CloudIcon, TableCellsIcon } from '@heroicons/react/24/outline';
 
 import React from 'react';
 
 const iconMap: Record<string, React.ElementType> = {
-  csharp: CodeBracketIcon, aspnet: ServerIcon, dbms: CircleStackIcon,
+  csharp: CodeBracketIcon, aspnet: ServerIcon, efcore: TableCellsIcon, dbms: CircleStackIcon,
   os: CpuChipIcon, networking: GlobeAltIcon, systemdesign: RectangleGroupIcon, devops: CloudIcon,
 };
 
