@@ -14,7 +14,12 @@
           "Not knowing that PRIMARY KEY creates a clustered index by default in SQL Server."
         ],
         "diagram": "flowchart TD\n    subgraph Heap (No Clustered Index)\n    R1[Row 5] --> R2[Row 1]\n    R2 --> R3[Row 9]\n    Note over R1, R3: Completely Unordered!\n    end\n    \n    subgraph Clustered Index\n    S1[Row 1] --> S2[Row 2]\n    S2 --> S3[Row 3]\n    end",
-        "companies": []
+        "companies": [
+          "TCS",
+          "Cognizant",
+          "Accenture",
+          "Microsoft"
+        ]
       },
       {
         "question": "What is a covering index?",

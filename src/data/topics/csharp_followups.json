@@ -55,7 +55,12 @@
           "Forgetting that generic constraints avoid boxing \u2014 this is the recommended pattern."
         ],
         "diagram": "flowchart TD\n    A[Struct on Stack] -->|Cast to Interface| B((Boxed on Heap))\n    B -->|Garbage Collector| C[Triggers GC overhead!]\n    style B fill:#ffcccc,stroke:#cc0000",
-        "companies": []
+        "companies": [
+          "Infosys",
+          "Wipro",
+          "Capgemini",
+          "Amazon"
+        ]
       }
     ],
     "companies": []
@@ -98,7 +103,12 @@
           "Forgetting that the implementing class must implement ALL inherited members."
         ],
         "diagram": "flowchart BT\n    I2[IReadWriteRepository] -- Inherits --> I1[IReadOnlyRepository]\n    C[UserRepository] -- Implements --> I2\n    \n    Note over C: Must implement methods<br>from BOTH interfaces!",
-        "companies": []
+        "companies": [
+          "TCS",
+          "Cognizant",
+          "Accenture",
+          "Microsoft"
+        ]
       }
     ],
     "companies": []

@@ -14,7 +14,13 @@
           "Forgetting the database becomes the bottleneck when app servers scale but the DB doesn't."
         ],
         "diagram": "flowchart TD\n    subgraph Local State (Fails on Scale!)\n    S1[Server A] --> M1[(Local RAM: Bob is logged in)]\n    S2[Server B] --> M2[(Local RAM: Who is Bob?)]\n    end\n    \n    subgraph External State (Scalable!)\n    S3[Server A] --> Redis[(Shared Redis Cache)]\n    S4[Server B] --> Redis\n    end\n    style M1 fill:#ffcccc,stroke:#cc0000\n    style Redis fill:#ccffcc,stroke:#00cc00",
-        "companies": []
+        "companies": [
+          "Microsoft",
+          "Amazon",
+          "Capgemini",
+          "HCL",
+          "Zoho"
+        ]
       },
       {
         "question": "What are Sticky Sessions (Session Affinity)?",
