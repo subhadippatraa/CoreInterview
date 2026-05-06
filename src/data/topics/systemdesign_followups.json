@@ -1,6 +1,6 @@
 [
   {
-    "questionId": 61,
+    "questionId": 111,
     "followUps": [
       {
         "question": "What problems does horizontal scaling introduce?",
@@ -44,5 +44,17 @@
       }
     ],
     "companies": []
+  },
+  {
+    "questionId": 112,
+    "followUps": []
+  },
+  {
+    "questionId": 113,
+    "followUps": []
+  },
+  {
+    "questionId": 114,
+    "followUps": []
   }
 ]

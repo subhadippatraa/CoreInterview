@@ -1,6 +1,6 @@
 [
   {
-    "id": 54,
+    "id": 104,
     "sectionId": "os",
     "difficulty": "medium",
     "question": "What is the difference between a Process and a Thread?",
@@ -24,7 +24,7 @@
     ]
   },
   {
-    "id": 55,
+    "id": 105,
     "sectionId": "os",
     "difficulty": "hard",
     "question": "What is a Deadlock in an Operating System? What are the 4 Coffman conditions?",
@@ -50,7 +50,7 @@
     ]
   },
   {
-    "id": 56,
+    "id": 106,
     "sectionId": "os",
     "difficulty": "hard",
     "question": "What is Virtual Memory and Paging?",
@@ -74,7 +74,7 @@
     ]
   },
   {
-    "id": 57,
+    "id": 107,
     "sectionId": "os",
     "difficulty": "medium",
     "question": "What is the difference between a Mutex and a Semaphore?",

@@ -1,6 +1,6 @@
 [
   {
-    "id": 58,
+    "id": 108,
     "sectionId": "networking",
     "difficulty": "medium",
     "question": "What happens when you type a URL into your browser and press Enter?",
@@ -23,7 +23,7 @@
     ]
   },
   {
-    "id": 59,
+    "id": 109,
     "sectionId": "networking",
     "difficulty": "hard",
     "question": "What is the difference between REST and gRPC?",
@@ -47,7 +47,7 @@
     ]
   },
   {
-    "id": 60,
+    "id": 110,
     "sectionId": "networking",
     "difficulty": "medium",
     "question": "What are WebSockets and how are they different from HTTP?",

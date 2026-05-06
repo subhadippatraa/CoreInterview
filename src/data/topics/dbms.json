@@ -1,6 +1,6 @@
 [
   {
-    "id": 49,
+    "id": 90,
     "sectionId": "dbms",
     "difficulty": "medium",
     "question": "What is the difference between clustered and non-clustered indexes?",
@@ -23,7 +23,7 @@
     ]
   },
   {
-    "id": 50,
+    "id": 91,
     "sectionId": "dbms",
     "difficulty": "hard",
     "question": "What are ACID properties in databases?",
@@ -46,7 +46,7 @@
     ]
   },
   {
-    "id": 51,
+    "id": 92,
     "sectionId": "dbms",
     "difficulty": "medium",
     "question": "What is the difference between Stored Procedures and Inline SQL?",
@@ -71,7 +71,7 @@
     ]
   },
   {
-    "id": 52,
+    "id": 93,
     "sectionId": "dbms",
     "difficulty": "easy",
     "question": "What is the difference between SQL and NoSQL databases?",
@@ -96,7 +96,7 @@
     ]
   },
   {
-    "id": 53,
+    "id": 94,
     "sectionId": "dbms",
     "difficulty": "hard",
     "question": "What are database transactions and how do deadlocks occur?",
@@ -116,5 +116,273 @@
       "Amazon",
       "Zoho"
     ]
+  },
+  {
+    "id": 95,
+    "sectionId": "dbms",
+    "difficulty": "medium",
+    "question": "What is Normalization? Explain 1NF, 2NF, 3NF.",
+    "answer": "1NF = atomic values. 2NF = no partial dependency. 3NF = no transitive dependency.",
+    "whyAsked": "Deloitte Business Analyst interview. TCS/Infosys EY SQL guide specifically lists this.",
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Accenture",
+      "Deloitte",
+      "Capgemini",
+      "Cognizant"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "GeeksforGeeks",
+        "url": "https://www.geeksforgeeks.org/normal-forms-in-dbms/",
+        "type": "concept"
+      },
+      {
+        "platform": "W3Schools",
+        "url": "https://www.w3schools.com/sql/sql_ref_normalization.asp",
+        "type": "concept"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: 1NF = atomic values. 2NF = no partial dependency. 3NF = no transitive dependency.",
+    "explanation": "**Quick Overview:**\nDeloitte Business Analyst interview. TCS/Infosys EY SQL guide specifically lists this.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 96,
+    "sectionId": "dbms",
+    "difficulty": "medium",
+    "question": "What are SQL Transactions and ACID properties?",
+    "answer": "ACID = Atomicity (all or nothing), Consistency (valid state), Isolation (concurrent safety), Durability (persists after commit).",
+    "whyAsked": "Mindtree back-end analyst test. HDFC Bank SQL Tech round. PhonePe database transaction round.",
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Deloitte",
+      "Accenture",
+      "HDFC Bank",
+      "PhonePe",
+      "Mindtree"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "GeeksforGeeks",
+        "url": "https://www.geeksforgeeks.org/acid-properties-in-dbms/",
+        "type": "concept"
+      },
+      {
+        "platform": "Newtum",
+        "url": "https://blog.newtum.com/acid-properties-in-sql/",
+        "type": "concept"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: ACID = Atomicity (all or nothing), Consistency (valid state), Isolation (concurrent safety), Durability (persists after commit).",
+    "explanation": "**Quick Overview:**\nMindtree back-end analyst test. HDFC Bank SQL Tech round. PhonePe database transaction round.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 97,
+    "sectionId": "dbms",
+    "difficulty": "hard",
+    "question": "What is the default isolation level in SQL Server and what are all isolation levels?",
+    "answer": "Default = Read Committed. Levels: Read Uncommitted \u2192 Read Committed \u2192 Repeatable Read \u2192 Serializable. Each prevents more anomalies.",
+    "whyAsked": "HDFC Bank SQL Tech round. Senior-level question about concurrency control.",
+    "companies": [
+      "HDFC Bank",
+      "Microsoft",
+      "Amazon",
+      "Accenture",
+      "Deloitte"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "GeeksforGeeks",
+        "url": "https://www.geeksforgeeks.org/transaction-isolation-levels-dbms/",
+        "type": "concept"
+      },
+      {
+        "platform": "Newtum",
+        "url": "https://blog.newtum.com/sql-isolation-levels/",
+        "type": "concept"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Default = Read Committed. Levels: Read Uncommitted \u2192 Read Committed \u2192 Repeatable Read \u2192 Serializable. Each prevents more anomalies.",
+    "explanation": "**Quick Overview:**\nHDFC Bank SQL Tech round. Senior-level question about concurrency control.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 98,
+    "sectionId": "dbms",
+    "difficulty": "medium",
+    "question": "What is OLTP vs OLAP? How are they different?",
+    "answer": "OLTP = transactional, normalized, write-heavy, row-based. OLAP = analytical, denormalized, read-heavy, column-based.",
+    "whyAsked": "IBM ETL Architect interview. Deloitte Business Analyst and EY data rounds.",
+    "companies": [
+      "IBM",
+      "Infosys",
+      "TCS",
+      "Accenture",
+      "Deloitte",
+      "EY"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "GeeksforGeeks",
+        "url": "https://www.geeksforgeeks.org/difference-between-olap-and-oltp-in-dbms/",
+        "type": "concept"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: OLTP = transactional, normalized, write-heavy, row-based. OLAP = analytical, denormalized, read-heavy, column-based.",
+    "explanation": "**Quick Overview:**\nIBM ETL Architect interview. Deloitte Business Analyst and EY data rounds.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 99,
+    "sectionId": "dbms",
+    "difficulty": "hard",
+    "question": "What is Denormalization and when is it appropriate?",
+    "answer": "Denormalization = intentional redundancy for read performance. Trade-off: faster queries, harder to update consistently.",
+    "whyAsked": "Flipkart warehouse reporting design. Used in data warehouse / reporting-heavy system design.",
+    "companies": [
+      "Flipkart",
+      "Amazon",
+      "Accenture",
+      "IBM",
+      "Microsoft"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "GeeksforGeeks",
+        "url": "https://www.geeksforgeeks.org/denormalization-in-databases/",
+        "type": "concept"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Denormalization = intentional redundancy for read performance. Trade-off: faster queries, harder to update consistently.",
+    "explanation": "**Quick Overview:**\nFlipkart warehouse reporting design. Used in data warehouse / reporting-heavy system design.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 100,
+    "sectionId": "dbms",
+    "difficulty": "hard",
+    "question": "How do you detect and handle deadlocks in SQL?",
+    "answer": "Detect via system logs or SQL Profiler. Prevent by: consistent table access order, short transactions, lower isolation levels.",
+    "whyAsked": "HDFC Bank core transaction engine project. Zerodha trading platform DB design.",
+    "companies": [
+      "HDFC Bank",
+      "Microsoft",
+      "Amazon",
+      "Zerodha",
+      "PhonePe"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "Newtum",
+        "url": "https://blog.newtum.com/sql-deadlock/",
+        "type": "concept"
+      },
+      {
+        "platform": "GeeksforGeeks",
+        "url": "https://www.geeksforgeeks.org/deadlock-in-dbms/",
+        "type": "concept"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Detect via system logs or SQL Profiler. Prevent by: consistent table access order, short transactions, lower isolation levels.",
+    "explanation": "**Quick Overview:**\nHDFC Bank core transaction engine project. Zerodha trading platform DB design.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 101,
+    "sectionId": "dbms",
+    "difficulty": "medium",
+    "question": "What is a Surrogate Key vs Natural Key?",
+    "answer": "Surrogate = system-generated (auto-increment). Natural = from real data (email, SSN). Surrogate preferred for performance and flexibility.",
+    "whyAsked": "Dunzo Data Infrastructure Engineer interview. Data warehouse design question.",
+    "companies": [
+      "Dunzo",
+      "Flipkart",
+      "Amazon",
+      "Microsoft",
+      "Salesforce"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "GeeksforGeeks",
+        "url": "https://www.geeksforgeeks.org/surrogate-key-in-dbms/",
+        "type": "concept"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Surrogate = system-generated (auto-increment). Natural = from real data (email, SSN). Surrogate preferred for performance and flexibility.",
+    "explanation": "**Quick Overview:**\nDunzo Data Infrastructure Engineer interview. Data warehouse design question.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 102,
+    "sectionId": "dbms",
+    "difficulty": "hard",
+    "question": "How do you handle Slowly Changing Dimensions (SCD)?",
+    "answer": "SCD Type 1 = overwrite. SCD Type 2 = add new row with effective dates (keeps history). Type 3 = add column.",
+    "whyAsked": "Salesforce Data Warehouse project interview. IBM ETL Architect interview.",
+    "companies": [
+      "Salesforce",
+      "Amazon",
+      "Microsoft",
+      "IBM",
+      "Accenture"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "GeeksforGeeks",
+        "url": "https://www.geeksforgeeks.org/slowly-changing-dimensions/",
+        "type": "concept"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SCD Type 1 = overwrite. SCD Type 2 = add new row with effective dates (keeps history). Type 3 = add column.",
+    "explanation": "**Quick Overview:**\nSalesforce Data Warehouse project interview. IBM ETL Architect interview.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 103,
+    "sectionId": "dbms",
+    "difficulty": "hard",
+    "question": "What is Data Sharding and how does it differ from Partitioning?",
+    "answer": "Partitioning = within one DB. Sharding = across multiple physical DBs (horizontal scaling). Sharding adds complexity.",
+    "whyAsked": "Gojek SQL architecture panel. Architect/senior data engineer question.",
+    "companies": [
+      "Amazon",
+      "Microsoft",
+      "Gojek",
+      "Flipkart",
+      "Google"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "GeeksforGeeks",
+        "url": "https://www.geeksforgeeks.org/database-sharding/",
+        "type": "concept"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Partitioning = within one DB. Sharding = across multiple physical DBs (horizontal scaling). Sharding adds complexity.",
+    "explanation": "**Quick Overview:**\nGojek SQL architecture panel. Architect/senior data engineer question.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
   }
 ]

@@ -352,6 +352,27 @@ export function SectionLayout() {
               </div>
             </div>
           )}
+          {activeQuestion.practiceLinks && activeQuestion.practiceLinks.length > 0 && (
+            <div className="mt-8 pt-8 border-t border-[var(--color-border)]">
+              <h4 className="font-heading text-[10px] font-bold text-[var(--color-text3)] uppercase tracking-[0.15em] mb-4">Practice Links</h4>
+              <div className="flex flex-col gap-2">
+                {activeQuestion.practiceLinks.map((link, i) => (
+                  <a 
+                    key={i} 
+                    href={link.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between group/link p-2 rounded-lg bg-[var(--color-bg2)] border border-[var(--color-border)] hover:border-[var(--color-accent)]/30 transition-all"
+                  >
+                    <span className="text-[11px] font-medium text-[var(--color-text2)] group-hover/link:text-[var(--color-text)]">{link.platform}</span>
+                    <span className={`text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${link.type === 'practice' ? 'text-[var(--color-accent)] bg-[var(--color-accent)]/10' : 'text-[var(--color-purple)] bg-[var(--color-purple)]/10'}`}>
+                      {link.type}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </aside>
 

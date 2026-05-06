@@ -1,6 +1,6 @@
 [
   {
-    "id": 65,
+    "id": 115,
     "sectionId": "devops",
     "difficulty": "medium",
     "question": "What is the difference between a Virtual Machine and a Container?",
@@ -25,7 +25,7 @@
     ]
   },
   {
-    "id": 66,
+    "id": 116,
     "sectionId": "devops",
     "difficulty": "easy",
     "question": "What is Docker and why do we use it?",
@@ -50,7 +50,7 @@
     ]
   },
   {
-    "id": 67,
+    "id": 117,
     "sectionId": "devops",
     "difficulty": "medium",
     "question": "What is CI/CD? Explain a typical pipeline.",
@@ -74,7 +74,7 @@
     ]
   },
   {
-    "id": 68,
+    "id": 118,
     "sectionId": "devops",
     "difficulty": "hard",
     "question": "What is Kubernetes (K8s) and why is it used?",

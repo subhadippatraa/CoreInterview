@@ -1,6 +1,6 @@
 [
   {
-    "id": 61,
+    "id": 111,
     "sectionId": "systemdesign",
     "difficulty": "easy",
     "question": "What is the difference between Horizontal and Vertical Scaling?",
@@ -23,7 +23,7 @@
     ]
   },
   {
-    "id": 62,
+    "id": 112,
     "sectionId": "systemdesign",
     "difficulty": "medium",
     "question": "What is Caching and when should you use it?",
@@ -45,7 +45,7 @@
     ]
   },
   {
-    "id": 63,
+    "id": 113,
     "sectionId": "systemdesign",
     "difficulty": "easy",
     "question": "What is a Load Balancer and how does it work?",
@@ -70,7 +70,7 @@
     ]
   },
   {
-    "id": 64,
+    "id": 114,
     "sectionId": "systemdesign",
     "difficulty": "medium",
     "question": "What are Message Queues (RabbitMQ/Kafka) and when should you use them?",

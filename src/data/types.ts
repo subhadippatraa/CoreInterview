@@ -4,6 +4,12 @@ export interface FollowUp {
   answer: string;
 }
 
+export interface PracticeLink {
+  platform: string;
+  url: string;
+  type: 'concept' | 'practice';
+}
+
 export interface Question {
   id: number;
   sectionId: string;
@@ -19,6 +25,7 @@ export interface Question {
   diagram?: 'middleware-pipeline' | 'di-flow' | 'http-lifecycle' | 'process-vs-thread' | 'load-balancing' | 'docker-layers';
   tags?: string[];
   companies?: string[];
+  practiceLinks?: PracticeLink[];
 }
 
 export interface MockResult {

@@ -30,10 +30,14 @@ import dotnetFollowups from './topics/dotnet_followups.json';
 import architecture from './topics/architecture.json';
 import architectureFollowups from './topics/architecture_followups.json';
 
+import sql from './topics/sql.json';
+import sqlFollowups from './topics/sql_followups.json';
+
 const allQuestions = [
   ...csharp,
   ...aspnet,
   ...efcore,
+  ...sql,
   ...dbms,
   ...devops,
   ...networking,
@@ -47,6 +51,7 @@ const allFollowups = [
   ...csharpFollowups,
   ...aspnetFollowups,
   ...efcoreFollowups,
+  ...sqlFollowups,
   ...dbmsFollowups,
   ...devopsFollowups,
   ...networkingFollowups,
