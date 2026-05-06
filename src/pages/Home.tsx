@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PageWrapper } from '../components/layout/PageWrapper';
 import { sections } from '../data/sections';
 import questions from '../data/questions';
 import { useProgress } from '../hooks/useProgress';
-import { CodeBracketIcon, ServerIcon, CircleStackIcon, CpuChipIcon, GlobeAltIcon, RectangleGroupIcon, CloudIcon, TableCellsIcon, ArrowRightIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { CodeBracketIcon, ServerIcon, CircleStackIcon, CpuChipIcon, GlobeAltIcon, RectangleGroupIcon, CloudIcon, TableCellsIcon, ArrowRightIcon, SparklesIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 
 import React from 'react';
@@ -23,6 +24,19 @@ export function Home() {
   const totalQuestions = questions.length;
   const totalReviewed = data.reviewed.length;
   const overallProgress = totalQuestions === 0 ? 0 : Math.round((totalReviewed / totalQuestions) * 100);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [difficultyFilter, setDifficultyFilter] = useState<string | null>(null);
+
+  const filteredQuestions = questions.filter(q => {
+    const matchesSearch = searchQuery.trim() === '' || 
+      q.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      q.answer.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesDifficulty = !difficultyFilter || q.difficulty === difficultyFilter;
+    return matchesSearch && matchesDifficulty;
+  });
+
+  const showSearchResults = searchQuery.trim().length > 0 || difficultyFilter;
 
   return (
     <PageWrapper className="flex-1">
@@ -104,6 +118,89 @@ export function Home() {
           ))}
         </motion.div>
 
+        {/* ═══ Search + Filter ═══ */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
+          className="mb-10">
+
+          {/* Search Bar */}
+          <div className="relative mb-4">
+            <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text3)]" />
+            <input
+              type="text"
+              placeholder="Search questions... (e.g. async, LINQ, deadlock)"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-11 pl-11 pr-4 rounded-xl bg-[var(--color-bg2)] border border-[var(--color-border)] text-[14px] text-[var(--color-text)] placeholder-[var(--color-text3)] focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+            />
+          </div>
+
+          {/* Difficulty Filter */}
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-[var(--color-text3)] font-medium mr-1">Filter:</span>
+            {(['easy', 'medium', 'hard'] as const).map(level => (
+              <button
+                key={level}
+                onClick={() => setDifficultyFilter(difficultyFilter === level ? null : level)}
+                className={`px-3 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-wider cursor-pointer transition-all ${
+                  difficultyFilter === level
+                    ? `badge-${level} ring-1 ring-offset-1 ring-offset-[var(--color-bg)]`
+                    : 'text-[var(--color-text3)] bg-[var(--color-bg2)] border border-[var(--color-border)] hover:border-[var(--color-border2)]'
+                }`}
+              >
+                {level}
+              </button>
+            ))}
+            {(searchQuery || difficultyFilter) && (
+              <button
+                onClick={() => { setSearchQuery(''); setDifficultyFilter(null); }}
+                className="ml-auto text-[11px] text-[var(--color-text3)] hover:text-[var(--color-text)] cursor-pointer transition-colors"
+              >
+                Clear all
+              </button>
+            )}
+          </div>
+        </motion.div>
+
+        {/* ═══ Search Results ═══ */}
+        {showSearchResults ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-14">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-[13px] font-bold text-[var(--color-text)] uppercase tracking-[0.1em]">
+                {filteredQuestions.length} {filteredQuestions.length === 1 ? 'Result' : 'Results'}
+              </h2>
+            </div>
+            {filteredQuestions.length === 0 ? (
+              <div className="py-12 text-center text-[var(--color-text3)]">
+                <p className="text-[15px] mb-1">No questions found</p>
+                <p className="text-[12px]">Try a different keyword or clear filters</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {filteredQuestions.slice(0, 20).map(q => {
+                  const sec = sections.find(s => s.id === q.sectionId);
+                  return (
+                    <Link key={q.id} to={`/section/${q.sectionId}/question/${q.id}`}>
+                      <div className="group flex items-start gap-3 p-4 rounded-xl bg-[var(--color-bg2)] border border-[var(--color-border)] hover:border-[var(--color-accent)]/30 transition-all cursor-pointer">
+                        <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider badge-${q.difficulty} shrink-0 mt-1`}>
+                          {q.difficulty}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[14px] font-medium text-[var(--color-text)] group-hover:text-[var(--color-accent)] transition-colors line-clamp-1">{q.question}</p>
+                          <p className="text-[12px] text-[var(--color-text3)] mt-0.5">{sec?.name}</p>
+                        </div>
+                        <ArrowRightIcon className="w-4 h-4 text-[var(--color-text3)] group-hover:text-[var(--color-accent)] opacity-0 group-hover:opacity-100 transition-all shrink-0 mt-1" />
+                      </div>
+                    </Link>
+                  );
+                })}
+                {filteredQuestions.length > 20 && (
+                  <p className="text-center text-[12px] text-[var(--color-text3)] pt-2">Showing first 20 of {filteredQuestions.length} results</p>
+                )}
+              </div>
+            )}
+          </motion.div>
+        ) : (
+        <>
         {/* ═══ Topics Grid ═══ */}
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-[13px] font-bold text-[var(--color-text)] uppercase tracking-[0.1em]">All Topics</h2>
@@ -207,6 +304,8 @@ export function Home() {
             Built for .NET developers · Open source · Always free
           </p>
         </div>
+        </>
+        )}
       </div>
     </PageWrapper>
   );

@@ -1,12 +1,12 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { PageWrapper } from '../components/layout/PageWrapper';
 import { InteractiveFollowUp } from '../components/ui/InteractiveFollowUp';
 import { DiagramRenderer } from '../components/diagrams/DiagramRenderer';
 import questions from '../data/questions';
 import { sections } from '../data/sections';
-import { BookmarkIcon as BookmarkOutline, LightBulbIcon, ExclamationTriangleIcon, ChatBubbleBottomCenterTextIcon, CodeBracketIcon, CommandLineIcon } from '@heroicons/react/24/outline';
+import { BookmarkIcon as BookmarkOutline, LightBulbIcon, ExclamationTriangleIcon, ChatBubbleBottomCenterTextIcon, CodeBracketIcon, CommandLineIcon, Bars3Icon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { BookmarkIcon as BookmarkSolid, CheckCircleIcon as CheckSolid } from '@heroicons/react/24/solid';
 import { useProgress } from '../hooks/useProgress';
 
@@ -23,6 +23,7 @@ export function SectionLayout() {
   const { sectionId, questionId } = useParams();
   const navigate = useNavigate();
   const { isBookmarked, toggleBookmark, isReviewed, toggleReviewed } = useProgress();
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   const section = sections.find(s => s.id === sectionId);
   const sectionQuestions = questions.filter(q => q.sectionId === sectionId);
@@ -118,7 +119,7 @@ export function SectionLayout() {
 
       {/* ═══════ Main Content ═══════ */}
       <main className="flex-1 overflow-y-auto">
-        <article className="max-w-4xl mx-auto px-6 sm:px-10 py-10 sm:py-14">
+        <article className="max-w-4xl mx-auto px-6 sm:px-10 py-10 sm:py-14 pb-24 lg:pb-14">
 
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-[12px] text-[var(--color-text3)] mb-10 font-mono">
@@ -332,6 +333,98 @@ export function SectionLayout() {
           </nav>
         </div>
       </aside>
+
+      {/* ═══════ Mobile Bottom Nav ═══════ */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--color-bg)]/95 backdrop-blur-md border-t border-[var(--color-border)] safe-area-bottom">
+        <div className="flex items-center justify-between h-14 px-4">
+          {/* Prev */}
+          {currentIndex > 0 ? (
+            <Link
+              to={`/section/${sectionId}/question/${sectionQuestions[currentIndex - 1].id}`}
+              className="flex items-center gap-1 text-[var(--color-text2)] hover:text-[var(--color-text)] transition-colors p-2"
+            >
+              <ChevronLeftIcon className="w-5 h-5" />
+              <span className="text-[12px] font-medium">Prev</span>
+            </Link>
+          ) : <div className="w-16" />}
+
+          {/* Question list toggle */}
+          <button
+            onClick={() => setMobileDrawerOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-bg2)] border border-[var(--color-border)] cursor-pointer"
+          >
+            <Bars3Icon className="w-4 h-4 text-[var(--color-text3)]" />
+            <span className="text-[12px] font-semibold text-[var(--color-text)]">{currentIndex + 1} / {sectionQuestions.length}</span>
+          </button>
+
+          {/* Next */}
+          {currentIndex < sectionQuestions.length - 1 ? (
+            <Link
+              to={`/section/${sectionId}/question/${sectionQuestions[currentIndex + 1].id}`}
+              className="flex items-center gap-1 text-[var(--color-text2)] hover:text-[var(--color-text)] transition-colors p-2"
+            >
+              <span className="text-[12px] font-medium">Next</span>
+              <ChevronRightIcon className="w-5 h-5" />
+            </Link>
+          ) : <div className="w-16" />}
+        </div>
+      </div>
+
+      {/* ═══════ Mobile Question Drawer ═══════ */}
+      <AnimatePresence>
+        {mobileDrawerOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileDrawerOpen(false)}
+              className="lg:hidden fixed inset-0 z-[60] bg-black/60"
+            />
+            {/* Drawer */}
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="lg:hidden fixed bottom-0 left-0 right-0 z-[70] bg-[var(--color-bg)] border-t border-[var(--color-border)] rounded-t-2xl max-h-[70vh] overflow-y-auto"
+            >
+              <div className="sticky top-0 bg-[var(--color-bg)] border-b border-[var(--color-border)] px-5 py-4 flex items-center justify-between">
+                <h3 className="text-[14px] font-semibold text-[var(--color-text)]">{section.name}</h3>
+                <button onClick={() => setMobileDrawerOpen(false)} className="p-1 cursor-pointer">
+                  <XMarkIcon className="w-5 h-5 text-[var(--color-text3)]" />
+                </button>
+              </div>
+              <div className="p-3 pb-8 space-y-1">
+                {sectionQuestions.map((q, i) => {
+                  const isActive = q.id === activeQuestionId;
+                  const isDone = isReviewed(q.id);
+                  return (
+                    <Link
+                      key={q.id}
+                      to={`/section/${sectionId}/question/${q.id}`}
+                      onClick={() => setMobileDrawerOpen(false)}
+                      className={`flex items-start gap-3 px-4 py-3 rounded-xl text-[14px] leading-snug transition-all ${
+                        isActive
+                          ? 'bg-[var(--color-accent)]/10 text-[var(--color-accent)] font-medium'
+                          : 'text-[var(--color-text2)] hover:bg-[var(--color-bg2)]'
+                      }`}
+                    >
+                      {isDone ? (
+                        <CheckSolid className="w-5 h-5 shrink-0 text-[var(--color-green)] mt-[1px]" />
+                      ) : (
+                        <span className="w-5 h-5 shrink-0 flex items-center justify-center text-[11px] font-mono text-[var(--color-text3)] mt-[1px]">{i + 1}</span>
+                      )}
+                      <span className="line-clamp-2">{q.question}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
