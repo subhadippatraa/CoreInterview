@@ -13,7 +13,13 @@
           "Forgetting to call next() in Use middleware \u2014 this silently short-circuits the pipeline.",
           "Thinking Map replaces routing \u2014 it's for middleware branching, not endpoint routing."
         ],
-        "diagram": "flowchart LR\n    Start[Request] --> Use1[app.Use (Auth)]\n    Use1 --> Map{app.Map ('/api')}\n    \n    Map -->|Path is /api| Branch1[app.Run (Return JSON)]\n    Map -->|Path is NOT /api| Use2[app.Use (Static Files)]\n    \n    Use2 --> Run1[app.Run (Return HTML)]"
+        "diagram": "flowchart LR\n    Start[Request] --> Use1[app.Use (Auth)]\n    Use1 --> Map{app.Map ('/api')}\n    \n    Map -->|Path is /api| Branch1[app.Run (Return JSON)]\n    Map -->|Path is NOT /api| Use2[app.Use (Static Files)]\n    \n    Use2 --> Run1[app.Run (Return HTML)]",
+        "companies": [
+          "TCS",
+          "Cognizant",
+          "Accenture",
+          "Microsoft"
+        ]
       },
       {
         "question": "Where would you place authentication middleware and why?",
@@ -26,8 +32,19 @@
           "Placing UseAuthentication before UseRouting \u2014 routing metadata won't be available.",
           "Placing UseAuthorization before UseAuthentication \u2014 user identity is always null."
         ],
-        "diagram": "sequenceDiagram\n    participant R as UseRouting()\n    participant AuthN as UseAuthentication()\n    participant AuthZ as UseAuthorization()\n    participant E as MapControllers()\n    \n    R->>AuthN: 1. Matched /api/vip. Requires [Authorize]\n    AuthN->>AuthZ: 2. Parsed JWT. User is \"Bob\".\n    AuthZ->>E: 3. Bob is an Admin. Allowed!\n    Note over E: 4. Executes the C# Controller Action"
+        "diagram": "sequenceDiagram\n    participant R as UseRouting()\n    participant AuthN as UseAuthentication()\n    participant AuthZ as UseAuthorization()\n    participant E as MapControllers()\n    \n    R->>AuthN: 1. Matched /api/vip. Requires [Authorize]\n    AuthN->>AuthZ: 2. Parsed JWT. User is \"Bob\".\n    AuthZ->>E: 3. Bob is an Admin. Allowed!\n    Note over E: 4. Executes the C# Controller Action",
+        "companies": []
       }
+    ],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
     ]
   }
 ]

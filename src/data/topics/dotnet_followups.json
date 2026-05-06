@@ -1,26 +1,86 @@
 [
   {
     "questionId": 22,
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
+    ]
   },
   {
     "questionId": 23,
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
+    ]
   },
   {
     "questionId": 24,
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
+    ]
   },
   {
     "questionId": 25,
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
+    ]
   },
   {
     "questionId": 26,
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
+    ]
   },
   {
     "questionId": 27,
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
+    ]
   }
 ]

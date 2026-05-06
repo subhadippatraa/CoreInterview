@@ -339,6 +339,19 @@ export function SectionLayout() {
               </button>
             ))}
           </nav>
+
+          {activeQuestion.companies && activeQuestion.companies.length > 0 && (
+            <div className="mt-12 pt-8 border-t border-[var(--color-border)]">
+              <h4 className="font-heading text-[10px] font-bold text-[var(--color-text3)] uppercase tracking-[0.15em] mb-4">Asked By</h4>
+              <div className="flex flex-wrap gap-1.5">
+                {activeQuestion.companies.map((company: string) => (
+                  <span key={company} className="text-[10px] font-mono font-medium text-[var(--color-text2)] bg-[var(--color-bg2)] px-2 py-1 rounded border border-[var(--color-border)]">
+                    {company}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </aside>
 

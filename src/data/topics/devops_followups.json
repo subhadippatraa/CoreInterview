@@ -13,7 +13,8 @@
           "Saying an image is a 'running application' \u2014 images are static templates.",
           "Forgetting containers are ephemeral \u2014 data is lost without volumes."
         ],
-        "diagram": "flowchart LR\n    I[Docker Image (Recipe)] -->|docker run| C1[Container 1]\n    I -->|docker run| C2[Container 2]\n    I -->|docker run| C3[Container 3]"
+        "diagram": "flowchart LR\n    I[Docker Image (Recipe)] -->|docker run| C1[Container 1]\n    I -->|docker run| C2[Container 2]\n    I -->|docker run| C3[Container 3]",
+        "companies": []
       },
       {
         "question": "What is Docker Compose and when do you use it?",
@@ -26,8 +27,19 @@
           "Saying Docker replaces VMs \u2014 they solve different problems and often coexist.",
           "Claiming containers have no security isolation \u2014 namespaces + cgroups provide strong isolation."
         ],
-        "diagram": "flowchart TD\n    DC[docker-compose up] --> API[Web API Container]\n    DC --> DB[SQL Server Container]\n    DC --> Redis[Redis Container]\n    Note over API, DB: All connected to the same virtual network!"
+        "diagram": "flowchart TD\n    DC[docker-compose up] --> API[Web API Container]\n    DC --> DB[SQL Server Container]\n    DC --> Redis[Redis Container]\n    Note over API, DB: All connected to the same virtual network!",
+        "companies": []
       }
+    ],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
     ]
   }
 ]

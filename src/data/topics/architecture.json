@@ -14,7 +14,15 @@
     "explanation": "**\ud83c\udfed The Car Factory Analogy:**\n\u2022 **Normal Code:** You want a car. You personally go buy steel, weld the chassis, install the engine, and paint it. If you want 10 cars, you have to write the welding code 10 times.\n\u2022 **Factory Pattern:** You just call `CarFactory.Create(\"Mustang\")`. The factory handles all the complex welding and parts assembly behind closed doors, and just hands you the finished keys.",
     "diagram": "flowchart TD\n    Client --> Factory[Vehicle Factory]\n    Factory -->|Creates| Car[Car Object]\n    Factory -->|Creates| Truck[Truck Object]\n    Factory -->|Creates| Bike[Bike Object]",
     "example": "// \u2705 THREAD-SAFE SINGLETON (The modern C# way)\npublic class Logger\n{\n    // Lazy<T> guarantees thread safety automatically!\n    private static readonly Lazy<Logger> _instance = new(() => new Logger());\n    \n    public static Logger Instance => _instance.Value;\n    \n    private Logger() { } // Private constructor\n}",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Accenture",
+      "Microsoft",
+      "Zoho"
+    ]
   },
   {
     "id": 29,
@@ -31,7 +39,15 @@
     "explanation": "**\ud83d\udd0c The Wall Outlet Analogy (Dependency Inversion):**\nIf you buy a new TV, you don't hardwire the TV directly into the electrical wires inside your wall. If you did, you could never move the TV!\nInstead, the wall provides a standard **Abstraction** (The 3-prong Outlet). The TV comes with a standard Plug. They don't care about each other, they just both depend on the interface (The Outlet). This is Dependency Inversion.",
     "diagram": "flowchart LR\n    subgraph Violation (Tight Coupling)\n    UI --> SQL[SQL Server Class]\n    end\n    \n    subgraph SOLID (Dependency Inversion)\n    UI2[UI] --> I[IRepository Interface]\n    SQL2[SQL Server Class] -.->|Implements| I\n    end\n    style UI fill:#ffcccc,stroke:#cc0000\n    style I fill:#ccffcc,stroke:#00cc00",
     "example": "// \u274c OPEN-CLOSED VIOLATION\n// Every time you add a new shape, you have to modify this core class!\npublic double CalculateArea(object shape) {\n    if (shape is Circle c) return Math.PI * c.Radius * c.Radius;\n    if (shape is Square s) return s.Side * s.Side;\n    return 0;\n}\n\n// \u2705 SOLID (Open for extension, closed for modification)\npublic interface IShape { double CalculateArea(); }\npublic class Circle : IShape { ... }\n\npublic double CalculateArea(IShape shape) {\n    return shape.CalculateArea(); // Never needs to be modified again!\n}",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Accenture",
+      "Microsoft",
+      "Amazon"
+    ]
   },
   {
     "id": 30,
@@ -48,7 +64,13 @@
     "explanation": "**\ud83e\uddc5 The Onion Analogy:**\n\u2022 **The Core (Domain):** Your pure business rules. No databases, no HTTP. Just pure C# classes.\n\u2022 **The Middle (Application):** Your use cases (e.g., 'Transfer Money'). It knows about the Core, but still knows nothing about SQL.\n\u2022 **The Skin (Infrastructure & UI):** The dirty outside world. This is where SQL Server, Entity Framework, and ASP.NET Controllers live.\n\nThe skin can look inside the onion, but the core of the onion has no idea what skin is attached to it.",
     "diagram": "flowchart TD\n    subgraph Outer Layer (Skin)\n    API[ASP.NET Core Web API]\n    SQL[Entity Framework Infrastructure]\n    end\n    \n    subgraph Middle Layer\n    App[Application (Use Cases / CQRS)]\n    end\n    \n    subgraph Inner Layer (Core)\n    Dom[Domain (Entities & Interfaces)]\n    end\n    \n    API --> App\n    SQL --> App\n    App --> Dom",
     "example": "// \u2705 DOMAIN LAYER (Pure C#, No EF Core allowed)\npublic interface IUserRepository {\n    Task<User> GetById(int id);\n}\n\n// \u2705 INFRASTRUCTURE LAYER (References Domain layer AND EF Core)\npublic class SqlUserRepository : IUserRepository {\n    private readonly ApplicationDbContext _db;\n    public async Task<User> GetById(int id) => await _db.Users.FindAsync(id);\n}",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "Accenture",
+      "Microsoft",
+      "Amazon",
+      "Zoho"
+    ]
   },
   {
     "id": 31,
@@ -65,7 +87,12 @@
     "explanation": "**\ud83c\udf54 The Fast Food Analogy:**\n\u2022 **Standard CRUD (The Food Truck):** One guy takes your order (Write) and also cooks your food and hands it to you (Read). It works fine for 10 customers.\n\u2022 **CQRS (McDonald's):** There are 4 cashiers whose ONLY job is taking orders (Commands). There are 4 different workers at the pickup counter whose ONLY job is handing out food (Queries). They are completely separated. If the pickup line gets too long, you can just hire more pickup workers without touching the cashiers.",
     "diagram": "flowchart LR\n    UI[User Interface]\n    \n    subgraph CQRS Architecture\n    UI -->|Sends Command| C[Command Model (Create/Update)]\n    UI -->|Sends Query| Q[Query Model (Read/Search)]\n    end\n    \n    C -->|Writes to| WriteDB[(Primary SQL DB)]\n    WriteDB -.->|Syncs via Events| ReadDB[(ElasticSearch / Redis)]\n    Q -->|Reads from| ReadDB",
     "example": "// 1. THE COMMAND (Write) - Returns nothing, just mutates state\npublic record CreateUserCommand(string Name) : IRequest;\n\n// 2. THE QUERY (Read) - Does not mutate state, just returns data\npublic record GetUserQuery(int Id) : IRequest<UserDto>;\n\n// 3. ASP.NET CONTROLLER (Using MediatR)\n[HttpPost] public async Task Create(CreateUserCommand cmd) => await _mediator.Send(cmd);\n[HttpGet] public async Task<UserDto> Get(int id) => await _mediator.Send(new GetUserQuery(id));",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "Microsoft",
+      "Amazon",
+      "Accenture"
+    ]
   },
   {
     "id": 32,
@@ -82,7 +109,14 @@
     "explanation": "**\ud83d\udce6 The Warehouse Analogy:**\nImagine the database is a massive, complex warehouse full of forklifts and shelves.\nYour application is the Store Manager.\n\nThe Store Manager shouldn't have to learn how to drive a forklift to get a box of apples. Instead, they just ask the Warehouse Worker (The Repository): \"Hey, go get me the apples.\" The worker deals with the complexity of the warehouse and just hands the apples to the manager.",
     "diagram": "flowchart TD\n    subgraph Bad (Tight Coupling)\n    C[Controller] -->|Directly calls DbContext| DB[(SQL Server)]\n    end\n    \n    subgraph Good (Repository Pattern)\n    C2[Controller] -->|Calls| Repo[IUserRepository]\n    Repo -->|Implements SQL Logic| DB2[(SQL Server)]\n    Note over C2, Repo: Controller can be Unit Tested by MOCKING IUserRepository!\n    end",
     "example": "// \u274c ANTI-PATTERN: The Generic Repository (Useless boilerplate)\npublic class GenericRepository<T> {\n    public void Add(T entity) => _db.Set<T>().Add(entity);\n}\n\n// \u2705 THE GOLD STANDARD: Specific Repository (Encapsulates complex logic)\npublic class UserRepository : IUserRepository {\n    public async Task<List<User>> GetActiveAdminsAsync() {\n        // Hides this complex SQL logic from the controller\n        return await _db.Users.Where(u => u.IsActive && u.Role == \"Admin\").ToListAsync();\n    }\n}",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Accenture",
+      "Microsoft"
+    ]
   },
   {
     "id": 33,
@@ -99,7 +133,12 @@
     "explanation": "**\ud83c\udfe8 The Vacation Booking Analogy:**\nYou want to book a Flight, a Hotel, and a Rental Car. You can't put a \"Lock\" on all 3 companies at once.\n\n1. You book the Flight (Success).\n2. You book the Hotel (Success).\n3. You try to book the Car, but they are sold out! (Failure).\n\nBecause the car failed, you don't want the flight or hotel anymore. You can't just 'rollback' a database. You have to actively call the airline and say \"Cancel my ticket\", and call the hotel and say \"Cancel my room\". These are **Compensating Transactions**.",
     "diagram": "sequenceDiagram\n    participant O as Order Service\n    participant P as Payment Service\n    participant I as Inventory Service\n    \n    O->>P: 1. Create Order & Request Payment\n    P-->>O: 2. Payment SUCCESS\n    O->>I: 3. Request Inventory Deduction\n    I-->>O: 4. Inventory FAILED (Out of stock)\n    Note over O, P: The Saga triggers a Rollback!\n    O->>P: 5. COMPENSATING TRANSACTION: Refund Payment\n    O->>O: 6. Mark Order as Cancelled",
     "example": "// 1. SUCCESS PATH\nawait _orderService.CreatePendingOrder();\nbool paid = await _paymentService.ChargeCard();\nbool shipped = await _inventoryService.Ship();\n\n// 2. COMPENSATING PATH (The Rollback)\nif (!shipped) {\n    await _paymentService.RefundCard(); // Undo Step 2\n    await _orderService.CancelOrder();  // Undo Step 1\n}",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "Microsoft",
+      "Amazon",
+      "Accenture"
+    ]
   },
   {
     "id": 34,
@@ -116,6 +155,11 @@
     "explanation": "**\ud83c\udfe2 The Office Building Analogy:**\n\u2022 **Spaghetti Monolith (The Open Floor Plan):** 500 workers in one giant room. Everyone is screaming, stealing each other's pens, and total chaos.\n\u2022 **Microservices (Different Buildings):** You put the Sales team in New York, and the Inventory team in London. To ask a question, they have to mail a letter across the ocean (Network Latency). It takes forever.\n\u2022 **Modular Monolith (The Office Building):** Everyone is in the same building (One Server), but Sales is on Floor 1, and Inventory is on Floor 2. They have locked doors. To talk, Sales has to call the Inventory front desk. It is organized, secure, and blazing fast.",
     "diagram": "flowchart TD\n    subgraph Microservices (Slow & Expensive)\n    M1[Sales API] <-->|HTTP/Network| M2[Inventory API]\n    end\n    \n    subgraph Modular Monolith (Fast & Cheap)\n    Monolith[Single Web API Process]\n    subgraph Modules\n    Mod1[Sales Module] <-->|In-Memory Event| Mod2[Inventory Module]\n    end\n    Monolith --- Modules\n    end\n    style Monolith fill:#ccffcc,stroke:#00cc00",
     "example": "// Inside a Modular Monolith, modules communicate via MediatR (In-Memory),\n// NOT via HTTP calls to other servers.\n\n// Sales Module\npublic async Task Checkout() {\n    // Publish an event to the internal bus\n    await _mediator.Publish(new OrderPlacedEvent(orderId)); \n}\n\n// Inventory Module\npublic class InventoryHandler : INotificationHandler<OrderPlacedEvent> {\n    public async Task Handle(OrderPlacedEvent event) {\n        // Deduct inventory instantly in the same process!\n    }\n}",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "Microsoft",
+      "Amazon",
+      "Accenture"
+    ]
   }
 ]

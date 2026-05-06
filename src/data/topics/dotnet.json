@@ -14,7 +14,16 @@
     "explanation": "**\ud83d\udcf1 The iPhone Analogy:**\n\u2022 **.NET Framework (The Flip Phone):** Reliable, does exactly what it was built for, but it only works on one specific cellular network (Windows). It's no longer getting new features, just security patches.\n\u2022 **.NET Core / .NET 8 (The iPhone):** A completely new, modern device that works on every network in the world (Cross-platform). It gets all the massive performance updates and new features.",
     "diagram": "flowchart TD\n    F[.NET Framework 4.8 (Windows Only)] --> Stop[Maintenance Mode (Dead End)]\n    C[.NET Core 3.1 (Cross-Platform)] --> N[.NET 5]\n    N --> N6[.NET 6]\n    N6 --> N8[.NET 8 (LTS)]",
     "example": "// How you host an app in .NET Framework (IIS Only, Windows Only)\n// System.Web.HttpApplication\n\n// How you host an app in modern .NET (Kestrel, runs on Linux/Docker!)\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\napp.Run();",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL"
+    ]
   },
   {
     "id": 23,
@@ -31,7 +40,15 @@
     "explanation": "**\ud83c\udfe2 The Restaurant Manager Analogy:**\nImagine your C# code is a Cook.\nThe Cook doesn't pay the electricity bill, take out the trash, or hire security. \n\nThe **CLR is the Restaurant Manager**. It makes sure the Cook has a safe environment to work in. It takes out the trash (Garbage Collection), handles emergencies (Exception Handling), and kicks out unruly customers (Security). The Cook just cooks.",
     "diagram": "flowchart LR\n    C[C# Code] -->|Roslyn Compiler| IL[MSIL (DLL)]\n    IL --> CLR[The CLR Engine]\n    \n    subgraph The CLR Engine\n    JIT[JIT Compiler]\n    GC[Garbage Collector]\n    end\n    \n    CLR -->|Executes| CPU[Machine Code]",
     "example": "// You don't interact with the CLR directly, but it provides features like this:\n\n// 1. Automatic Memory Management (GC)\nvar list = new List<int>(); // The CLR allocates and eventually cleans this up.\n\n// 2. Exception Handling\ntry { \n    int x = 1 / 0; \n} catch (DivideByZeroException) { \n    // The CLR caught the crash safely! \n}",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Cognizant",
+      "Accenture",
+      "Capgemini"
+    ]
   },
   {
     "id": 24,
@@ -48,7 +65,14 @@
     "explanation": "**\ud83d\udde3\ufe0f The UN Translator Analogy:**\n\u2022 **AOT (Ahead-of-Time, like C++):** You translate an English book into Spanish. It takes 5 years to print. If you hand it to someone who speaks French, they can't read it.\n\u2022 **MSIL (The Intermediate Language):** You translate the English book into a universal sign language.\n\u2022 **JIT (The Live Translator):** You hire a translator to sit next to the reader. When the reader turns to Page 1, the translator instantly converts the sign language into French. It takes a second to translate (Startup Delay), but once translated, the reader can read Page 1 instantly forever.",
     "diagram": "sequenceDiagram\n    participant App as C# App\n    participant JIT as JIT Compiler\n    participant CPU as Native CPU\n    \n    App->>JIT: Calls CalculateTotal() for 1st time\n    JIT-->>JIT: Converts MSIL to 0s and 1s (Slow)\n    JIT->>CPU: Executes Code\n    \n    App->>JIT: Calls CalculateTotal() for 2nd time\n    JIT->>CPU: Instantly executes cached Machine Code! (Fast)",
     "example": "// C# Code\npublic int Add(int a, int b) { return a + b; }\n\n// \u2193 (Compile Time - Roslyn) \u2193\n\n// MSIL (Stored in DLL)\n// IL_0000: ldarg.1\n// IL_0001: ldarg.2\n// IL_0002: add\n// IL_0003: ret\n\n// \u2193 (Runtime - JIT) \u2193\n\n// Machine Code (01010011 11010101)",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Cognizant",
+      "Accenture"
+    ]
   },
   {
     "id": 25,
@@ -65,7 +89,13 @@
     "explanation": "**\ud83c\udfeb The Daycare Analogy:**\n\u2022 **Managed Code (The Daycare):** You leave your kids at a daycare. There are fences, supervisors, and rules. If a kid drops a toy (Memory), a janitor (Garbage Collector) picks it up. It is perfectly safe.\n\u2022 **Unmanaged Code (The Wild Forest):** You let your kids run into the woods. There are no supervisors. If they drop a toy, it stays there forever until you personally go into the woods and pick it up (Memory Leak).",
     "diagram": "flowchart TD\n    subgraph The CLR (Daycare)\n    MC[Managed Code (C#)]\n    GC[Garbage Collector]\n    end\n    \n    subgraph Operating System (The Wild)\n    UC[Unmanaged Code (C++)]\n    Win[Windows API / File Handles]\n    end\n    \n    MC -->|P/Invoke| UC\n    Note over MC, UC: Danger! GC cannot clean up UC!",
     "example": "// \u2705 MANAGED CODE: The GC cleans this up automatically\nstring name = \"Bob\"; \n\n// \u274c UNMANAGED CODE: Calling a raw C++ Windows API\n// The GC CANNOT clean this up. You must call it carefully.\n[DllImport(\"user32.dll\")]\npublic static extern int MessageBox(IntPtr hWnd, String text, String caption, int options);",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Cognizant"
+    ]
   },
   {
     "id": 26,
@@ -82,7 +112,14 @@
     "explanation": "**\ud83d\udce6 The Shipping Container Analogy:**\n\u2022 **Code:** The raw goods (laptops, shoes).\n\u2022 **The Assembly:** The massive metal shipping container you put the goods into.\n\u2022 **The Manifest:** The clipboard taped to the outside of the container. It tells the dock worker what is inside, how heavy it is, what version it is, and what other boxes need to be shipped with it.\n\nYou don't ship individual shoes (Classes). You ship the entire Container (Assembly).",
     "diagram": "flowchart LR\n    subgraph MyProject.dll (The Assembly)\n    M[Manifest / Metadata]\n    IL[MSIL Code]\n    R[Resources (Images)]\n    end\n    \n    M -.->|Depends on| N[Newtonsoft.Json.dll]",
     "example": "// You can inspect the Assembly Manifest using Reflection:\nusing System.Reflection;\n\n// Get the currently running Assembly (The DLL)\nAssembly myAssembly = Assembly.GetExecutingAssembly();\n\n// Read the Manifest to get the version number\nConsole.WriteLine(myAssembly.GetName().Version);",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Cognizant",
+      "Accenture"
+    ]
   },
   {
     "id": 27,
@@ -99,6 +136,11 @@
     "explanation": "**\u2702\ufe0f The Newspaper Analogy:**\n\u2022 **Substring() (The Photocopier):** You find an article in a newspaper you like. You walk to the photocopier, print a brand new copy of that specific article, and read it. If you do this 10,000 times, you waste massive amounts of paper (Heap Allocations / GC).\n\u2022 **Span<T> (The Magnifying Glass):** You simply hold a magnifying glass over the exact paragraph you want to read. You don't copy anything. You just look at the original paper. It costs nothing.",
     "diagram": "flowchart TD\n    S[\"Hello World\" (Array in Memory)]\n    \n    subgraph The Bad Way\n    Sub[Substring(0, 5)] -->|Allocates NEW string| H[Heap Memory: \"Hello\"]\n    end\n    \n    subgraph The Good Way\n    Span[Span.Slice(0, 5)] -.->|Just points to original memory| S\n    Note over Span: ZERO Allocations!\n    end\n    style H fill:#ffcccc,stroke:#cc0000",
     "example": "string data = \"123,456,789\";\n\n// \u274c BAD: Allocates 2 brand new strings on the Heap!\nstring part1 = data.Substring(0, 3);\nstring part2 = data.Substring(4, 3);\n\n// \u2705 GOLD STANDARD: ZERO Heap Allocations.\nReadOnlySpan<char> spanData = data.AsSpan();\nReadOnlySpan<char> span1 = spanData.Slice(0, 3);\nReadOnlySpan<char> span2 = spanData.Slice(4, 3);",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "Microsoft",
+      "Amazon",
+      "Accenture"
+    ]
   }
 ]

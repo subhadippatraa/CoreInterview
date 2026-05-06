@@ -18,6 +18,7 @@ export interface Question {
   mistakes: string[];
   diagram?: 'middleware-pipeline' | 'di-flow' | 'http-lifecycle' | 'process-vs-thread' | 'load-balancing' | 'docker-layers';
   tags?: string[];
+  companies?: string[];
 }
 
 export interface MockResult {

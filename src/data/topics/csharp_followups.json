@@ -13,7 +13,8 @@
           "Making structs with mutable fields \u2014 leads to confusing bugs when copies are modified.",
           "Using structs for large objects \u2014 copy overhead negates stack allocation benefits."
         ],
-        "diagram": "flowchart LR\n    subgraph Struct\n    S1[Small Value] -.->|Fast Copy| S2[Small Value Copy]\n    end\n    \n    subgraph Class\n    C1[Pointer A] --> Obj[(Massive 1GB Object in Heap)]\n    C2[Pointer B] --> Obj\n    end"
+        "diagram": "flowchart LR\n    subgraph Struct\n    S1[Small Value] -.->|Fast Copy| S2[Small Value Copy]\n    end\n    \n    subgraph Class\n    C1[Pointer A] --> Obj[(Massive 1GB Object in Heap)]\n    C2[Pointer B] --> Obj\n    end",
+        "companies": []
       },
       {
         "question": "What happens when you pass a struct to a method?",
@@ -26,7 +27,8 @@
           "Expecting struct modifications inside a method to affect the caller \u2014 they don't without ref.",
           "Not knowing that boxing a struct (casting to object/interface) creates a heap copy."
         ],
-        "diagram": "sequenceDiagram\n    participant M as Main()\n    participant F as Method(Point p)\n    \n    M->>M: Point a = {X: 5}\n    M->>F: Passes 'a'\n    Note over M, F: F receives a COPY: {X: 5}\n    F->>F: Changes copy to {X: 99}\n    F-->>M: Returns\n    Note over M: Original 'a' is still {X: 5}!"
+        "diagram": "sequenceDiagram\n    participant M as Main()\n    participant F as Method(Point p)\n    \n    M->>M: Point a = {X: 5}\n    M->>F: Passes 'a'\n    Note over M, F: F receives a COPY: {X: 5}\n    F->>F: Changes copy to {X: 99}\n    F-->>M: Returns\n    Note over M: Original 'a' is still {X: 5}!",
+        "companies": []
       },
       {
         "question": "Can structs implement interfaces?",
@@ -39,8 +41,19 @@
           "Not knowing that interface casting causes boxing \u2014 negates the stack benefit.",
           "Forgetting that generic constraints avoid boxing \u2014 this is the recommended pattern."
         ],
-        "diagram": "flowchart TD\n    A[Struct on Stack] -->|Cast to Interface| B((Boxed on Heap))\n    B -->|Garbage Collector| C[Triggers GC overhead!]\n    style B fill:#ffcccc,stroke:#cc0000"
+        "diagram": "flowchart TD\n    A[Struct on Stack] -->|Cast to Interface| B((Boxed on Heap))\n    B -->|Garbage Collector| C[Triggers GC overhead!]\n    style B fill:#ffcccc,stroke:#cc0000",
+        "companies": []
       }
+    ],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
     ]
   },
   {
@@ -57,7 +70,8 @@
           "Defaulting to abstract classes for everything \u2014 leads to rigid hierarchies.",
           "Forgetting C# 8 default interface methods \u2014 interfaces can now have implementations too."
         ],
-        "diagram": "flowchart TD\n    subgraph Abstract Class (Identity)\n    A[Abstract: Vehicle] --> B[Car]\n    A --> C[Truck]\n    end\n    \n    subgraph Interface (Capability)\n    I[Interface: IFlyable] -.-> D[Bird]\n    I -.-> E[Airplane]\n    I -.-> F[Superman]\n    end"
+        "diagram": "flowchart TD\n    subgraph Abstract Class (Identity)\n    A[Abstract: Vehicle] --> B[Car]\n    A --> C[Truck]\n    end\n    \n    subgraph Interface (Capability)\n    I[Interface: IFlyable] -.-> D[Bird]\n    I -.-> E[Airplane]\n    I -.-> F[Superman]\n    end",
+        "companies": []
       },
       {
         "question": "Can an interface inherit from another interface?",
@@ -70,8 +84,19 @@
           "Confusing interface inheritance with class inheritance \u2014 interfaces support multiple inheritance, classes don't.",
           "Forgetting that the implementing class must implement ALL inherited members."
         ],
-        "diagram": "flowchart BT\n    I2[IReadWriteRepository] -- Inherits --> I1[IReadOnlyRepository]\n    C[UserRepository] -- Implements --> I2\n    \n    Note over C: Must implement methods<br>from BOTH interfaces!"
+        "diagram": "flowchart BT\n    I2[IReadWriteRepository] -- Inherits --> I1[IReadOnlyRepository]\n    C[UserRepository] -- Implements --> I2\n    \n    Note over C: Must implement methods<br>from BOTH interfaces!",
+        "companies": []
       }
+    ],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
     ]
   },
   {
@@ -88,7 +113,8 @@
           "Thinking Dispose() and GC are the same \u2014 Dispose is deterministic, GC is not.",
           "Forgetting to use 'using' \u2014 leaked connections are a top cause of production outages."
         ],
-        "diagram": "sequenceDiagram\n    participant App\n    participant DB as SQL Connection\n    \n    App->>DB: Open Connection (using)\n    App->>App: \ud83d\udca5 Exception occurs!\n    Note over App: Code crashes, but...\n    App->>DB: Dispose() is AUTOMATICALLY called\n    Note over DB: Connection safely closed."
+        "diagram": "sequenceDiagram\n    participant App\n    participant DB as SQL Connection\n    \n    App->>DB: Open Connection (using)\n    App->>App: \ud83d\udca5 Exception occurs!\n    Note over App: Code crashes, but...\n    App->>DB: Dispose() is AUTOMATICALLY called\n    Note over DB: Connection safely closed.",
+        "companies": []
       },
       {
         "question": "How does GC handle Large Object Heap (LOH) differently?",
@@ -101,8 +127,19 @@
           "Not knowing the 85KB threshold \u2014 a common interview trick question.",
           "Ignoring ArrayPool for large buffer reuse \u2014 simple fix for LOH pressure."
         ],
-        "diagram": "flowchart TD\n    Obj[New Object]\n    Obj -->|Size < 85kb| S1[Generation 0 (Small Object Heap)]\n    Obj -->|Size > 85kb| LOH[Large Object Heap (LOH)]\n    \n    S1 -.->|Compacted often| GC1[Clean Memory]\n    LOH -.->|Never compacted!| GC2[Fragmented Memory Holes]\n    style LOH fill:#ffcccc,stroke:#cc0000"
+        "diagram": "flowchart TD\n    Obj[New Object]\n    Obj -->|Size < 85kb| S1[Generation 0 (Small Object Heap)]\n    Obj -->|Size > 85kb| LOH[Large Object Heap (LOH)]\n    \n    S1 -.->|Compacted often| GC1[Clean Memory]\n    LOH -.->|Never compacted!| GC2[Fragmented Memory Holes]\n    style LOH fill:#ffcccc,stroke:#cc0000",
+        "companies": []
       }
+    ],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
     ]
   },
   {
@@ -119,7 +156,8 @@
           "Thinking the query runs when you write .Where() \u2014 it doesn't until you enumerate.",
           "Iterating a deferred query multiple times \u2014 causes multiple DB round trips."
         ],
-        "diagram": "sequenceDiagram\n    participant Code as C# Code\n    participant Mem as Memory/DB\n    \n    Note over Code: var query = users.Where(u => u.Age > 20);\n    Code->>Code: Just saves the \"Recipe\". NO execution!\n    Note over Code: query = query.OrderBy(u => u.Name);\n    Code->>Code: Updates the \"Recipe\". NO execution!\n    Note over Code: var list = query.ToList();\n    Code->>Mem: RUN THE RECIPE NOW!\n    Mem-->>Code: Returns actual Data"
+        "diagram": "sequenceDiagram\n    participant Code as C# Code\n    participant Mem as Memory/DB\n    \n    Note over Code: var query = users.Where(u => u.Age > 20);\n    Code->>Code: Just saves the \"Recipe\". NO execution!\n    Note over Code: query = query.OrderBy(u => u.Name);\n    Code->>Code: Updates the \"Recipe\". NO execution!\n    Note over Code: var list = query.ToList();\n    Code->>Mem: RUN THE RECIPE NOW!\n    Mem-->>Code: Returns actual Data",
+        "companies": []
       },
       {
         "question": "Can you give an example of when using IEnumerable over a database call causes issues?",
@@ -132,8 +170,19 @@
           "Returning IEnumerable from repositories by default \u2014 always prefer IQueryable for DB sources.",
           "Not profiling SQL queries \u2014 you won't notice until the table grows large."
         ],
-        "diagram": "flowchart LR\n    subgraph IEnumerable (Bad)\n    DB1[(SQL DB)] -->|Select * (100,000 rows)| App1[C# RAM]\n    App1 -->|Where(x => x.Active)| Result1[5 rows]\n    end\n    \n    subgraph IQueryable (Good)\n    DB2[(SQL DB)] -->|Select * Where Active| App2[C# RAM]\n    App2 --> Result2[5 rows]\n    end\n    style App1 fill:#ffcccc,stroke:#cc0000\n    style App2 fill:#ccffcc,stroke:#00cc00"
+        "diagram": "flowchart LR\n    subgraph IEnumerable (Bad)\n    DB1[(SQL DB)] -->|Select * (100,000 rows)| App1[C# RAM]\n    App1 -->|Where(x => x.Active)| Result1[5 rows]\n    end\n    \n    subgraph IQueryable (Good)\n    DB2[(SQL DB)] -->|Select * Where Active| App2[C# RAM]\n    App2 --> Result2[5 rows]\n    end\n    style App1 fill:#ffcccc,stroke:#cc0000\n    style App2 fill:#ccffcc,stroke:#00cc00",
+        "companies": []
       }
+    ],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
     ]
   },
   {
@@ -150,7 +199,13 @@
           "Using ConfigureAwait(false) in UI event handlers \u2014 will crash when updating controls.",
           "Thinking it's required in ASP.NET Core \u2014 there's no SynchronizationContext to capture."
         ],
-        "diagram": "sequenceDiagram\n    participant UI as UI Thread\n    participant B as Background Thread\n    \n    Note over UI, B: Without ConfigureAwait(false)\n    UI->>B: Starts HTTP Request (await)\n    Note over UI: UI Thread is blocked/busy\n    B-->>UI: Done! Tries to return to UI Thread\n    Note over UI, B: \ud83d\udca5 DEADLOCK! UI is busy, Task is waiting for UI.\n    \n    Note over UI, B: With ConfigureAwait(false)\n    UI->>B: Starts HTTP Request (await)\n    B-->>B: Done! Resumes on ANY background thread.\n    Note over B: \u2705 No Deadlock!"
+        "diagram": "sequenceDiagram\n    participant UI as UI Thread\n    participant B as Background Thread\n    \n    Note over UI, B: Without ConfigureAwait(false)\n    UI->>B: Starts HTTP Request (await)\n    Note over UI: UI Thread is blocked/busy\n    B-->>UI: Done! Tries to return to UI Thread\n    Note over UI, B: \ud83d\udca5 DEADLOCK! UI is busy, Task is waiting for UI.\n    \n    Note over UI, B: With ConfigureAwait(false)\n    UI->>B: Starts HTTP Request (await)\n    B-->>B: Done! Resumes on ANY background thread.\n    Note over B: \u2705 No Deadlock!",
+        "companies": [
+          "Microsoft",
+          "Amazon",
+          "Zoho",
+          "Accenture"
+        ]
       },
       {
         "question": "Can you use `await` inside a `lock` block?",
@@ -163,8 +218,23 @@
           "Trying to work around the compiler error \u2014 the restriction exists for good reason.",
           "Using lock for async code \u2014 always use SemaphoreSlim for async mutual exclusion."
         ],
-        "diagram": "flowchart TD\n    T1[Thread 1 acquires lock]\n    T1 --> A[Awaits Task (Yields thread)]\n    A -.->|Task finishes| T2[Thread 2 resumes execution]\n    T2 --> C{Try to release lock}\n    C -->|ERROR!| D[Thread 2 didn't acquire it!]\n    style D fill:#ffcccc,stroke:#cc0000"
+        "diagram": "flowchart TD\n    T1[Thread 1 acquires lock]\n    T1 --> A[Awaits Task (Yields thread)]\n    A -.->|Task finishes| T2[Thread 2 resumes execution]\n    T2 --> C{Try to release lock}\n    C -->|ERROR!| D[Thread 2 didn't acquire it!]\n    style D fill:#ffcccc,stroke:#cc0000",
+        "companies": [
+          "Microsoft",
+          "Amazon",
+          "Accenture"
+        ]
       }
+    ],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
     ]
   },
   {
@@ -181,7 +251,8 @@
           "Using 'in' for small types like int \u2014 the indirection overhead makes it slower.",
           "Confusing 'in' with 'ref readonly' \u2014 they are related but 'in' is for parameters."
         ],
-        "diagram": "flowchart LR\n    subgraph Pass by Value\n    O1[Huge Struct] -->|Copies 1000 bytes| M1[Method]\n    end\n    \n    subgraph Pass by 'in'\n    O2[Huge Struct] -.->|Read-Only Pointer| M2[Method]\n    end\n    style O1 fill:#ffcccc,stroke:#cc0000\n    style O2 fill:#ccffcc,stroke:#00cc00"
+        "diagram": "flowchart LR\n    subgraph Pass by Value\n    O1[Huge Struct] -->|Copies 1000 bytes| M1[Method]\n    end\n    \n    subgraph Pass by 'in'\n    O2[Huge Struct] -.->|Read-Only Pointer| M2[Method]\n    end\n    style O1 fill:#ffcccc,stroke:#cc0000\n    style O2 fill:#ccffcc,stroke:#00cc00",
+        "companies": []
       },
       {
         "question": "How do reference types behave when passed by value without `ref`?",
@@ -194,8 +265,19 @@
           "Thinking without ref you can't modify the object \u2014 you CAN modify properties, just not reassign.",
           "Thinking ref is needed to pass objects \u2014 it's only needed to reassign the reference itself."
         ],
-        "diagram": "sequenceDiagram\n    participant C as Caller\n    participant M as Method\n    participant H as Heap Memory\n    \n    C->>H: Creates User \"Alice\"\n    C->>M: Passes Address (0x123)\n    M->>H: Changes Name to \"Bob\"\n    Note over C, H: Caller sees \"Bob\"!\n    M->>M: Reassigns to NEW User \"Charlie\" (0x999)\n    M-->>C: Returns\n    Note over C: Caller STILL sees \"Bob\" at 0x123!"
+        "diagram": "sequenceDiagram\n    participant C as Caller\n    participant M as Method\n    participant H as Heap Memory\n    \n    C->>H: Creates User \"Alice\"\n    C->>M: Passes Address (0x123)\n    M->>H: Changes Name to \"Bob\"\n    Note over C, H: Caller sees \"Bob\"!\n    M->>M: Reassigns to NEW User \"Charlie\" (0x999)\n    M-->>C: Returns\n    Note over C: Caller STILL sees \"Bob\" at 0x123!",
+        "companies": []
       }
+    ],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
     ]
   }
 ]

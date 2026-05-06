@@ -13,7 +13,8 @@
           "Thinking every table must have a clustered index \u2014 heaps are valid for specific use cases.",
           "Not knowing that PRIMARY KEY creates a clustered index by default in SQL Server."
         ],
-        "diagram": "flowchart TD\n    subgraph Heap (No Clustered Index)\n    R1[Row 5] --> R2[Row 1]\n    R2 --> R3[Row 9]\n    Note over R1, R3: Completely Unordered!\n    end\n    \n    subgraph Clustered Index\n    S1[Row 1] --> S2[Row 2]\n    S2 --> S3[Row 3]\n    end"
+        "diagram": "flowchart TD\n    subgraph Heap (No Clustered Index)\n    R1[Row 5] --> R2[Row 1]\n    R2 --> R3[Row 9]\n    Note over R1, R3: Completely Unordered!\n    end\n    \n    subgraph Clustered Index\n    S1[Row 1] --> S2[Row 2]\n    S2 --> S3[Row 3]\n    end",
+        "companies": []
       },
       {
         "question": "What is a covering index?",
@@ -26,8 +27,19 @@
           "Including too many columns \u2014 makes the index bloated and slows writes.",
           "Confusing INCLUDE columns with index key columns \u2014 INCLUDE columns are not sorted."
         ],
-        "diagram": "flowchart LR\n    subgraph Non-Covering (Slow)\n    I1[Find Email in Index] -->|Key Lookup!| T1[(Go to Physical Table to get Age)]\n    end\n    \n    subgraph Covering (Fast)\n    I2[Find Email in Index] -.->|Wait, Age is included here!| Done[Return Data Instantly]\n    end\n    style I1 fill:#ffcccc,stroke:#cc0000\n    style I2 fill:#ccffcc,stroke:#00cc00"
+        "diagram": "flowchart LR\n    subgraph Non-Covering (Slow)\n    I1[Find Email in Index] -->|Key Lookup!| T1[(Go to Physical Table to get Age)]\n    end\n    \n    subgraph Covering (Fast)\n    I2[Find Email in Index] -.->|Wait, Age is included here!| Done[Return Data Instantly]\n    end\n    style I1 fill:#ffcccc,stroke:#cc0000\n    style I2 fill:#ccffcc,stroke:#00cc00",
+        "companies": []
       }
+    ],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
     ]
   }
 ]

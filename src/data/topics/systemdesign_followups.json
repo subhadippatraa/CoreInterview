@@ -13,7 +13,8 @@
           "Thinking horizontal scaling is free of complexity \u2014 it's a major architecture shift.",
           "Forgetting the database becomes the bottleneck when app servers scale but the DB doesn't."
         ],
-        "diagram": "flowchart TD\n    subgraph Local State (Fails on Scale!)\n    S1[Server A] --> M1[(Local RAM: Bob is logged in)]\n    S2[Server B] --> M2[(Local RAM: Who is Bob?)]\n    end\n    \n    subgraph External State (Scalable!)\n    S3[Server A] --> Redis[(Shared Redis Cache)]\n    S4[Server B] --> Redis\n    end\n    style M1 fill:#ffcccc,stroke:#cc0000\n    style Redis fill:#ccffcc,stroke:#00cc00"
+        "diagram": "flowchart TD\n    subgraph Local State (Fails on Scale!)\n    S1[Server A] --> M1[(Local RAM: Bob is logged in)]\n    S2[Server B] --> M2[(Local RAM: Who is Bob?)]\n    end\n    \n    subgraph External State (Scalable!)\n    S3[Server A] --> Redis[(Shared Redis Cache)]\n    S4[Server B] --> Redis\n    end\n    style M1 fill:#ffcccc,stroke:#cc0000\n    style Redis fill:#ccffcc,stroke:#00cc00",
+        "companies": []
       },
       {
         "question": "What are Sticky Sessions (Session Affinity)?",
@@ -26,8 +27,19 @@
           "Thinking load balancers only do round-robin \u2014 there are many algorithms for different needs.",
           "Forgetting that the load balancer itself can be a SPOF \u2014 use redundant LBs or cloud-managed ones."
         ],
-        "diagram": "flowchart LR\n    U1[User Bob] -->|Logs In| LB[Load Balancer]\n    LB -->|Creates Sticky Cookie| S1[Server A]\n    \n    U1 -->|Next Request| LB\n    LB -.->|Forces routing| S1\n    \n    Note over S1: If Server A crashes, Bob loses his session!"
+        "diagram": "flowchart LR\n    U1[User Bob] -->|Logs In| LB[Load Balancer]\n    LB -->|Creates Sticky Cookie| S1[Server A]\n    \n    U1 -->|Next Request| LB\n    LB -.->|Forces routing| S1\n    \n    Note over S1: If Server A crashes, Bob loses his session!",
+        "companies": []
       }
+    ],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
     ]
   }
 ]

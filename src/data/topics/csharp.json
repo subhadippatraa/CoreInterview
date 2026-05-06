@@ -13,7 +13,17 @@
     "interviewPitch": "The main difference is how they are stored and passed around. A **class** is a reference type stored on the heap. If you pass a class to a method, you are passing a reference to the original object. A **struct** is a value type stored on the stack. If you pass a struct, you are passing a complete copy of the data. Because of this, I only use structs for very small, simple data (like a Point with X and Y) where copying is cheap. For everything else, I use a class.",
     "explanation": "**\ud83d\ude97 The Car Analogy:**\n\u2022 **Class (Reference Type):** You give your friend the keys to your car. If your friend paints the car red, **your car is now red**. You both share the exact same car.\n\u2022 **Struct (Value Type):** You give your friend a 3D-printed exact replica of your car. If your friend paints their replica red, **your real car stays the original color**. They just modified their copy.\n\n**When to use what:**\n\u2022 **Use a Class (99% of the time):** For almost everything. Services, users, large objects.\n\u2022 **Use a Struct (1% of the time):** Only for tiny pieces of data under 16 bytes (like coordinates, colors, or mathematical vectors).",
     "diagram": "flowchart LR\n    subgraph Class Assignment (Reference)\n    A1[Variable A] --> O1((Object on Heap))\n    B1[Variable B] --> O1\n    end\n    subgraph Struct Assignment (Copy)\n    A2[Variable A] --> V1[Value 1 on Stack]\n    B2[Variable B] --> V2[Value 2 on Stack]\n    end",
-    "example": "// \u2705 STRUCT (Value Type - Copies the data)\nstruct Point { public int X; }\n\nPoint p1 = new Point { X = 5 };\nPoint p2 = p1;       // Creates a BRAND NEW copy!\np2.X = 10;           // Changing the copy...\n\nConsole.WriteLine(p1.X); // Output: 5 (The original is safe!)\n\n\n// \u274c CLASS (Reference Type - Shares the data)\nclass Player { public int Health; }\n\nPlayer player1 = new Player { Health = 100 };\nPlayer player2 = player1; // They both point to the SAME player!\nplayer2.Health = 0;       // Changing player 2...\n\nConsole.WriteLine(player1.Health); // Output: 0 (The original is dead!)"
+    "example": "// \u2705 STRUCT (Value Type - Copies the data)\nstruct Point { public int X; }\n\nPoint p1 = new Point { X = 5 };\nPoint p2 = p1;       // Creates a BRAND NEW copy!\np2.X = 10;           // Changing the copy...\n\nConsole.WriteLine(p1.X); // Output: 5 (The original is safe!)\n\n\n// \u274c CLASS (Reference Type - Shares the data)\nclass Player { public int Health; }\n\nPlayer player1 = new Player { Health = 100 };\nPlayer player2 = player1; // They both point to the SAME player!\nplayer2.Health = 0;       // Changing player 2...\n\nConsole.WriteLine(player1.Health); // Output: 0 (The original is dead!)",
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
+    ]
   },
   {
     "id": 2,
@@ -29,7 +39,17 @@
     "interviewPitch": "An **abstract class** provides a shared base with partial implementation\u2014it can have fields, constructors, and real method logic. You use it when related classes share common behavior. An **interface** is a pure contract with no state. The key advantage is that a class can implement **multiple interfaces**, but it can only inherit from **one abstract class**. I use abstract classes when there is shared logic, and interfaces when I need to define a capability that unrelated classes share.",
     "explanation": "**\ud83d\udcc4 The Blueprint vs The Driver's License Analogy:**\n\u2022 **Abstract Class (The Blueprint):** Imagine a blueprint for a `Vehicle`. It has an engine already built in (real code), but the `Drive()` method is left blank because a car drives differently than a boat. You can only use one blueprint to build your vehicle.\n\u2022 **Interface (The License):** Imagine an `IDriveable` license. It doesn't give you a car, it just proves you know *how* to drive. A person can hold many licenses (`IDriveable`, `IFlyable`, `ISwimmable`).\n\n**The Big Rule:**\nBecause C# only allows you to inherit from ONE class, you should always prefer Interfaces unless you absolutely need to share actual code (like fields or helper methods).",
     "diagram": "flowchart TD\n    A[Abstract Class: Vehicle\n    - Has Engine\n    - Drive()] --> C1[Car]\n    A --> C2[Boat]\n    \n    I1[Interface: IDriveable] --> P[Person]\n    I2[Interface: ISwimmable] --> P",
-    "example": "// \u2500\u2500 ABSTRACT CLASS (Shares real code) \u2500\u2500\nabstract class Vehicle {\n    public int Fuel = 100; // Real state!\n    \n    // Real method that all vehicles share\n    public void StartEngine() => Console.WriteLine(\"Vroom!\");\n    \n    // Blank method that the child MUST write\n    public abstract void Move(); \n}\n\nclass Car : Vehicle {\n    public override void Move() => Console.WriteLine(\"Driving on road\");\n}\n\n// \u2500\u2500 INTERFACE (Just a contract) \u2500\u2500\ninterface IFlyable {\n    void Fly(); // No code allowed here!\n}\n\ninterface ISwimmable {\n    void Swim();\n}\n\n// We can use MULTIPLE interfaces!\nclass Duck : IFlyable, ISwimmable {\n    public void Fly() => Console.WriteLine(\"Flap flap\");\n    public void Swim() => Console.WriteLine(\"Paddle paddle\");\n}"
+    "example": "// \u2500\u2500 ABSTRACT CLASS (Shares real code) \u2500\u2500\nabstract class Vehicle {\n    public int Fuel = 100; // Real state!\n    \n    // Real method that all vehicles share\n    public void StartEngine() => Console.WriteLine(\"Vroom!\");\n    \n    // Blank method that the child MUST write\n    public abstract void Move(); \n}\n\nclass Car : Vehicle {\n    public override void Move() => Console.WriteLine(\"Driving on road\");\n}\n\n// \u2500\u2500 INTERFACE (Just a contract) \u2500\u2500\ninterface IFlyable {\n    void Fly(); // No code allowed here!\n}\n\ninterface ISwimmable {\n    void Swim();\n}\n\n// We can use MULTIPLE interfaces!\nclass Duck : IFlyable, ISwimmable {\n    public void Fly() => Console.WriteLine(\"Flap flap\");\n    public void Swim() => Console.WriteLine(\"Paddle paddle\");\n}",
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "Microsoft",
+      "Zoho"
+    ]
   },
   {
     "id": 3,
@@ -45,7 +65,8 @@
     "interviewPitch": "The .NET Garbage Collector is an automatic memory manager that works on a generational model. It divides the heap into three generations: Gen 0, Gen 1, and Gen 2. New objects go into Gen 0, which is collected very frequently because most objects are short-lived. If an object survives, it gets promoted to Gen 1, and eventually Gen 2. Gen 2 collections are expensive and rare. During a collection, the GC builds a graph of all reachable objects from the application roots, and any object not connected to the graph is deleted to free up memory.",
     "explanation": "**\ud83d\udd7a The Nightclub Bouncer Analogy:**\nImagine the Garbage Collector is a bouncer at a nightclub, and the memory generations are different rooms.\n\u2022 **Gen 0 (The Dance Floor):** People come and go very quickly. The bouncer checks this room constantly and clears out anyone who stopped dancing. (Fastest).\n\u2022 **Gen 1 (The VIP Lounge):** If you survive the dance floor, you move here. The bouncer checks this room less often.\n\u2022 **Gen 2 (The Staff Room):** If you survive the VIP lounge, you move here. You are probably staying all night. The bouncer almost never checks this room because it takes too long. (Slowest).\n\n**How does it know what is garbage?**\nIt traces everything back to the 'roots' (like active variables currently in use). If an object is floating in memory but no active variable is pointing to it, the GC considers it garbage and deletes it.",
     "diagram": "flowchart TD\n    A[New Object Created] --> B[Gen 0]\n    B -->|Survives GC| C[Gen 1]\n    C -->|Survives GC| D[Gen 2]\n    B -->|Is Garbage| E[Deleted immediately]\n    C -->|Is Garbage| E",
-    "example": "void DoWork() {\n    // 1. We create a giant object\n    var list = new List<int>(1000000);\n    \n    // 2. We do some math with it\n    Console.WriteLine(list.Count);\n    \n} // 3. The method ends!\n\n// At this point, the 'list' variable no longer exists.\n// The giant list is now floating in memory with nothing pointing to it.\n// The next time Gen 0 Garbage Collection runs, it will safely delete it."
+    "example": "void DoWork() {\n    // 1. We create a giant object\n    var list = new List<int>(1000000);\n    \n    // 2. We do some math with it\n    Console.WriteLine(list.Count);\n    \n} // 3. The method ends!\n\n// At this point, the 'list' variable no longer exists.\n// The giant list is now floating in memory with nothing pointing to it.\n// The next time Gen 0 Garbage Collection runs, it will safely delete it.",
+    "companies": []
   },
   {
     "id": 4,
@@ -60,7 +81,16 @@
     "interviewPitch": "The difference is where the filtering happens. **IEnumerable** works with in-memory collections. If you use it on a database table, it will pull every single row into your application's RAM, and then filter it. **IQueryable** inherits from IEnumerable, but it builds an Expression Tree. Providers like Entity Framework translate this tree directly into a SQL query. This means the filtering happens on the database server, and only the results are sent over the network. Always use IQueryable when querying a database.",
     "explanation": "**\ud83d\uded2 The Grocery Store Analogy:**\nYou want to buy a carton of milk.\n\u2022 **IEnumerable:** You buy *every single item* in the entire grocery store, bring it all to your house, put the milk in your fridge, and throw the rest in the trash. (Terrible performance).\n\u2022 **IQueryable:** You hand the store clerk a note that says \"Get me milk\". The clerk goes into the store, gets ONLY the milk, and hands it to you. (Extremely efficient).\n\n**The Golden Rule:**\nNever call `.ToList()`, `.ToArray()`, or `.AsEnumerable()` until you are completely done filtering your data with `.Where()`.",
     "diagram": "sequenceDiagram\n    participant App\n    participant DB\n    \n    Note over App, DB: \u274c IEnumerable (Downloads everything!)\n    App->>DB: SELECT * FROM Users\n    DB-->>App: Returns 1,000,000 Users\n    App->>App: Filters for \"Admins\" in RAM\n    \n    Note over App, DB: \u2705 IQueryable (Filters in Database!)\n    App->>DB: SELECT * FROM Users WHERE Role='Admin'\n    DB-->>App: Returns 5 Admins",
-    "example": "// \u274c THE BAD WAY (IEnumerable)\n// By adding .ToList() early, we force EF Core to download the entire table!\nIEnumerable<User> users = db.Users.ToList(); \n\n// This filtering happens in our app's RAM, which is very slow.\nvar admins = users.Where(u => u.Role == \"Admin\");\n\n\n// \u2705 THE GOOD WAY (IQueryable)\n// Notice we DO NOT use .ToList() yet.\nIQueryable<User> query = db.Users.AsQueryable();\n\n// This doesn't run yet. It just builds a SQL command.\nvar adminsQuery = query.Where(u => u.Role == \"Admin\");\n\n// Calling .ToList() finally sends the optimized SQL to the database!\n// SQL Sent: SELECT * FROM Users WHERE Role = 'Admin'\nvar adminsList = adminsQuery.ToList();"
+    "example": "// \u274c THE BAD WAY (IEnumerable)\n// By adding .ToList() early, we force EF Core to download the entire table!\nIEnumerable<User> users = db.Users.ToList(); \n\n// This filtering happens in our app's RAM, which is very slow.\nvar admins = users.Where(u => u.Role == \"Admin\");\n\n\n// \u2705 THE GOOD WAY (IQueryable)\n// Notice we DO NOT use .ToList() yet.\nIQueryable<User> query = db.Users.AsQueryable();\n\n// This doesn't run yet. It just builds a SQL command.\nvar adminsQuery = query.Where(u => u.Role == \"Admin\");\n\n// Calling .ToList() finally sends the optimized SQL to the database!\n// SQL Sent: SELECT * FROM Users WHERE Role = 'Admin'\nvar adminsList = adminsQuery.ToList();",
+    "companies": [
+      "TCS",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL",
+      "Microsoft"
+    ]
   },
   {
     "id": 5,
@@ -76,7 +106,8 @@
     "interviewPitch": "When the compiler sees `async/await`, it transforms the method into a **state machine**. When execution hits an `await` on an incomplete task (like a database query), the state machine saves where it paused and **returns the thread to the Thread Pool**. That thread is now free to handle other users' requests. When the database query finishes, the operating system signals the app, and a free thread from the pool picks up the state machine and continues the rest of the method. The key concept is: **no thread is ever blocked** waiting for I/O.",
     "explanation": "**\ud83c\udf55 The Pizza Oven Analogy:**\n\u2022 **Synchronous (Blocking):** You put a pizza in the oven. You stand there staring at the oven for 20 minutes doing absolutely nothing until it's done. You are \"blocked\".\n\u2022 **Asynchronous (Async/Await):** You put the pizza in the oven and set a timer (`await`). You walk away to wash dishes or watch TV. When the timer beeps, you go back to the oven. You got a lot of other work done while waiting!\n\n**Does it make my code faster?**\nNo! A 2-second database query still takes 2 seconds. What it does is make your *server* handle more traffic. Instead of 100 threads standing around staring at the database, those 100 threads are free to serve other web requests.",
     "diagram": "sequenceDiagram\n    participant Thread\n    participant DB\n    \n    Note over Thread, DB: \u274c Synchronous (Thread is trapped!)\n    Thread->>DB: Send Query\n    Note over Thread: Thread sits here asleep for 2 seconds\n    DB-->>Thread: Results\n    \n    Note over Thread, DB: \u2705 Asynchronous (Thread is free!)\n    Thread->>DB: Send Query (await)\n    Note over Thread: Thread leaves to go serve other users!\n    DB-->>Thread: Results are ready!\n    Note over Thread: Thread comes back and resumes code.",
-    "example": "// \u2705 THE ASYNC WAY (Non-blocking)\npublic async Task<string> GetUserDataAsync() {\n    Console.WriteLine(\"1. Sending request to database...\");\n    \n    // The 'await' keyword pauses this method.\n    // The thread leaves this method to go do other work!\n    var data = await db.Users.ToListAsync(); \n    \n    // 2 seconds later, the database finishes.\n    // A thread comes back to finish the rest of this method.\n    Console.WriteLine(\"2. Got the data!\");\n    return data;\n}\n\n// \u274c THE DEADLOCK MISTAKE\npublic string BadCode() {\n    // NEVER call .Result on an async method in ASP.NET or UI apps.\n    // It forces the thread to wait, which can freeze your entire app!\n    return GetUserDataAsync().Result; \n}"
+    "example": "// \u2705 THE ASYNC WAY (Non-blocking)\npublic async Task<string> GetUserDataAsync() {\n    Console.WriteLine(\"1. Sending request to database...\");\n    \n    // The 'await' keyword pauses this method.\n    // The thread leaves this method to go do other work!\n    var data = await db.Users.ToListAsync(); \n    \n    // 2 seconds later, the database finishes.\n    // A thread comes back to finish the rest of this method.\n    Console.WriteLine(\"2. Got the data!\");\n    return data;\n}\n\n// \u274c THE DEADLOCK MISTAKE\npublic string BadCode() {\n    // NEVER call .Result on an async method in ASP.NET or UI apps.\n    // It forces the thread to wait, which can freeze your entire app!\n    return GetUserDataAsync().Result; \n}",
+    "companies": []
   },
   {
     "id": 6,
@@ -91,7 +122,15 @@
     "interviewPitch": "Both `ref` and `out` pass arguments by reference instead of by value, meaning the method works with the original variable. The main difference is the initialization rule. `ref` requires the variable to be initialized **before** you pass it in, and the method can choose to read it or modify it. `out` does not require prior initialization, but the method **must** assign a value to it before returning. I use `out` all the time for methods that need to return multiple values, like the `int.TryParse` pattern.",
     "explanation": "**\ud83c\udf81 The Magic Box Analogy:**\n\u2022 **`ref` (The Transformation Box):** You put a toy car in a box and hand it to a magician. The magician changes it into a toy boat and gives it back. You *must* put something in the box first.\n\u2022 **`out` (The Empty Box):** You hand the magician a completely empty box. The magician is forced by law to put a toy inside before handing it back to you. You *do not* need to put anything in the box first.\n\n**When to use `out`:**\nIn C#, methods can only `return` one thing. If you want to return a `bool` AND an `int`, you can return the `bool` normally, and use an `out` parameter to send the `int` back.",
     "diagram": "flowchart LR\n    subgraph ref (Requires Value)\n    A1[int x = 5] --> M1((Method))\n    M1 -->|Reads 5, Changes to 10| R1[x is now 10]\n    end\n    subgraph out (Requires Assignment)\n    A2[int y] --> M2((Method))\n    M2 -->|MUST assign y = 99| R2[y is now 99]\n    end",
-    "example": "// \u2500\u2500 REF (Variable MUST have a value first) \u2500\u2500\nvoid DoubleIt(ref int number) {\n    number = number * 2; \n}\n\nint myNum = 5;       // MUST initialize!\nDoubleIt(ref myNum);\nConsole.WriteLine(myNum); // Output: 10\n\n\n// \u2500\u2500 OUT (Method MUST assign a value) \u2500\u2500\n// Returns true/false, AND outputs the answer\nbool TryDivide(int a, int b, out int answer) {\n    if (b == 0) {\n        answer = 0;   // MUST assign a value before returning\n        return false;\n    }\n    answer = a / b;   // MUST assign a value before returning\n    return true;\n}\n\n// You don't need to initialize 'result' first!\nif (TryDivide(10, 2, out int result)) {\n    Console.WriteLine($\"Success! Answer is {result}\");\n}"
+    "example": "// \u2500\u2500 REF (Variable MUST have a value first) \u2500\u2500\nvoid DoubleIt(ref int number) {\n    number = number * 2; \n}\n\nint myNum = 5;       // MUST initialize!\nDoubleIt(ref myNum);\nConsole.WriteLine(myNum); // Output: 10\n\n\n// \u2500\u2500 OUT (Method MUST assign a value) \u2500\u2500\n// Returns true/false, AND outputs the answer\nbool TryDivide(int a, int b, out int answer) {\n    if (b == 0) {\n        answer = 0;   // MUST assign a value before returning\n        return false;\n    }\n    answer = a / b;   // MUST assign a value before returning\n    return true;\n}\n\n// You don't need to initialize 'result' first!\nif (TryDivide(10, 2, out int result)) {\n    Console.WriteLine($\"Success! Answer is {result}\");\n}",
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Cognizant",
+      "Accenture",
+      "Capgemini"
+    ]
   },
   {
     "id": 7,
@@ -107,7 +146,16 @@
     "interviewPitch": ".NET Framework is the original, Windows-only platform that came out in 2002. It's now basically in maintenance mode. .NET Core was built from the ground up in 2016 to be cross-platform, open-source, and extremely fast. Then, in 2020, Microsoft unified the ecosystem with .NET 5. They dropped the word 'Core', so .NET 6, 7, and 8 are the direct modern successors to .NET Core. I always target the latest Long Term Support (LTS) version, like .NET 8, for new projects because of the massive performance benefits and cross-platform support.",
     "explanation": "**\ud83d\ude97 The Car Analogy:**\n\u2022 **.NET Framework:** A classic, heavy gas-powered truck. It only drives on one specific type of road (Windows). It's reliable, but old and no longer getting new engine upgrades.\n\u2022 **.NET Core:** A completely redesigned electric sports car. It's incredibly fast, lightweight, and can drive on any road (Windows, Mac, Linux).\n\u2022 **.NET 8:** The newest model of that electric sports car. They stopped putting 'Core' in the name because it's now the only car the factory makes.\n\n**Why did we switch to Core?**\nBefore Core, if you wrote a .NET backend, you *had* to host it on an expensive Windows Server. Now, you can host it on cheap Linux servers or Docker containers, saving companies thousands of dollars.",
     "diagram": "flowchart TD\n    F[.NET Framework (2002)] -->|Windows Only| M[Maintenance Mode]\n    C[.NET Core 1-3 (2016)] -->|Cross Platform| N5[.NET 5 (Unified)]\n    N5 --> N6[.NET 6 LTS]\n    N6 --> N7[.NET 7]\n    N7 --> N8[.NET 8 LTS (Modern!)]",
-    "example": "// \u274c THE OLD WAY (.NET Framework)\n// You had to run your app on a heavy Windows IIS Server.\n// Code was tightly coupled to Windows.\n\n// \u2705 THE MODERN WAY (.NET 8)\n// You can build and run this on a Mac, Linux, or Windows!\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\napp.MapGet(\"/\", () => \"Hello from modern .NET on a Linux server!\");\n\napp.Run();"
+    "example": "// \u274c THE OLD WAY (.NET Framework)\n// You had to run your app on a heavy Windows IIS Server.\n// Code was tightly coupled to Windows.\n\n// \u2705 THE MODERN WAY (.NET 8)\n// You can build and run this on a Mac, Linux, or Windows!\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\napp.MapGet(\"/\", () => \"Hello from modern .NET on a Linux server!\");\n\napp.Run();",
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL"
+    ]
   },
   {
     "id": 8,
@@ -123,7 +171,15 @@
     "interviewPitch": "Boxing is the process of converting a Value Type (which lives on the stack) into an `object` (which lives on the heap). Unboxing is casting it back from an object to a Value Type. Both of these operations are computationally expensive because they require memory allocation on the heap and create extra work for the Garbage Collector. Today, we almost entirely avoid boxing by using Generics (like `List<int>` instead of the old `ArrayList`).",
     "explanation": "**\ud83d\udce6 The Locked Box Analogy:**\nImagine you have a piece of paper with the number 42 written on it (A Value Type).\n\u2022 **Boxing:** You buy a heavy, metal safe (an Object), put the paper inside, lock it, and hire a moving company to carry the safe to a warehouse (the Heap).\n\u2022 **Unboxing:** You go to the warehouse, hire a locksmith to open the safe, take the paper out, and carry it back home.\n\nIf you do this 1,000,000 times in a loop, your app will freeze. It's a massive waste of time and energy when you could have just kept the piece of paper in your pocket!",
     "diagram": "sequenceDiagram\n    participant Stack\n    participant Heap\n    \n    Note over Stack, Heap: \ud83d\udce6 Boxing (Slow Allocation)\n    Stack->>Heap: int x = 5 (Wrap in Object)\n    Note over Heap: Creates Garbage!\n    \n    Note over Stack, Heap: \ud83d\udce4 Unboxing (Slow Cast)\n    Heap->>Stack: int y = (int)obj",
-    "example": "// \u274c THE BAD WAY (Causes Boxing!)\n// ArrayList stores \"objects\", not ints. \n// Every single number gets locked in a heavy box!\nArrayList badList = new ArrayList();\nbadList.Add(5);  // Boxing happens secretly here!\nbadList.Add(10); // Boxing happens again!\n\n// To get the number out, we have to Unbox it:\nint myNumber = (int)badList[0]; \n\n\n// \u2705 THE GOOD WAY (Generics = No Boxing!)\n// List<int> specifically stores ints. No boxes allowed!\nList<int> goodList = new List<int>();\ngoodList.Add(5);  // Fast! Just stays on the stack.\ngoodList.Add(10); // Fast!\n\nint myNumber2 = goodList[0]; // Fast! No casting needed."
+    "example": "// \u274c THE BAD WAY (Causes Boxing!)\n// ArrayList stores \"objects\", not ints. \n// Every single number gets locked in a heavy box!\nArrayList badList = new ArrayList();\nbadList.Add(5);  // Boxing happens secretly here!\nbadList.Add(10); // Boxing happens again!\n\n// To get the number out, we have to Unbox it:\nint myNumber = (int)badList[0]; \n\n\n// \u2705 THE GOOD WAY (Generics = No Boxing!)\n// List<int> specifically stores ints. No boxes allowed!\nList<int> goodList = new List<int>();\ngoodList.Add(5);  // Fast! Just stays on the stack.\ngoodList.Add(10); // Fast!\n\nint myNumber2 = goodList[0]; // Fast! No casting needed.",
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Cognizant",
+      "Accenture",
+      "Capgemini"
+    ]
   },
   {
     "id": 9,
@@ -139,7 +195,14 @@
     "interviewPitch": "A **delegate** is a type-safe function pointer. Instead of holding data like an integer, it holds a reference to a method. You can pass methods around as variables. An **event** is a specialized, restricted delegate based on the Publisher-Subscriber pattern. The restriction is that outside classes can only subscribe (`+=`) or unsubscribe (`-=`) to the event; they cannot invoke it or clear it. Only the class that owns the event can trigger it. Today, we mostly use the built-in `Action` and `Func` delegates instead of creating custom ones.",
     "explanation": "**\ud83d\udcfa The YouTube Analogy:**\n\u2022 **Delegate:** Think of a delegate as a piece of paper with a phone number on it. If you call the number, it plays a video. You can give this paper to anyone.\n\u2022 **Event:** Think of an Event as a YouTube Channel. \n    - **Subscribing (`+=`):** Viewers click \"Subscribe\".\n    - **Publishing (`Invoke()`):** The YouTuber uploads a video, and YouTube automatically notifies every single person who subscribed. \n    - **The Restriction:** Viewers cannot upload videos to the channel, and viewers cannot delete other subscribers. Only the YouTuber has that power. That is why Events are safer than raw Delegates.",
     "diagram": "flowchart TD\n    P[Publisher Class\n    Triggers Event] -->|Notifies| S1[Subscriber A (Sends Email)]\n    P -->|Notifies| S2[Subscriber B (Writes to Log)]\n    P -.->|Cannot Notify| S3[Did not subscribe]",
-    "example": "// 1. Create a class that PUBLISHES an event (The YouTuber)\npublic class VideoUploader {\n    // This is the Event (The 'Action' delegate means it takes no parameters)\n    public event Action OnVideoUploaded;\n    \n    public void Upload() {\n        Console.WriteLine(\"Uploading video...\");\n        // 2. Trigger the event! This notifies everyone who subscribed.\n        OnVideoUploaded?.Invoke(); \n    }\n}\n\n// 3. SUBSCRIBING to the event (The Viewers)\nvar uploader = new VideoUploader();\n\n// Subscriber 1 wants an email\nuploader.OnVideoUploaded += () => Console.WriteLine(\"Email sent!\");\n\n// Subscriber 2 wants a text message\nuploader.OnVideoUploaded += () => Console.WriteLine(\"Text sent!\");\n\n// 4. Action! \nuploader.Upload(); \n// Output:\n// Uploading video...\n// Email sent!\n// Text sent!"
+    "example": "// 1. Create a class that PUBLISHES an event (The YouTuber)\npublic class VideoUploader {\n    // This is the Event (The 'Action' delegate means it takes no parameters)\n    public event Action OnVideoUploaded;\n    \n    public void Upload() {\n        Console.WriteLine(\"Uploading video...\");\n        // 2. Trigger the event! This notifies everyone who subscribed.\n        OnVideoUploaded?.Invoke(); \n    }\n}\n\n// 3. SUBSCRIBING to the event (The Viewers)\nvar uploader = new VideoUploader();\n\n// Subscriber 1 wants an email\nuploader.OnVideoUploaded += () => Console.WriteLine(\"Email sent!\");\n\n// Subscriber 2 wants a text message\nuploader.OnVideoUploaded += () => Console.WriteLine(\"Text sent!\");\n\n// 4. Action! \nuploader.Upload(); \n// Output:\n// Uploading video...\n// Email sent!\n// Text sent!",
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Microsoft",
+      "Zoho"
+    ]
   },
   {
     "id": 10,
@@ -155,7 +218,8 @@
     "interviewPitch": "Generics allow us to design classes and methods that defer the specification of one or more types until the class or method is actually declared. We use the `<T>` syntax for this. The two massive benefits are **code reusability** (we don't have to write a separate `IntList` and `StringList` class) and **type safety** (the compiler guarantees you can't accidentally put a string into a `List<int>`). Furthermore, Generics completely eliminate the performance penalty of Boxing that we used to have with old `object`-based collections.",
     "explanation": "**\ud83e\udd61 The Tupperware Analogy:**\nImagine you want to store leftover food.\n\u2022 **The Old Way (No Generics):** You have a generic `ObjectBox`. You put a piece of pizza in it. Later, someone reaches in blindly, thinks it's cake, takes a bite, and ruins their dessert. (Not type-safe!).\n\u2022 **The Hard Way:** You build a specific `PizzaBox`, a specific `CakeBox`, and a specific `SaladBox`. (Massive code duplication, waste of time).\n\u2022 **The Generic Way (`Box<T>`):** You buy a magical Tupperware container. When you buy it, you label it `Box<Pizza>`. From that moment on, the container will ONLY accept Pizza. If someone tries to put Cake in it, the container physically rejects it (Compiler error!).",
     "diagram": "flowchart TD\n    G[Generic List<T>] -->|T becomes int| L1[List<int>]\n    G -->|T becomes string| L2[List<string>]\n    G -->|T becomes User| L3[List<User>]\n    \n    L1 -.->|Type Safe!| E[No Boxing! No Casting!]",
-    "example": "// \u274c THE OLD WAY (Not Type-Safe, requires Casting)\nArrayList badList = new ArrayList();\nbadList.Add(\"Hello\");\nbadList.Add(5); // We accidentally added a number!\n// string text = (string)badList[1]; // CRASH! InvalidCastException at runtime.\n\n\n// \u2705 THE GENERIC WAY (Type-Safe, no Casting)\nList<string> goodList = new List<string>();\ngoodList.Add(\"Hello\");\n// goodList.Add(5); // COMPILER ERROR! Prevents the bug before we even run the app.\n\n\n// \ud83d\ude80 HOW TO WRITE YOUR OWN GENERIC METHOD\n// This method swaps ANY two things. Numbers, strings, objects, anything!\nvoid Swap<T>(ref T a, ref T b) {\n    T temp = a;\n    a = b;\n    b = temp;\n}\n\nint x = 1, y = 2;\nSwap<int>(ref x, ref y); // Works for ints!\n\nstring first = \"A\", second = \"B\";\nSwap<string>(ref first, ref second); // Works for strings!"
+    "example": "// \u274c THE OLD WAY (Not Type-Safe, requires Casting)\nArrayList badList = new ArrayList();\nbadList.Add(\"Hello\");\nbadList.Add(5); // We accidentally added a number!\n// string text = (string)badList[1]; // CRASH! InvalidCastException at runtime.\n\n\n// \u2705 THE GENERIC WAY (Type-Safe, no Casting)\nList<string> goodList = new List<string>();\ngoodList.Add(\"Hello\");\n// goodList.Add(5); // COMPILER ERROR! Prevents the bug before we even run the app.\n\n\n// \ud83d\ude80 HOW TO WRITE YOUR OWN GENERIC METHOD\n// This method swaps ANY two things. Numbers, strings, objects, anything!\nvoid Swap<T>(ref T a, ref T b) {\n    T temp = a;\n    a = b;\n    b = temp;\n}\n\nint x = 1, y = 2;\nSwap<int>(ref x, ref y); // Works for ints!\n\nstring first = \"A\", second = \"B\";\nSwap<string>(ref first, ref second); // Works for strings!",
+    "companies": []
   },
   {
     "id": 11,
@@ -171,7 +235,8 @@
     "interviewPitch": "LINQ stands for Language Integrated Query. It provides a unified, readable syntax to query any data source\u2014whether it's an in-memory List, an XML document, or a SQL database via Entity Framework. It replaces verbose `foreach` loops with declarative, functional-style methods like `.Where()`, `.Select()`, and `.OrderBy()`. The most important concept in LINQ is **Deferred Execution**: a LINQ query is just a set of instructions. The query does not actually execute and process the data until you force it to materialize by calling a method like `.ToList()` or iterating over it.",
     "explanation": "**\ud83c\udf54 The Drive-Thru Analogy:**\nImagine you have a huge menu of 100 items.\n\u2022 **The `foreach` loop way:** You go into the kitchen, look at all 100 items one by one, and if an item is a burger, you put it on a tray. Then you sort the tray by price.\n\u2022 **The LINQ way:** You go to the drive-thru window and say: *\"Give me all the Burgers, ordered by price.\"* (`menu.Where(m => m.IsBurger).OrderBy(m => m.Price)`). LINQ handles all the kitchen work for you, instantly.",
     "diagram": "flowchart LR\n    Data[Raw Data List] --> W[.Where(x > 10)]\n    W --> O[.OrderBy(x)]\n    O --> S[.Select(Name)]\n    S -->|Wait until .ToList()| R[Final Filtered List]",
-    "example": "class User { public string Name; public int Age; }\n\nvar users = new List<User> {\n    new User { Name = \"Alice\", Age = 25 },\n    new User { Name = \"Bob\", Age = 15 },\n    new User { Name = \"Charlie\", Age = 30 }\n};\n\n// \u274c THE BAD WAY (Ugly foreach loop)\nList<string> adults = new List<string>();\nforeach (var user in users) {\n    if (user.Age >= 18) {\n        adults.Add(user.Name);\n    }\n}\nadults.Sort();\n\n\n// \u2705 THE LINQ WAY (Clean, declarative)\n// \"Get users where age >= 18, sort by name, and just give me the name string\"\nvar adultNames = users\n    .Where(u => u.Age >= 18)    // 1. Filter\n    .OrderBy(u => u.Name)       // 2. Sort\n    .Select(u => u.Name)        // 3. Extract just the name\n    .ToList();                  // 4. EXECUTE!\n\n// output: [\"Alice\", \"Charlie\"]"
+    "example": "class User { public string Name; public int Age; }\n\nvar users = new List<User> {\n    new User { Name = \"Alice\", Age = 25 },\n    new User { Name = \"Bob\", Age = 15 },\n    new User { Name = \"Charlie\", Age = 30 }\n};\n\n// \u274c THE BAD WAY (Ugly foreach loop)\nList<string> adults = new List<string>();\nforeach (var user in users) {\n    if (user.Age >= 18) {\n        adults.Add(user.Name);\n    }\n}\nadults.Sort();\n\n\n// \u2705 THE LINQ WAY (Clean, declarative)\n// \"Get users where age >= 18, sort by name, and just give me the name string\"\nvar adultNames = users\n    .Where(u => u.Age >= 18)    // 1. Filter\n    .OrderBy(u => u.Name)       // 2. Sort\n    .Select(u => u.Name)        // 3. Extract just the name\n    .ToList();                  // 4. EXECUTE!\n\n// output: [\"Alice\", \"Charlie\"]",
+    "companies": []
   },
   {
     "id": 12,
@@ -187,7 +252,8 @@
     "interviewPitch": "A `record` is a reference type (like a class) introduced in C# 9 that provides built-in functionality for encapsulating data. The two main features are **Immutability** (they are usually read-only) and **Value-based Equality**. With normal classes, `obj1 == obj2` only returns true if they are the exact same object in memory. With records, `rec1 == rec2` returns true if their *properties* hold the exact same data. I use records almost exclusively for DTOs (Data Transfer Objects), API responses, and configuration settings because they are lightweight and safe from accidental modification.",
     "explanation": "**\ud83e\uddfe The Store Receipt Analogy:**\n\u2022 **Class (The Whiteboard):** You write a grocery list on a whiteboard. Anyone can walk by, erase \"Apples\", and write \"Candy\". It mutates (changes).\n\u2022 **Record (The Printed Receipt):** The cashier hands you a printed paper receipt. It is permanent. If you want a receipt that says \"Candy\", you can't erase the ink\u2014you have to return the item and print a brand new receipt. \n\n**Why is this good?**\nIn complex apps, if data can't change, it can't be broken by accident by another part of the code. It makes debugging 10x easier.",
     "diagram": "flowchart LR\n    subgraph Class Equality (Checks Memory Address)\n    C1[new Class(X=5)] \n    C2[new Class(X=5)]\n    C1 -.->|Not Equal!| C2\n    end\n    subgraph Record Equality (Checks Actual Data)\n    R1[new Record(X=5)]\n    R2[new Record(X=5)]\n    R1 -->|Is Equal!| R2\n    end",
-    "example": "// \u2705 CREATING A RECORD (Look how short it is!)\n// This 1 line creates a class, properties, and a constructor automatically.\npublic record UserDto(int Id, string Name);\n\n\nvar u1 = new UserDto(1, \"Alice\");\nvar u2 = new UserDto(1, \"Alice\");\n\n// 1. VALUE EQUALITY\nConsole.WriteLine(u1 == u2); // Output: TRUE! (Classes would return false here)\n\n// 2. IMMUTABILITY\n// u1.Name = \"Bob\"; // \u274c COMPILER ERROR! Records are read-only.\n\n// 3. THE 'WITH' KEYWORD (Non-destructive mutation)\n// Creates a brand new copy, but changes the Name to Bob.\nvar u3 = u1 with { Name = \"Bob\" }; \n\nConsole.WriteLine(u3.Name); // Output: Bob"
+    "example": "// \u2705 CREATING A RECORD (Look how short it is!)\n// This 1 line creates a class, properties, and a constructor automatically.\npublic record UserDto(int Id, string Name);\n\n\nvar u1 = new UserDto(1, \"Alice\");\nvar u2 = new UserDto(1, \"Alice\");\n\n// 1. VALUE EQUALITY\nConsole.WriteLine(u1 == u2); // Output: TRUE! (Classes would return false here)\n\n// 2. IMMUTABILITY\n// u1.Name = \"Bob\"; // \u274c COMPILER ERROR! Records are read-only.\n\n// 3. THE 'WITH' KEYWORD (Non-destructive mutation)\n// Creates a brand new copy, but changes the Name to Bob.\nvar u3 = u1 with { Name = \"Bob\" }; \n\nConsole.WriteLine(u3.Name); // Output: Bob",
+    "companies": []
   },
   {
     "id": 13,
@@ -203,7 +269,16 @@
     "interviewPitch": "In C#, strings are **immutable**. This means once a string is created in memory, it cannot be modified. If you concatenate strings using the `+=` operator in a loop, it allocates a brand new string on the heap every single iteration, creating massive Garbage Collection pressure. **StringBuilder** solves this. It allocates a buffer of memory and allows you to continuously append characters to that same buffer without creating new objects. I always use `StringBuilder` when I am generating large text documents, HTML, or looping more than a dozen times.",
     "explanation": "**\ud83d\udcdd The Tape vs The Notebook Analogy:**\n\u2022 **String (The Tape Way):** You have a piece of paper that says \"A\". You want it to say \"AB\". You are not allowed to use a pencil. Instead, you have to throw the paper in the trash, buy a brand new piece of paper, and write \"AB\". If you do this 10,000 times, your trashcan (the Garbage Collector) overflows.\n\u2022 **StringBuilder (The Notebook Way):** You buy a notebook. You write \"A\". Then you just write \"B\" right next to it. No trash, no wasted paper. Fast and efficient.",
     "diagram": "sequenceDiagram\n    participant Code\n    participant Memory\n    \n    Note over Code, Memory: \u274c String Concatenation\n    Code->>Memory: Create \"A\"\n    Code->>Memory: Create \"AB\" (Throw away \"A\")\n    Code->>Memory: Create \"ABC\" (Throw away \"AB\")\n    Note over Memory: Memory is full of garbage!\n    \n    Note over Code, Memory: \u2705 StringBuilder\n    Code->>Memory: Create Buffer [        ]\n    Code->>Memory: Add \"A\" -> [A       ]\n    Code->>Memory: Add \"B\" -> [AB      ]\n    Note over Memory: Clean and Fast!",
-    "example": "// \u274c THE BAD WAY (Creates 10,000 dead strings in memory!)\nstring badText = \"\";\nfor (int i = 0; i < 10000; i++) {\n    // Every time this runs, the old string is deleted \n    // and a bigger one is created on the heap.\n    badText += i.ToString(); \n}\n\n\n// \u2705 THE GOOD WAY (Creates exactly 1 object in memory)\nStringBuilder sb = new StringBuilder();\nfor (int i = 0; i < 10000; i++) {\n    // Appends to the existing buffer safely.\n    sb.Append(i);\n}\nstring finalResult = sb.ToString();"
+    "example": "// \u274c THE BAD WAY (Creates 10,000 dead strings in memory!)\nstring badText = \"\";\nfor (int i = 0; i < 10000; i++) {\n    // Every time this runs, the old string is deleted \n    // and a bigger one is created on the heap.\n    badText += i.ToString(); \n}\n\n\n// \u2705 THE GOOD WAY (Creates exactly 1 object in memory)\nStringBuilder sb = new StringBuilder();\nfor (int i = 0; i < 10000; i++) {\n    // Appends to the existing buffer safely.\n    sb.Append(i);\n}\nstring finalResult = sb.ToString();",
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Wipro",
+      "Accenture",
+      "Capgemini",
+      "HCL"
+    ]
   },
   {
     "id": 14,
@@ -219,7 +294,8 @@
     "interviewPitch": "Choosing the right collection dictates the performance (Big O notation) of your app. **List<T>** is an ordered, dynamically sized array. It is great for iterating, but searching (`.Contains()`) is O(N) slow. **Dictionary<TKey, TValue>** is a hash table. It stores key-value pairs and provides incredibly fast O(1) lookups by key. **HashSet<T>** is like a Dictionary without values\u2014it just stores unique keys. It is the absolute best choice when you need to quickly check if an item exists or remove duplicates.",
     "explanation": "**\ud83c\udfe2 The Real World Analogies:**\n\u2022 **`List<T>` (The DMV Line):** Everyone stands in a specific order. If you want to find \"Bob\", you have to walk down the entire line checking every single person's face. Slow to search, but keeps everyone in perfect order.\n\u2022 **`Dictionary<K, V>` (The Phonebook):** You want Alice's phone number. You don't read page 1, page 2, page 3. You instantly flip to 'A' and find her. Extremely fast lookup via a Key.\n\u2022 **`HashSet<T>` (The VIP Bouncer):** The bouncer has a list of VIP names. When John walks up, the bouncer instantly knows if John is on the list or not. It prevents duplicates (you can't be on the VIP list twice).",
     "diagram": "flowchart LR\n    subgraph List (Order Matters)\n    L1[1. Apple] --> L2[2. Banana] --> L3[3. Cherry]\n    end\n    subgraph Dictionary (Key/Value Fast Lookup)\n    D1[Key: 101] -.-> V1[Value: Alice]\n    D2[Key: 102] -.-> V2[Value: Bob]\n    end\n    subgraph HashSet (Unique Fast Lookup)\n    H1((Apple)) --- H2((Banana))\n    H1 --- H3((Cherry))\n    end",
-    "example": "// \u2500\u2500 1. LIST (Ordered, allows duplicates) \u2500\u2500\nvar list = new List<string> { \"Apple\", \"Apple\", \"Banana\" };\n// list[0] == \"Apple\"\n// list.Contains(\"Banana\") -> Slow! Checks every item one by one.\n\n\n// \u2500\u2500 2. DICTIONARY (Key/Value, instant lookup) \u2500\u2500\nvar dict = new Dictionary<int, string>();\ndict.Add(1, \"Alice\");\ndict.Add(2, \"Bob\");\n\nstring user = dict[1]; // INSTANTLY gets \"Alice\". No searching required.\n\n\n// \u2500\u2500 3. HASHSET (Unique items, instant lookup) \u2500\u2500\nvar set = new HashSet<string>();\nset.Add(\"Apple\");\nset.Add(\"Apple\"); // Ignored! HashSets physically cannot hold duplicates.\n\nbool hasApple = set.Contains(\"Apple\"); // INSTANTLY returns true. Super fast!"
+    "example": "// \u2500\u2500 1. LIST (Ordered, allows duplicates) \u2500\u2500\nvar list = new List<string> { \"Apple\", \"Apple\", \"Banana\" };\n// list[0] == \"Apple\"\n// list.Contains(\"Banana\") -> Slow! Checks every item one by one.\n\n\n// \u2500\u2500 2. DICTIONARY (Key/Value, instant lookup) \u2500\u2500\nvar dict = new Dictionary<int, string>();\ndict.Add(1, \"Alice\");\ndict.Add(2, \"Bob\");\n\nstring user = dict[1]; // INSTANTLY gets \"Alice\". No searching required.\n\n\n// \u2500\u2500 3. HASHSET (Unique items, instant lookup) \u2500\u2500\nvar set = new HashSet<string>();\nset.Add(\"Apple\");\nset.Add(\"Apple\"); // Ignored! HashSets physically cannot hold duplicates.\n\nbool hasApple = set.Contains(\"Apple\"); // INSTANTLY returns true. Super fast!",
+    "companies": []
   },
   {
     "id": 15,
@@ -235,7 +311,8 @@
     "interviewPitch": "Dependency Injection is a technique to achieve Inversion of Control. Instead of a class instantiating its dependencies using the `new` keyword (which tightly couples them), the dependencies are provided to the class from the outside, usually via constructor injection. This makes the code **loosely coupled** and **highly testable**, because we can easily pass in a \"Mock\" database during unit testing. .NET Core has a built-in DI container where we register our services as Transient, Scoped, or Singleton.",
     "explanation": "**\ud83d\ude9a The Grocery Delivery Analogy:**\nImagine you are a Chef (A Class) who needs Tomatoes (A Dependency) to cook.\n\u2022 **The BAD Way (No DI):** You leave the kitchen, drive to the farm, plant a tomato seed, grow it, harvest it, and drive back. (`new Tomato()`). You are doing too much work, and if the farm closes, you can't cook.\n\u2022 **The GOOD Way (Dependency Injection):** You stand in the kitchen. Someone knocks on the door and hands you fresh Tomatoes. You don't care where they came from or how they grew. You just take them and cook! \n\n**How we do it in C#:**\nWe write our classes to ask for things in their `Constructor`. Then, the .NET framework automatically delivers those things when the app runs.",
     "diagram": "flowchart TD\n    subgraph No DI (Tightly Coupled)\n    C1[Controller] -->|Calls 'new'| DB1[(Real Database)]\n    end\n    subgraph With DI (Loosely Coupled)\n    DI[DI Container] -->|Injects Interface| C2[Controller]\n    C2 -.->|Uses| I[IDatabase]\n    DI -->|Provides| DB2[(Real Database)]\n    DI -->|Or Provides| M[Mock Database for Tests]\n    end",
-    "example": "// \u274c THE BAD WAY (Tightly Coupled)\npublic class UserService {\n    // The service creates the database itself.\n    // If we want to test this without hitting the real database, we can't!\n    private readonly SqlDatabase _db = new SqlDatabase(); \n}\n\n\n// \u2705 THE GOOD WAY (Dependency Injection)\npublic class UserService {\n    private readonly IDatabase _db;\n    \n    // We ASK for the database in the constructor. We don't create it.\n    public UserService(IDatabase db) {\n        _db = db;\n    }\n}\n\n// \u2699\ufe0f SETUP IN PROGRAM.CS\nvar builder = WebApplication.CreateBuilder(args);\n\n// We tell the delivery system: \n// \"Whenever a class asks for an IDatabase, hand them a SqlDatabase!\"\nbuilder.Services.AddScoped<IDatabase, SqlDatabase>();"
+    "example": "// \u274c THE BAD WAY (Tightly Coupled)\npublic class UserService {\n    // The service creates the database itself.\n    // If we want to test this without hitting the real database, we can't!\n    private readonly SqlDatabase _db = new SqlDatabase(); \n}\n\n\n// \u2705 THE GOOD WAY (Dependency Injection)\npublic class UserService {\n    private readonly IDatabase _db;\n    \n    // We ASK for the database in the constructor. We don't create it.\n    public UserService(IDatabase db) {\n        _db = db;\n    }\n}\n\n// \u2699\ufe0f SETUP IN PROGRAM.CS\nvar builder = WebApplication.CreateBuilder(args);\n\n// We tell the delivery system: \n// \"Whenever a class asks for an IDatabase, hand them a SqlDatabase!\"\nbuilder.Services.AddScoped<IDatabase, SqlDatabase>();",
+    "companies": []
   },
   {
     "id": 16,
@@ -252,7 +329,15 @@
     "explanation": "**\ud83d\udce5 The Mailbox Analogy:**\n\u2022 **`ref` (Editing a Letter):** You write a letter, put it in an envelope, and hand it to a friend. The friend takes the letter out, crosses out a sentence, writes a new one, and hands it back. (The letter *must* exist first).\n\u2022 **`out` (The Empty Box):** You hand your friend a completely empty box. They are strictly required to put a new letter inside the box before giving it back to you. (You don't need to initialize it, but they *must* fill it).",
     "diagram": "flowchart LR\n    subgraph Caller\n    A[int x = 5] -->|ref: Must exist| M[Method]\n    B[int y (Unassigned)] -->|out: Can be empty| M\n    end\n    subgraph Method\n    M -.->|Optional Edit| A\n    M -.->|Mandatory Edit| B\n    end",
     "example": "// \u2705 REF: Must be initialized beforehand\nint score = 100; \nMultiplyScore(ref score);\n\nvoid MultiplyScore(ref int s) {\n    s = s * 2; // Mutates original\n}\n\n// \u2705 OUT: Does not need to be initialized beforehand\n// (Very common in TryParse patterns)\nbool success = int.TryParse(\"123\", out int result);\nif (success) { \n    Console.WriteLine(result); \n}",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Cognizant",
+      "Accenture",
+      "Capgemini"
+    ]
   },
   {
     "id": 17,
@@ -269,7 +354,14 @@
     "explanation": "**\ud83c\udfe6 The Bank Receipt Analogy:**\n\u2022 **Class (A Whiteboard):** You write \"$500\" on a whiteboard. Anyone can walk up and erase it to write \"$1000\". It is mutable.\n\u2022 **Record (A Printed Bank Receipt):** The ATM prints a receipt saying \"$500\". You cannot erase the ink. If you want a receipt that says \"$1000\", you have to print a brand new receipt that copies the old data but updates the amount. It is completely immutable.",
     "diagram": "flowchart TD\n    R1[Record A: {Name: Alice}]\n    R2[Record B: {Name: Alice}]\n    \n    R1 -->|R1 == R2?| Eq[TRUE! Because properties match.]\n    \n    C1[Class A: {Name: Alice}]\n    C2[Class B: {Name: Alice}]\n    \n    C1 -->|C1 == C2?| N[FALSE! Different memory addresses.]\n    style Eq fill:#ccffcc,stroke:#00cc00\n    style N fill:#ffcccc,stroke:#cc0000",
     "example": "// \u2705 RECORD: 1 line of code creates an immutable object with value equality!\npublic record UserDto(string Name, int Age);\n\nvar user1 = new UserDto(\"Alice\", 25);\nvar user2 = new UserDto(\"Alice\", 25);\n\nConsole.WriteLine(user1 == user2); // TRUE (Value Equality)\n\n// \u274c user1.Age = 30; // COMPILER ERROR! Immutable.\n\n// \u2705 Non-Destructive Mutation (Creates a new copy)\nvar olderUser = user1 with { Age = 30 };",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Cognizant",
+      "Accenture",
+      "Microsoft",
+      "Zoho"
+    ]
   },
   {
     "id": 18,
@@ -286,7 +378,13 @@
     "explanation": "**\ud83d\ude97 The Aftermarket Car Part Analogy:**\nImagine you buy a Ford Mustang (A sealed, compiled class).\n\nFord didn't put a spoiler on the car. You want a spoiler. \nInstead of breaking into the Ford factory to redesign the blueprints (Editing the source code), you just buy an aftermarket spoiler and bolt it onto the trunk. \n\nAn Extension Method is a bolted-on feature. The car *acts* like it was built with a spoiler, but the original blueprints remain untouched.",
     "diagram": "flowchart LR\n    S[String Class (Microsoft Code)]\n    S -.->|Cannot modify| S\n    \n    Ext[Your Static Class] -->|Bolts on| S\n    Note over Ext: public static bool IsValidEmail(this string s)",
     "example": "// 1. Must be a static class\npublic static class StringExtensions\n{\n    // 2. Must be a static method. 3. Uses 'this' on the first parameter.\n    public static bool IsValidEmail(this string str)\n    {\n        return str.Contains(\"@\");\n    }\n}\n\n// \u2705 USAGE: It looks exactly like an instance method!\nstring myEmail = \"bob@test.com\";\nbool check = myEmail.IsValidEmail();",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Cognizant",
+      "Capgemini"
+    ]
   },
   {
     "id": 19,
@@ -303,7 +401,13 @@
     "explanation": "**\ud83e\ude9e The X-Ray Machine Analogy:**\n\u2022 **Normal Code:** You look at a person and see their clothes. You interact with them normally. It's fast and natural.\n\u2022 **Reflection (The X-Ray):** You put the person through a massive medical X-Ray machine to look at their internal organs and bones (Private properties). You can see absolutely everything, but the X-Ray machine is incredibly slow, expensive to run, and completely ignores the clothes (Access Modifiers) they are wearing.",
     "diagram": "flowchart TD\n    C[C# Code] -->|typeof(User)| R[Reflection API]\n    R -->|Reads Metadata| A[Assembly DLL]\n    R -->|Dynamically Invokes| M[Private Method()]\n    style R fill:#ffebcc,stroke:#ff9900",
     "example": "public class SecretBox {\n    private string _secretCode = \"1234\";\n}\n\nvar box = new SecretBox();\n// box._secretCode; // \u274c COMPILER ERROR! It's private.\n\n// \u2705 REFLECTION: Bypassing the compiler to steal the private variable\nType type = box.GetType();\nFieldInfo field = type.GetField(\"_secretCode\", BindingFlags.NonPublic | BindingFlags.Instance);\n\nstring stolenCode = (string)field.GetValue(box);\nConsole.WriteLine(stolenCode); // Prints: 1234",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "TCS",
+      "Cognizant",
+      "Accenture",
+      "Microsoft"
+    ]
   },
   {
     "id": 20,
@@ -320,7 +424,12 @@
     "explanation": "**\ud83c\udf63 The Sushi Conveyor Belt Analogy:**\n\u2022 **Task<IEnumerable> (The Traditional Restaurant):** You order 50 pieces of sushi. The chef makes all 50 pieces in the kitchen. You sit at the table waiting for 30 minutes with no food. Finally, the waiter brings out a massive platter of 50 pieces at once.\n\u2022 **IAsyncEnumerable (The Conveyor Belt):** You sit at the bar. Every time the chef finishes 1 piece of sushi, he puts it on the belt (`yield return`). You eat it immediately while he makes the next one. You don't have to wait 30 minutes, and the table (Your RAM) never gets cluttered with 50 plates.",
     "diagram": "sequenceDiagram\n    participant App as C# foreach loop\n    participant API as Database/API\n    \n    Note over App, API: Task<IEnumerable>\n    App->>API: Give me 100 rows\n    API-->>API: Processing... (5 seconds)\n    API-->>App: Returns all 100 rows at once\n    \n    Note over App, API: IAsyncEnumerable\n    App->>API: Give me 100 rows\n    API-->>App: Returns Row 1 (instantly)\n    App->>App: Process Row 1\n    API-->>App: Returns Row 2\n    App->>App: Process Row 2",
     "example": "// \u2705 PRODUCER: Streams data slowly over the network\npublic async IAsyncEnumerable<int> GetNumbersAsync()\n{\n    for (int i = 0; i < 10; i++)\n    {\n        await Task.Delay(1000); // Simulate network latency\n        yield return i;         // Send 1 item immediately!\n    }\n}\n\n// \u2705 CONSUMER: Processes items as they arrive\npublic async Task ProcessAsync()\n{\n    // Notice the 'await foreach' syntax!\n    await foreach (var number in GetNumbersAsync())\n    {\n        Console.WriteLine(number);\n    }\n}",
-    "followUps": []
+    "followUps": [],
+    "companies": [
+      "Microsoft",
+      "Amazon",
+      "Accenture"
+    ]
   },
   {
     "id": 21,
@@ -336,6 +445,11 @@
     "interviewPitch": "A standard `Task` is a class, meaning every time an async method is called, an object is allocated on the heap, putting pressure on the Garbage Collector. `ValueTask` is a struct (a value type). If an async method often completes synchronously (for example, if the requested data is already in a local cache), returning a `ValueTask` completely avoids the heap allocation. You should only use it in extremely high-throughput, performance-critical code paths where profiling has proven that standard `Task` allocations are causing GC bottlenecks.",
     "explanation": "**\ud83c\udf9f\ufe0f The Rollercoaster Ticket Analogy:**\n\u2022 **`Task` (A Hard Plastic VIP Badge):** Every time you ask to ride, the park manufactures a thick plastic badge with your name on it. If you ride 10,000 times, they create 10,000 plastic badges that end up in the trash (Garbage Collection overhead).\n\u2022 **`ValueTask` (A Temporary Paper Stamp):** If the ride has no line (Synchronous completion), they just stamp your hand. It costs nothing and creates no trash. If the ride has a long line (Asynchronous), they still give you the plastic badge.",
     "diagram": "flowchart TD\n    Call[Call GetUserAsync()]\n    Call --> Check{Is User in Cache?}\n    \n    Check -->|Yes (Sync)| Sync[Return Data Instantly]\n    Sync -.->|Task| T1[Allocates Class on Heap \u274c]\n    Sync -.->|ValueTask| V1[No Allocation! Struct on Stack \u2705]\n    \n    Check -->|No (Async)| Async[Await Database Call]\n    Async -.->|Both Task and ValueTask| T2[Allocate state machine on Heap]",
-    "example": "// Let's say this method is called 50,000 times a second.\npublic async ValueTask<User> GetUserAsync(int id)\n{\n    // 99% of the time, the user is in the cache.\n    // Because we use ValueTask, this returns synchronously with ZERO heap allocation!\n    if (_cache.TryGetValue(id, out var user))\n        return user;\n\n    // 1% of the time, we hit the database.\n    return await _db.Users.FindAsync(id);\n}"
+    "example": "// Let's say this method is called 50,000 times a second.\npublic async ValueTask<User> GetUserAsync(int id)\n{\n    // 99% of the time, the user is in the cache.\n    // Because we use ValueTask, this returns synchronously with ZERO heap allocation!\n    if (_cache.TryGetValue(id, out var user))\n        return user;\n\n    // 1% of the time, we hit the database.\n    return await _db.Users.FindAsync(id);\n}",
+    "companies": [
+      "Microsoft",
+      "Amazon",
+      "Zoho"
+    ]
   }
 ]
