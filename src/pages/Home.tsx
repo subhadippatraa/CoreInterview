@@ -223,9 +223,15 @@ export function Home() {
               }
             ].map((category, idx) => (
               <div key={idx}>
-                <div className="flex items-center gap-3 mb-4 pl-1">
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: category.color }} />
-                  <h3 className="text-[14px] font-bold text-[var(--color-text2)] uppercase tracking-widest">{category.title}</h3>
+                {/* Premium Category Header */}
+                <div className="flex items-center gap-4 mb-6 mt-2">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-xl border border-[var(--color-border)] shadow-sm" style={{ backgroundColor: `color-mix(in srgb, ${category.color} 8%, transparent)` }}>
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: category.color, boxShadow: `0 0 12px ${category.color}` }} />
+                  </div>
+                  <h3 className="text-[14px] font-heading font-extrabold text-[var(--color-text)] uppercase tracking-[0.15em]">
+                    {category.title}
+                  </h3>
+                  <div className="flex-1 h-px opacity-40" style={{ background: `linear-gradient(to right, ${category.color}, transparent)` }} />
                 </div>
                 
                 <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 gap-3">
