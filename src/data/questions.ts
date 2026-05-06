@@ -30,14 +30,18 @@ import dotnetFollowups from './topics/dotnet_followups.json';
 import architecture from './topics/architecture.json';
 import architectureFollowups from './topics/architecture_followups.json';
 
-import sql from './topics/sql.json';
-import sqlFollowups from './topics/sql_followups.json';
+import sqlTheory from './topics/sql-theory.json';
+import sqlTheoryFollowups from './topics/sql-theory_followups.json';
+
+import sqlQueries from './topics/sql-queries.json';
+import sqlQueriesFollowups from './topics/sql-queries_followups.json';
 
 const allQuestions = [
   ...csharp,
   ...aspnet,
   ...efcore,
-  ...sql,
+  ...sqlTheory,
+  ...sqlQueries,
   ...dbms,
   ...devops,
   ...networking,
@@ -51,7 +55,8 @@ const allFollowups = [
   ...csharpFollowups,
   ...aspnetFollowups,
   ...efcoreFollowups,
-  ...sqlFollowups,
+  ...sqlTheoryFollowups,
+  ...sqlQueriesFollowups,
   ...dbmsFollowups,
   ...devopsFollowups,
   ...networkingFollowups,

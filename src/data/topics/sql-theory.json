@@ -1,7 +1,7 @@
 [
   {
     "id": 49,
-    "sectionId": "sql",
+    "sectionId": "sql-theory",
     "difficulty": "easy",
     "question": "What is the difference between WHERE and HAVING clauses?",
     "answer": "WHERE filters rows BEFORE grouping. HAVING filters groups AFTER aggregation.",
@@ -35,7 +35,7 @@
   },
   {
     "id": 50,
-    "sectionId": "sql",
+    "sectionId": "sql-theory",
     "difficulty": "easy",
     "question": "What is the difference between INNER JOIN, LEFT JOIN, RIGHT JOIN, and FULL JOIN?",
     "answer": "INNER = only matches. LEFT = all from left + matches. RIGHT = all from right + matches. FULL = everything.",
@@ -75,7 +75,7 @@
   },
   {
     "id": 51,
-    "sectionId": "sql",
+    "sectionId": "sql-theory",
     "difficulty": "easy",
     "question": "What is the difference between DELETE, TRUNCATE, and DROP?",
     "answer": "DELETE = row-level, rollback-able. TRUNCATE = all rows, faster, no rollback. DROP = removes entire table structure.",
@@ -109,7 +109,7 @@
   },
   {
     "id": 52,
-    "sectionId": "sql",
+    "sectionId": "sql-theory",
     "difficulty": "easy",
     "question": "What is a PRIMARY KEY vs UNIQUE KEY?",
     "answer": "PRIMARY KEY = unique + not null + only one per table. UNIQUE KEY = unique + allows one NULL + multiple allowed.",
@@ -137,41 +137,7 @@
   },
   {
     "id": 53,
-    "sectionId": "sql",
-    "difficulty": "easy",
-    "question": "Write a query to find the second highest salary from a table.",
-    "answer": "SELECT MAX(salary) FROM employees WHERE salary < (SELECT MAX(salary) FROM employees)",
-    "whyAsked": "Commonly asked by TCS and Amazon in L1 rounds. Classic benchmark question.",
-    "companies": [
-      "TCS",
-      "Amazon",
-      "Infosys",
-      "Cognizant",
-      "Accenture",
-      "Wipro",
-      "Capgemini"
-    ],
-    "practiceLinks": [
-      {
-        "platform": "LeetCode",
-        "url": "https://leetcode.com/problems/second-highest-salary/",
-        "type": "practice"
-      },
-      {
-        "platform": "HackerRank",
-        "url": "https://www.hackerrank.com/challenges/the-report/problem",
-        "type": "practice"
-      }
-    ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SELECT MAX(salary) FROM employees WHERE salary < (SELECT MAX(salary) FROM employees)",
-    "explanation": "**Quick Overview:**\nCommonly asked by TCS and Amazon in L1 rounds. Classic benchmark question.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
-    "followUps": []
-  },
-  {
-    "id": 54,
-    "sectionId": "sql",
+    "sectionId": "sql-theory",
     "difficulty": "medium",
     "question": "What is a subquery? What are correlated vs non-correlated subqueries?",
     "answer": "Correlated subquery references outer query column \u2014 runs once per outer row (slow). Non-correlated is independent.",
@@ -203,8 +169,8 @@
     "followUps": []
   },
   {
-    "id": 55,
-    "sectionId": "sql",
+    "id": 54,
+    "sectionId": "sql-theory",
     "difficulty": "easy",
     "question": "What are aggregate functions (SUM, AVG, COUNT, MIN, MAX)?",
     "answer": "All aggregate functions ignore NULLs except COUNT(*). COUNT(col) skips NULLs, COUNT(*) does not.",
@@ -237,8 +203,8 @@
     "followUps": []
   },
   {
-    "id": 56,
-    "sectionId": "sql",
+    "id": 55,
+    "sectionId": "sql-theory",
     "difficulty": "medium",
     "question": "What is a CTE (Common Table Expression) and when would you use it over a subquery?",
     "answer": "CTE = named temporary result set. Prefer over subquery for readability and recursive queries. Runs once.",
@@ -271,8 +237,8 @@
     "followUps": []
   },
   {
-    "id": 57,
-    "sectionId": "sql",
+    "id": 56,
+    "sectionId": "sql-theory",
     "difficulty": "medium",
     "question": "What is the difference between RANK(), DENSE_RANK(), and ROW_NUMBER()?",
     "answer": "ROW_NUMBER = always unique. RANK = skips on tie. DENSE_RANK = no skip on tie. All use OVER(ORDER BY).",
@@ -306,8 +272,8 @@
     "followUps": []
   },
   {
-    "id": 58,
-    "sectionId": "sql",
+    "id": 57,
+    "sectionId": "sql-theory",
     "difficulty": "medium",
     "question": "What are window functions and how do they differ from aggregate functions?",
     "answer": "Window functions don't collapse rows unlike aggregates. They compute over a window \u2014 OVER(PARTITION BY ... ORDER BY ...).",
@@ -341,41 +307,8 @@
     "followUps": []
   },
   {
-    "id": 59,
-    "sectionId": "sql",
-    "difficulty": "medium",
-    "question": "How would you remove duplicate rows from a table but keep one?",
-    "answer": "Use ROW_NUMBER() in a CTE, DELETE WHERE rn > 1. Never use DISTINCT for this \u2014 it only affects SELECT.",
-    "whyAsked": "Paytm SQL assessment for Junior Data Analyst. Classic hands-on query round question.",
-    "companies": [
-      "Paytm",
-      "TCS",
-      "Wipro",
-      "Cognizant",
-      "Amazon",
-      "Infosys"
-    ],
-    "practiceLinks": [
-      {
-        "platform": "LeetCode",
-        "url": "https://leetcode.com/problems/delete-duplicate-emails/",
-        "type": "practice"
-      },
-      {
-        "platform": "HackerRank",
-        "url": "https://www.hackerrank.com/domains/sql",
-        "type": "practice"
-      }
-    ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use ROW_NUMBER() in a CTE, DELETE WHERE rn > 1. Never use DISTINCT for this \u2014 it only affects SELECT.",
-    "explanation": "**Quick Overview:**\nPaytm SQL assessment for Junior Data Analyst. Classic hands-on query round question.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
-    "followUps": []
-  },
-  {
-    "id": 60,
-    "sectionId": "sql",
+    "id": 58,
+    "sectionId": "sql-theory",
     "difficulty": "easy",
     "question": "What is the difference between UNION and UNION ALL?",
     "answer": "UNION removes duplicates (slower). UNION ALL keeps all rows (faster). Both require same column count and types.",
@@ -407,8 +340,8 @@
     "followUps": []
   },
   {
-    "id": 61,
-    "sectionId": "sql",
+    "id": 59,
+    "sectionId": "sql-theory",
     "difficulty": "medium",
     "question": "What is Indexing in SQL and how does it impact performance?",
     "answer": "Index speeds up reads but slows down writes. Clustered = physical order. Non-clustered = separate lookup structure.",
@@ -441,8 +374,8 @@
     "followUps": []
   },
   {
-    "id": 62,
-    "sectionId": "sql",
+    "id": 60,
+    "sectionId": "sql-theory",
     "difficulty": "medium",
     "question": "What is the difference between Clustered and Non-Clustered Index?",
     "answer": "Clustered = data rows physically sorted by index (one per table). Non-clustered = separate structure pointing to rows (many allowed).",
@@ -474,41 +407,8 @@
     "followUps": []
   },
   {
-    "id": 63,
-    "sectionId": "sql",
-    "difficulty": "easy",
-    "question": "What is a NULL value and how do you handle it in SQL?",
-    "answer": "NULL = unknown, not zero or empty. Use IS NULL / IS NOT NULL. COALESCE() or ISNULL() to replace NULLs.",
-    "whyAsked": "Cognizant online aptitude test. Hexaware SQL MCQ round March 2025.",
-    "companies": [
-      "Cognizant",
-      "TCS",
-      "Infosys",
-      "Wipro",
-      "Accenture",
-      "Hexaware"
-    ],
-    "practiceLinks": [
-      {
-        "platform": "W3Schools",
-        "url": "https://www.w3schools.com/sql/sql_null_values.asp",
-        "type": "concept"
-      },
-      {
-        "platform": "HackerRank",
-        "url": "https://www.hackerrank.com/challenges/salary-of-employees/problem",
-        "type": "practice"
-      }
-    ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: NULL = unknown, not zero or empty. Use IS NULL / IS NOT NULL. COALESCE() or ISNULL() to replace NULLs.",
-    "explanation": "**Quick Overview:**\nCognizant online aptitude test. Hexaware SQL MCQ round March 2025.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
-    "followUps": []
-  },
-  {
-    "id": 64,
-    "sectionId": "sql",
+    "id": 61,
+    "sectionId": "sql-theory",
     "difficulty": "easy",
     "question": "What is the use of CASE WHEN in SQL?",
     "answer": "CASE WHEN is SQL's IF-ELSE. Works in SELECT, WHERE, ORDER BY. Used for conditional columns and pivoting.",
@@ -540,41 +440,8 @@
     "followUps": []
   },
   {
-    "id": 65,
-    "sectionId": "sql",
-    "difficulty": "easy",
-    "question": "How do you find duplicate records in a table?",
-    "answer": "GROUP BY the duplicate columns + HAVING COUNT(*) > 1. Don't confuse with deleting duplicates.",
-    "whyAsked": "Wipro analytics training test. Standard SQL assessment question at all service companies.",
-    "companies": [
-      "Wipro",
-      "TCS",
-      "Cognizant",
-      "Accenture",
-      "Infosys",
-      "Capgemini"
-    ],
-    "practiceLinks": [
-      {
-        "platform": "LeetCode",
-        "url": "https://leetcode.com/problems/duplicate-emails/",
-        "type": "practice"
-      },
-      {
-        "platform": "HackerRank",
-        "url": "https://www.hackerrank.com/domains/sql",
-        "type": "practice"
-      }
-    ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: GROUP BY the duplicate columns + HAVING COUNT(*) > 1. Don't confuse with deleting duplicates.",
-    "explanation": "**Quick Overview:**\nWipro analytics training test. Standard SQL assessment question at all service companies.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
-    "followUps": []
-  },
-  {
-    "id": 66,
-    "sectionId": "sql",
+    "id": 62,
+    "sectionId": "sql-theory",
     "difficulty": "easy",
     "question": "What is a Foreign Key and what is Referential Integrity?",
     "answer": "Foreign key links child table column to parent PK. Referential integrity prevents orphan records.",
@@ -601,41 +468,8 @@
     "followUps": []
   },
   {
-    "id": 67,
-    "sectionId": "sql",
-    "difficulty": "medium",
-    "question": "Write a query to find the highest salary in each department.",
-    "answer": "Use RANK() OVER(PARTITION BY department ORDER BY salary DESC) and filter WHERE rank = 1.",
-    "whyAsked": "TCS BFSI Division. Classic window function query asked across all SQL rounds.",
-    "companies": [
-      "TCS",
-      "Amazon",
-      "Infosys",
-      "Flipkart",
-      "Cognizant",
-      "Accenture"
-    ],
-    "practiceLinks": [
-      {
-        "platform": "LeetCode",
-        "url": "https://leetcode.com/problems/department-highest-salary/",
-        "type": "practice"
-      },
-      {
-        "platform": "StrataScratch",
-        "url": "https://www.stratascratch.com/",
-        "type": "practice"
-      }
-    ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use RANK() OVER(PARTITION BY department ORDER BY salary DESC) and filter WHERE rank = 1.",
-    "explanation": "**Quick Overview:**\nTCS BFSI Division. Classic window function query asked across all SQL rounds.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
-    "followUps": []
-  },
-  {
-    "id": 68,
-    "sectionId": "sql",
+    "id": 63,
+    "sectionId": "sql-theory",
     "difficulty": "medium",
     "question": "What is the difference between IN and EXISTS?",
     "answer": "IN = checks value list (evaluates subquery fully). EXISTS = stops at first match (faster for large datasets).",
@@ -662,8 +496,8 @@
     "followUps": []
   },
   {
-    "id": 69,
-    "sectionId": "sql",
+    "id": 64,
+    "sectionId": "sql-theory",
     "difficulty": "medium",
     "question": "What is a Self Join? Give a real-world example.",
     "answer": "Self join joins a table to itself. Classic use: employees who earn more than their manager.",
@@ -689,8 +523,8 @@
     "followUps": []
   },
   {
-    "id": 70,
-    "sectionId": "sql",
+    "id": 65,
+    "sectionId": "sql-theory",
     "difficulty": "easy",
     "question": "What is the GROUP BY clause and how does it work?",
     "answer": "GROUP BY collapses rows with same value into one group. Always used with aggregate functions.",
@@ -722,8 +556,8 @@
     "followUps": []
   },
   {
-    "id": 71,
-    "sectionId": "sql",
+    "id": 66,
+    "sectionId": "sql-theory",
     "difficulty": "easy",
     "question": "What is COALESCE() and how is it different from ISNULL()?",
     "answer": "COALESCE returns first non-null from a list (ANSI standard, works everywhere). ISNULL is SQL Server only (2 args).",
@@ -750,8 +584,8 @@
     "followUps": []
   },
   {
-    "id": 72,
-    "sectionId": "sql",
+    "id": 67,
+    "sectionId": "sql-theory",
     "difficulty": "medium",
     "question": "What is the difference between a View and a Materialized View?",
     "answer": "View = virtual, always runs live query. Materialized View = physically stores results, needs manual/scheduled refresh but faster.",
@@ -778,8 +612,8 @@
     "followUps": []
   },
   {
-    "id": 73,
-    "sectionId": "sql",
+    "id": 68,
+    "sectionId": "sql-theory",
     "difficulty": "medium",
     "question": "What is a Stored Procedure and how is it different from a Function?",
     "answer": "Stored Procedure = can have side effects, no mandatory return. Function = must return value, used in SELECT, no side effects.",
@@ -811,8 +645,8 @@
     "followUps": []
   },
   {
-    "id": 74,
-    "sectionId": "sql",
+    "id": 69,
+    "sectionId": "sql-theory",
     "difficulty": "medium",
     "question": "What is a Trigger in SQL and when would you use it?",
     "answer": "Trigger = auto-executes SQL on INSERT/UPDATE/DELETE. Use for audit logging, enforcing rules. AFTER vs INSTEAD OF.",
@@ -843,41 +677,8 @@
     "followUps": []
   },
   {
-    "id": 75,
-    "sectionId": "sql",
-    "difficulty": "medium",
-    "question": "How do you calculate a running total in SQL?",
-    "answer": "SUM(amount) OVER(ORDER BY order_date) gives running total. Add PARTITION BY for per-group running totals.",
-    "whyAsked": "Swiggy Analyst role screening. Running totals are a standard window function interview question.",
-    "companies": [
-      "Amazon",
-      "Flipkart",
-      "Swiggy",
-      "Paytm",
-      "Microsoft",
-      "Oracle"
-    ],
-    "practiceLinks": [
-      {
-        "platform": "LeetCode",
-        "url": "https://leetcode.com/problems/running-total-for-different-genders/",
-        "type": "practice"
-      },
-      {
-        "platform": "DataLemur",
-        "url": "https://datalemur.com/questions/rolling-average-tweets",
-        "type": "practice"
-      }
-    ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SUM(amount) OVER(ORDER BY order_date) gives running total. Add PARTITION BY for per-group running totals.",
-    "explanation": "**Quick Overview:**\nSwiggy Analyst role screening. Running totals are a standard window function interview question.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
-    "followUps": []
-  },
-  {
-    "id": 76,
-    "sectionId": "sql",
+    "id": 70,
+    "sectionId": "sql-theory",
     "difficulty": "easy",
     "question": "What is the difference between CHAR and VARCHAR?",
     "answer": "CHAR = fixed length (padded with spaces). VARCHAR = variable length (only uses what it needs). VARCHAR saves space.",
@@ -904,8 +705,8 @@
     "followUps": []
   },
   {
-    "id": 77,
-    "sectionId": "sql",
+    "id": 71,
+    "sectionId": "sql-theory",
     "difficulty": "easy",
     "question": "What are SQL Constraints? (NOT NULL, UNIQUE, CHECK, DEFAULT)",
     "answer": "NOT NULL = no nulls. UNIQUE = no duplicates. CHECK = custom rule. DEFAULT = fallback value. PRIMARY KEY = NOT NULL + UNIQUE.",
@@ -931,8 +732,8 @@
     "followUps": []
   },
   {
-    "id": 78,
-    "sectionId": "sql",
+    "id": 72,
+    "sectionId": "sql-theory",
     "difficulty": "medium",
     "question": "What is the difference between a Temp Table and a CTE?",
     "answer": "CTE = query-scoped alias, not stored physically. Temp table = stored in tempdb, persists for session, better for repeated use.",
@@ -958,35 +759,8 @@
     "followUps": []
   },
   {
-    "id": 79,
-    "sectionId": "sql",
-    "difficulty": "hard",
-    "question": "How do you pivot rows into columns in SQL?",
-    "answer": "SQL Server has PIVOT(). For other DBs use CASE WHEN inside MAX/SUM aggregation grouped by entity.",
-    "whyAsked": "Microsoft Data Associate case round. Freshworks Business Data Engineering round.",
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Freshworks",
-      "Flipkart",
-      "Oracle"
-    ],
-    "practiceLinks": [
-      {
-        "platform": "LeetCode",
-        "url": "https://leetcode.com/problems/reformat-department-table/",
-        "type": "practice"
-      }
-    ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SQL Server has PIVOT(). For other DBs use CASE WHEN inside MAX/SUM aggregation grouped by entity.",
-    "explanation": "**Quick Overview:**\nMicrosoft Data Associate case round. Freshworks Business Data Engineering round.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
-    "followUps": []
-  },
-  {
-    "id": 80,
-    "sectionId": "sql",
+    "id": 73,
+    "sectionId": "sql-theory",
     "difficulty": "hard",
     "question": "What is a Recursive CTE and when do you use it?",
     "answer": "Recursive CTE = anchor query UNION ALL recursive member. Used for tree traversal, org hierarchy, BOM structures.",
@@ -1017,8 +791,8 @@
     "followUps": []
   },
   {
-    "id": 81,
-    "sectionId": "sql",
+    "id": 74,
+    "sectionId": "sql-theory",
     "difficulty": "hard",
     "question": "What is the N+1 query problem in SQL?",
     "answer": "N+1 = fetching parent rows (1 query) then child rows per parent (N queries). Fix with JOIN or eager loading.",
@@ -1044,63 +818,8 @@
     "followUps": []
   },
   {
-    "id": 82,
-    "sectionId": "sql",
-    "difficulty": "medium",
-    "question": "How would you handle NULL values in aggregate functions?",
-    "answer": "All aggregates ignore NULLs except COUNT(*). Use COALESCE(col, 0) before aggregating to include them as 0.",
-    "whyAsked": "Accenture reporting project interview. NULL handling in aggregates is a classic trap.",
-    "companies": [
-      "Accenture",
-      "TCS",
-      "Infosys",
-      "Wipro",
-      "Amazon"
-    ],
-    "practiceLinks": [
-      {
-        "platform": "W3Schools",
-        "url": "https://www.w3schools.com/sql/sql_null_functions.asp",
-        "type": "concept"
-      }
-    ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: All aggregates ignore NULLs except COUNT(*). Use COALESCE(col, 0) before aggregating to include them as 0.",
-    "explanation": "**Quick Overview:**\nAccenture reporting project interview. NULL handling in aggregates is a classic trap.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
-    "followUps": []
-  },
-  {
-    "id": 83,
-    "sectionId": "sql",
-    "difficulty": "medium",
-    "question": "How would you write a query to get the Nth highest salary?",
-    "answer": "Use DENSE_RANK() OVER(ORDER BY salary DESC) = N. Or use LIMIT/OFFSET for simple cases.",
-    "whyAsked": "Extension of the 2nd highest salary question. TCS/Amazon ask this as a follow-up.",
-    "companies": [
-      "TCS",
-      "Amazon",
-      "Infosys",
-      "Cognizant",
-      "Accenture",
-      "Flipkart"
-    ],
-    "practiceLinks": [
-      {
-        "platform": "LeetCode",
-        "url": "https://leetcode.com/problems/nth-highest-salary/",
-        "type": "practice"
-      }
-    ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use DENSE_RANK() OVER(ORDER BY salary DESC) = N. Or use LIMIT/OFFSET for simple cases.",
-    "explanation": "**Quick Overview:**\nExtension of the 2nd highest salary question. TCS/Amazon ask this as a follow-up.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
-    "followUps": []
-  },
-  {
-    "id": 84,
-    "sectionId": "sql",
+    "id": 75,
+    "sectionId": "sql-theory",
     "difficulty": "medium",
     "question": "What is the LEAD() and LAG() window function?",
     "answer": "LAG = previous row value. LEAD = next row value. Both use OVER(PARTITION BY ... ORDER BY ...).",
@@ -1132,8 +851,8 @@
     "followUps": []
   },
   {
-    "id": 85,
-    "sectionId": "sql",
+    "id": 76,
+    "sectionId": "sql-theory",
     "difficulty": "easy",
     "question": "What is a Composite Key?",
     "answer": "Composite key = primary key made of 2+ columns. Together they uniquely identify a row, individually they don't.",
@@ -1159,35 +878,8 @@
     "followUps": []
   },
   {
-    "id": 86,
-    "sectionId": "sql",
-    "difficulty": "hard",
-    "question": "What is Query Execution Plan and how do you use it to optimize?",
-    "answer": "Execution plan shows index usage, join types, row estimates. Look for table scans \u2014 replace with index seeks.",
-    "whyAsked": "Deloitte architecture-level interview. EXPLAIN / SET SHOWPLAN tools are the expected knowledge.",
-    "companies": [
-      "Deloitte",
-      "Amazon",
-      "Microsoft",
-      "Oracle",
-      "Accenture"
-    ],
-    "practiceLinks": [
-      {
-        "platform": "GeeksforGeeks",
-        "url": "https://www.geeksforgeeks.org/sql-query-processing/",
-        "type": "concept"
-      }
-    ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Execution plan shows index usage, join types, row estimates. Look for table scans \u2014 replace with index seeks.",
-    "explanation": "**Quick Overview:**\nDeloitte architecture-level interview. EXPLAIN / SET SHOWPLAN tools are the expected knowledge.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
-    "followUps": []
-  },
-  {
-    "id": 87,
-    "sectionId": "sql",
+    "id": 77,
+    "sectionId": "sql-theory",
     "difficulty": "hard",
     "question": "What is Table Partitioning in SQL?",
     "answer": "Partition by range (date), list (region), or hash. Queries on a partition don't scan others \u2014 major I/O reduction.",
@@ -1213,34 +905,8 @@
     "followUps": []
   },
   {
-    "id": 88,
-    "sectionId": "sql",
-    "difficulty": "hard",
-    "question": "Write a query to find gaps in a sequence of IDs.",
-    "answer": "Use NOT EXISTS self-join or LEFT JOIN on id+1 to find gaps. Works for sequential numeric IDs.",
-    "whyAsked": "Razorpay internal ledger validation round. Common in fintech data validation roles.",
-    "companies": [
-      "Razorpay",
-      "Amazon",
-      "Flipkart",
-      "PhonePe"
-    ],
-    "practiceLinks": [
-      {
-        "platform": "LeetCode",
-        "url": "https://leetcode.com/problems/find-the-missing-ids/",
-        "type": "practice"
-      }
-    ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use NOT EXISTS self-join or LEFT JOIN on id+1 to find gaps. Works for sequential numeric IDs.",
-    "explanation": "**Quick Overview:**\nRazorpay internal ledger validation round. Common in fintech data validation roles.\n\nMake sure to practice this concept thoroughly.",
-    "example": "",
-    "mistakes": [],
-    "followUps": []
-  },
-  {
-    "id": 89,
-    "sectionId": "sql",
+    "id": 78,
+    "sectionId": "sql-theory",
     "difficulty": "hard",
     "question": "What are common SQL anti-patterns to avoid?",
     "answer": "SELECT *, no indexes on filters, functions on indexed columns in WHERE, N+1 queries, unnecessary DISTINCT, correlated subqueries in loops.",

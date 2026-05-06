@@ -1,0 +1,336 @@
+[
+  {
+    "id": 79,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to find the second highest salary from a table.",
+    "answer": "SELECT MAX(salary) FROM employees WHERE salary < (SELECT MAX(salary) FROM employees)",
+    "whyAsked": "Commonly asked by TCS and Amazon in L1 rounds. Classic benchmark question.",
+    "companies": [
+      "TCS",
+      "Amazon",
+      "Infosys",
+      "Cognizant",
+      "Accenture",
+      "Wipro",
+      "Capgemini"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "LeetCode",
+        "url": "https://leetcode.com/problems/second-highest-salary/",
+        "type": "practice"
+      },
+      {
+        "platform": "HackerRank",
+        "url": "https://www.hackerrank.com/challenges/the-report/problem",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SELECT MAX(salary) FROM employees WHERE salary < (SELECT MAX(salary) FROM employees)",
+    "explanation": "**Quick Overview:**\nCommonly asked by TCS and Amazon in L1 rounds. Classic benchmark question.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 80,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "How would you remove duplicate rows from a table but keep one?",
+    "answer": "Use ROW_NUMBER() in a CTE, DELETE WHERE rn > 1. Never use DISTINCT for this \u2014 it only affects SELECT.",
+    "whyAsked": "Paytm SQL assessment for Junior Data Analyst. Classic hands-on query round question.",
+    "companies": [
+      "Paytm",
+      "TCS",
+      "Wipro",
+      "Cognizant",
+      "Amazon",
+      "Infosys"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "LeetCode",
+        "url": "https://leetcode.com/problems/delete-duplicate-emails/",
+        "type": "practice"
+      },
+      {
+        "platform": "HackerRank",
+        "url": "https://www.hackerrank.com/domains/sql",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use ROW_NUMBER() in a CTE, DELETE WHERE rn > 1. Never use DISTINCT for this \u2014 it only affects SELECT.",
+    "explanation": "**Quick Overview:**\nPaytm SQL assessment for Junior Data Analyst. Classic hands-on query round question.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 81,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "What is a NULL value and how do you handle it in SQL?",
+    "answer": "NULL = unknown, not zero or empty. Use IS NULL / IS NOT NULL. COALESCE() or ISNULL() to replace NULLs.",
+    "whyAsked": "Cognizant online aptitude test. Hexaware SQL MCQ round March 2025.",
+    "companies": [
+      "Cognizant",
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Accenture",
+      "Hexaware"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "W3Schools",
+        "url": "https://www.w3schools.com/sql/sql_null_values.asp",
+        "type": "concept"
+      },
+      {
+        "platform": "HackerRank",
+        "url": "https://www.hackerrank.com/challenges/salary-of-employees/problem",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: NULL = unknown, not zero or empty. Use IS NULL / IS NOT NULL. COALESCE() or ISNULL() to replace NULLs.",
+    "explanation": "**Quick Overview:**\nCognizant online aptitude test. Hexaware SQL MCQ round March 2025.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 82,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "How do you find duplicate records in a table?",
+    "answer": "GROUP BY the duplicate columns + HAVING COUNT(*) > 1. Don't confuse with deleting duplicates.",
+    "whyAsked": "Wipro analytics training test. Standard SQL assessment question at all service companies.",
+    "companies": [
+      "Wipro",
+      "TCS",
+      "Cognizant",
+      "Accenture",
+      "Infosys",
+      "Capgemini"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "LeetCode",
+        "url": "https://leetcode.com/problems/duplicate-emails/",
+        "type": "practice"
+      },
+      {
+        "platform": "HackerRank",
+        "url": "https://www.hackerrank.com/domains/sql",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: GROUP BY the duplicate columns + HAVING COUNT(*) > 1. Don't confuse with deleting duplicates.",
+    "explanation": "**Quick Overview:**\nWipro analytics training test. Standard SQL assessment question at all service companies.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 83,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to find the highest salary in each department.",
+    "answer": "Use RANK() OVER(PARTITION BY department ORDER BY salary DESC) and filter WHERE rank = 1.",
+    "whyAsked": "TCS BFSI Division. Classic window function query asked across all SQL rounds.",
+    "companies": [
+      "TCS",
+      "Amazon",
+      "Infosys",
+      "Flipkart",
+      "Cognizant",
+      "Accenture"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "LeetCode",
+        "url": "https://leetcode.com/problems/department-highest-salary/",
+        "type": "practice"
+      },
+      {
+        "platform": "StrataScratch",
+        "url": "https://www.stratascratch.com/",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use RANK() OVER(PARTITION BY department ORDER BY salary DESC) and filter WHERE rank = 1.",
+    "explanation": "**Quick Overview:**\nTCS BFSI Division. Classic window function query asked across all SQL rounds.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 84,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "How do you calculate a running total in SQL?",
+    "answer": "SUM(amount) OVER(ORDER BY order_date) gives running total. Add PARTITION BY for per-group running totals.",
+    "whyAsked": "Swiggy Analyst role screening. Running totals are a standard window function interview question.",
+    "companies": [
+      "Amazon",
+      "Flipkart",
+      "Swiggy",
+      "Paytm",
+      "Microsoft",
+      "Oracle"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "LeetCode",
+        "url": "https://leetcode.com/problems/running-total-for-different-genders/",
+        "type": "practice"
+      },
+      {
+        "platform": "DataLemur",
+        "url": "https://datalemur.com/questions/rolling-average-tweets",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SUM(amount) OVER(ORDER BY order_date) gives running total. Add PARTITION BY for per-group running totals.",
+    "explanation": "**Quick Overview:**\nSwiggy Analyst role screening. Running totals are a standard window function interview question.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 85,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "How do you pivot rows into columns in SQL?",
+    "answer": "SQL Server has PIVOT(). For other DBs use CASE WHEN inside MAX/SUM aggregation grouped by entity.",
+    "whyAsked": "Microsoft Data Associate case round. Freshworks Business Data Engineering round.",
+    "companies": [
+      "Microsoft",
+      "Amazon",
+      "Freshworks",
+      "Flipkart",
+      "Oracle"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "LeetCode",
+        "url": "https://leetcode.com/problems/reformat-department-table/",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SQL Server has PIVOT(). For other DBs use CASE WHEN inside MAX/SUM aggregation grouped by entity.",
+    "explanation": "**Quick Overview:**\nMicrosoft Data Associate case round. Freshworks Business Data Engineering round.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 86,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "How would you handle NULL values in aggregate functions?",
+    "answer": "All aggregates ignore NULLs except COUNT(*). Use COALESCE(col, 0) before aggregating to include them as 0.",
+    "whyAsked": "Accenture reporting project interview. NULL handling in aggregates is a classic trap.",
+    "companies": [
+      "Accenture",
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Amazon"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "W3Schools",
+        "url": "https://www.w3schools.com/sql/sql_null_functions.asp",
+        "type": "concept"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: All aggregates ignore NULLs except COUNT(*). Use COALESCE(col, 0) before aggregating to include them as 0.",
+    "explanation": "**Quick Overview:**\nAccenture reporting project interview. NULL handling in aggregates is a classic trap.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 87,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "How would you write a query to get the Nth highest salary?",
+    "answer": "Use DENSE_RANK() OVER(ORDER BY salary DESC) = N. Or use LIMIT/OFFSET for simple cases.",
+    "whyAsked": "Extension of the 2nd highest salary question. TCS/Amazon ask this as a follow-up.",
+    "companies": [
+      "TCS",
+      "Amazon",
+      "Infosys",
+      "Cognizant",
+      "Accenture",
+      "Flipkart"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "LeetCode",
+        "url": "https://leetcode.com/problems/nth-highest-salary/",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use DENSE_RANK() OVER(ORDER BY salary DESC) = N. Or use LIMIT/OFFSET for simple cases.",
+    "explanation": "**Quick Overview:**\nExtension of the 2nd highest salary question. TCS/Amazon ask this as a follow-up.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 88,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "What is Query Execution Plan and how do you use it to optimize?",
+    "answer": "Execution plan shows index usage, join types, row estimates. Look for table scans \u2014 replace with index seeks.",
+    "whyAsked": "Deloitte architecture-level interview. EXPLAIN / SET SHOWPLAN tools are the expected knowledge.",
+    "companies": [
+      "Deloitte",
+      "Amazon",
+      "Microsoft",
+      "Oracle",
+      "Accenture"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "GeeksforGeeks",
+        "url": "https://www.geeksforgeeks.org/sql-query-processing/",
+        "type": "concept"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Execution plan shows index usage, join types, row estimates. Look for table scans \u2014 replace with index seeks.",
+    "explanation": "**Quick Overview:**\nDeloitte architecture-level interview. EXPLAIN / SET SHOWPLAN tools are the expected knowledge.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  },
+  {
+    "id": 89,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to find gaps in a sequence of IDs.",
+    "answer": "Use NOT EXISTS self-join or LEFT JOIN on id+1 to find gaps. Works for sequential numeric IDs.",
+    "whyAsked": "Razorpay internal ledger validation round. Common in fintech data validation roles.",
+    "companies": [
+      "Razorpay",
+      "Amazon",
+      "Flipkart",
+      "PhonePe"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "LeetCode",
+        "url": "https://leetcode.com/problems/find-the-missing-ids/",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use NOT EXISTS self-join or LEFT JOIN on id+1 to find gaps. Works for sequential numeric IDs.",
+    "explanation": "**Quick Overview:**\nRazorpay internal ledger validation round. Common in fintech data validation roles.\n\nMake sure to practice this concept thoroughly.",
+    "example": "",
+    "mistakes": [],
+    "followUps": []
+  }
+]
