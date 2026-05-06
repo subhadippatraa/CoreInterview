@@ -45,11 +45,7 @@ export function Home() {
         {/* ═══ Hero ═══ */}
         <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }}>
           
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-accent)]/8 border border-[var(--color-accent)]/15 mb-6">
-            <SparklesIcon className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-            <span className="text-[11px] font-semibold text-[var(--color-accent)] tracking-wide uppercase">50 Essential Questions</span>
-          </div>
+
 
           <h1 className="text-[40px] sm:text-[52px] font-extrabold leading-[1.08] tracking-tight mb-5">
             <span className="text-[var(--color-text)]">Crack your </span>
