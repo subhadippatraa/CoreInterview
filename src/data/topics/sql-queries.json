@@ -4,7 +4,7 @@
     "sectionId": "sql-queries",
     "difficulty": "easy",
     "question": "Write a query to find the second highest salary from a table.",
-    "answer": "SELECT MAX(salary) FROM employees WHERE salary < (SELECT MAX(salary) FROM employees)",
+    "answer": "SELECT MAX(salary) FROM employees WHERE salary &lt; (SELECT MAX(salary) FROM employees)",
     "whyAsked": "Commonly asked by TCS and Amazon in L1 rounds. Classic benchmark question.",
     "companies": [
       "TCS",
@@ -27,12 +27,12 @@
         "type": "practice"
       }
     ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SELECT MAX(salary) FROM employees WHERE salary < (SELECT MAX(salary) FROM employees)",
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SELECT MAX(salary) FROM employees WHERE salary &lt; (SELECT MAX(salary) FROM employees)",
     "explanation": "**Quick Overview:**\nFinding the second highest value is a classic SQL benchmark question. It tests your knowledge of subqueries and aggregation.\n\nThe most standard, cross-database compatible way to solve this is to use a subquery that finds the absolute maximum salary, and then the outer query finds the maximum salary that is strictly less than that absolute maximum.",
-    "example": "```sql\n-- The standard ANSI SQL approach (works everywhere)\nSELECT MAX(salary) AS SecondHighestSalary\nFROM employees\nWHERE salary < (SELECT MAX(salary) FROM employees);\n\n-- Alternative: Using LIMIT / OFFSET (PostgreSQL / MySQL)\nSELECT salary AS SecondHighestSalary\nFROM employees\nORDER BY salary DESC\nLIMIT 1 OFFSET 1;\n```",
+    "example": "```sql\n-- The standard ANSI SQL approach (works everywhere)\nSELECT MAX(salary) AS SecondHighestSalary\nFROM employees\nWHERE salary &lt; (SELECT MAX(salary) FROM employees);\n\n-- Alternative: Using LIMIT / OFFSET (PostgreSQL / MySQL)\nSELECT salary AS SecondHighestSalary\nFROM employees\nORDER BY salary DESC\nLIMIT 1 OFFSET 1;\n```",
     "mistakes": [
       "Using `LIMIT 1 OFFSET 1` without accounting for duplicate salaries. If the top two salaries are both 100k, OFFSET 1 will incorrectly return 100k instead of the *actual* second highest. (You must use `DISTINCT` or `DENSE_RANK()`).",
-      "Not handling the edge case where the table only has one row (the `MAX(<MAX)` approach handles this gracefully by returning NULL)."
+      "Not handling the edge case where the table only has one row (the `MAX(&lt;MAX)` approach handles this gracefully by returning NULL)."
     ],
     "followUps": []
   },
@@ -68,7 +68,7 @@
     "example": "```sql\n-- Step 1: Assign a row number to duplicates\nWITH DuplicateCTE AS (\n    SELECT \n        id,\n        email,\n        ROW_NUMBER() OVER(\n            PARTITION BY email      -- Group by the duplicate column\n            ORDER BY id             -- Decide which one to keep (e.g., lowest ID)\n        ) as row_num\n    FROM users\n)\n-- Step 2: Delete everything that isn't row number 1\nDELETE FROM DuplicateCTE \nWHERE row_num > 1;\n```",
     "mistakes": [
       "Using `DISTINCT` in your answer. `DISTINCT` only affects `SELECT` statements (reads), it does absolutely nothing for `DELETE` statements (writes).",
-      "Using a self-join with a `<` operator to delete duplicates. While it works in some engines like MySQL, it is notoriously slow and unreadable compared to the CTE approach."
+      "Using a self-join with a `&lt;` operator to delete duplicates. While it works in some engines like MySQL, it is notoriously slow and unreadable compared to the CTE approach."
     ],
     "followUps": []
   },
@@ -303,7 +303,7 @@
     "example": "```sql\n-- Wrap the ranking logic in a CTE\nWITH RankedData AS (\n    SELECT \n        EmployeeId,\n        Salary,\n        DENSE_RANK() OVER(ORDER BY Salary DESC) as RankNum\n    FROM Employees\n)\n-- Select the Nth rank (e.g., the 4th highest)\nSELECT Salary \nFROM RankedData \nWHERE RankNum = 4;\n```",
     "mistakes": [
       "Using `RANK()` instead of `DENSE_RANK()`. If the top two salaries are identical, `RANK()` skips the number 2. `DENSE_RANK()` never skips numbers, ensuring the Nth highest always exists.",
-      "Writing a massive chain of nested `MAX(<MAX)` subqueries. This works for the 2nd or 3rd highest, but is physically impossible to scale for the Nth highest."
+      "Writing a massive chain of nested `MAX(&lt;MAX)` subqueries. This works for the 2nd or 3rd highest, but is physically impossible to scale for the Nth highest."
     ],
     "followUps": []
   },
@@ -359,10 +359,10 @@
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use NOT EXISTS self-join or LEFT JOIN on id+1 to find gaps. Works for sequential numeric IDs.",
     "explanation": "**Quick Overview:**\nFinding missing/skipped sequence numbers in an identity or invoice column is a common data validation challenge.\n\nThe cleanest way to find a gap is to take every ID, add `1` to it, and check if that new number exists in the table. If `ID + 1` does not exist (and it's not the maximum ID in the table), you have found the start of a gap.",
-    "example": "```sql\n-- Use a LEFT JOIN to find where the sequence breaks\nSELECT \n    (a.Id + 1) as MissingStartGap\nFROM Invoices a\nLEFT JOIN Invoices b \n  ON a.Id + 1 = b.Id\nWHERE b.Id IS NULL \n  AND a.Id < (SELECT MAX(Id) FROM Invoices);\n```",
+    "example": "```sql\n-- Use a LEFT JOIN to find where the sequence breaks\nSELECT \n    (a.Id + 1) as MissingStartGap\nFROM Invoices a\nLEFT JOIN Invoices b \n  ON a.Id + 1 = b.Id\nWHERE b.Id IS NULL \n  AND a.Id &lt; (SELECT MAX(Id) FROM Invoices);\n```",
     "mistakes": [
       "Writing a cursor or a `WHILE` loop to iterate from 1 to 1,000,000 checking for existence. This will lock up the database thread and is entirely against the set-based nature of SQL.",
-      "Forgetting to filter out the maximum ID in the table. Without `a.Id < MAX(Id)`, the query will incorrectly report a gap after the very last row in the table."
+      "Forgetting to filter out the maximum ID in the table. Without `a.Id &lt; MAX(Id)`, the query will incorrectly report a gap after the very last row in the table."
     ],
     "followUps": []
   }

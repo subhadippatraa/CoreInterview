@@ -986,7 +986,7 @@
     "example": "```sql\n-- Logical concept, syntax varies heavily by DBMS\nCREATE TABLE SalesLogs (\n    LogId INT,\n    SaleDate DATETIME,\n    Amount DECIMAL\n)\nPARTITION BY RANGE (YEAR(SaleDate)) (\n    PARTITION p2021 VALUES LESS THAN (2022),\n    PARTITION p2022 VALUES LESS THAN (2023),\n    PARTITION p_future VALUES LESS THAN MAXVALUE\n);\n```",
     "mistakes": [
       "Confusing Partitioning (vertical/horizontal slicing within *one* database server) with Sharding (distributing the table across *multiple physical database servers*).",
-      "Partitioning a small table (< 10GB). The overhead of managing partitions will outweigh any performance benefits."
+      "Partitioning a small table (&lt; 10GB). The overhead of managing partitions will outweigh any performance benefits."
     ],
     "followUps": []
   },
@@ -1017,7 +1017,7 @@
       }
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SELECT *, no indexes on filters, functions on indexed columns in WHERE, N+1 queries, unnecessary DISTINCT, correlated subqueries in loops.",
-    "explanation": "**Quick Overview:**\nSQL anti-patterns are common coding practices that severely degrade database performance or maintainability.\n\n**Top Anti-Patterns to mention in interviews:**\n1. **`SELECT *`**: Fetches unnecessary columns, wastes memory/network bandwidth, and breaks if table schemas change.\n2. **The N+1 Query Problem**: Executing queries inside a loop instead of using a `JOIN`.\n3. **Functions on Indexed Columns**: `WHERE YEAR(OrderDate) = 2023`. Wrapping an indexed column in a function ruins SARGability, forcing a Full Table Scan. (Fix: `WHERE OrderDate >= '2023-01-01' AND OrderDate < '2024-01-01'`).\n4. **Unnecessary `DISTINCT` or `UNION`**: Forcing the database to run expensive sorting/deduplication algorithms when the data is already unique.\n5. **Correlated Subqueries**: Forcing a subquery to execute `O(N)` times (once per outer row) instead of doing a simple join.",
+    "explanation": "**Quick Overview:**\nSQL anti-patterns are common coding practices that severely degrade database performance or maintainability.\n\n**Top Anti-Patterns to mention in interviews:**\n1. **`SELECT *`**: Fetches unnecessary columns, wastes memory/network bandwidth, and breaks if table schemas change.\n2. **The N+1 Query Problem**: Executing queries inside a loop instead of using a `JOIN`.\n3. **Functions on Indexed Columns**: `WHERE YEAR(OrderDate) = 2023`. Wrapping an indexed column in a function ruins SARGability, forcing a Full Table Scan. (Fix: `WHERE OrderDate >= '2023-01-01' AND OrderDate &lt; '2024-01-01'`).\n4. **Unnecessary `DISTINCT` or `UNION`**: Forcing the database to run expensive sorting/deduplication algorithms when the data is already unique.\n5. **Correlated Subqueries**: Forcing a subquery to execute `O(N)` times (once per outer row) instead of doing a simple join.",
     "example": "```sql\n-- BAD: Breaks index usage (Table Scan)\nSELECT name FROM employees WHERE SUBSTRING(name, 1, 1) = 'A';\n\n-- GOOD: Preserves index usage (Index Seek)\nSELECT name FROM employees WHERE name LIKE 'A%';\n```",
     "mistakes": [
       "Failing to recognize when an ORM is generating one of these anti-patterns behind the scenes.",
