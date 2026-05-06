@@ -1,23 +1,40 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect } from 'react';
 import { PageWrapper } from '../components/layout/PageWrapper';
+import { CodeBlock } from '../components/ui/CodeBlock';
 import { TimerRing } from '../components/mock/TimerRing';
 import { useMockSession } from '../hooks/useMockSession';
 import { useProgress } from '../hooks/useProgress';
 import { sections } from '../data/sections';
 import questions from '../data/questions';
 import { Link } from 'react-router-dom';
+import { 
+  CheckCircleIcon, 
+  LightBulbIcon, 
+  SpeakerWaveIcon, 
+  ChatBubbleBottomCenterTextIcon,
+  PlayIcon,
+  HandThumbUpIcon,
+  HandThumbDownIcon,
+  FireIcon,
+  BookmarkIcon as BookmarkOutline
+} from '@heroicons/react/24/outline';
+import { BookmarkIcon as BookmarkSolid } from '@heroicons/react/24/solid';
 
 import type { Question } from '../data/types';
 
 function InteractiveFollowUp({ followUp, renderAnswer }: { followUp: Partial<Question> & { question: string }; renderAnswer: (s: string) => string }) {
   return (
-    <div className="bg-[var(--color-bg2)] border border-[var(--color-border)] p-4 rounded-xl shadow-sm">
-      <div className="flex items-start justify-between gap-3">
+    <div className="bg-[var(--color-bg)] border border-[var(--color-border)] hover:border-[var(--color-accent)]/30 p-4 rounded-xl shadow-sm transition-all group">
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 w-6 h-6 rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] flex items-center justify-center shrink-0">
+          <ChatBubbleBottomCenterTextIcon className="w-3.5 h-3.5" />
+        </div>
         <div className="flex-1">
-          <div className="text-[13px] font-semibold text-[var(--color-text)] mb-2">{followUp.question}</div>
+          <div className="text-[14px] font-bold text-[var(--color-text)] mb-2 group-hover:text-[var(--color-accent)] transition-colors">{followUp.question}</div>
           {followUp.answer && (
             <div
-              className="text-[13px] text-[var(--color-text)]"
+              className="text-[14px] leading-relaxed text-[var(--color-text2)]"
               dangerouslySetInnerHTML={{ __html: renderAnswer(followUp.answer) }}
             />
           )}
@@ -29,7 +46,43 @@ function InteractiveFollowUp({ followUp, renderAnswer }: { followUp: Partial<Que
 
 export function MockInterview() {
   const mock = useMockSession(questions);
-  const { saveMockResult } = useProgress();
+  const { saveMockResult, toggleBookmark, isBookmarked } = useProgress();
+
+  const isCurrentBookmarked = mock.currentQuestion ? isBookmarked(mock.currentQuestion.id) : false;
+
+  // Premium Keyboard Shortcuts
+  useEffect(() => {
+    if (mock.phase !== 'session' || !mock.currentQuestion) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in the search modal
+      if (document.activeElement?.tagName === 'INPUT') return;
+
+      if (!mock.showAnswer) {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          mock.setShowAnswer(true);
+        }
+      } else if (!mock.hasRatedCurrent) {
+        if (e.key === '1') mock.rateQuestion('easy');
+        if (e.key === '2') mock.rateQuestion('got-it');
+        if (e.key === '3') mock.rateQuestion('needs-work');
+      } else {
+        if (e.code === 'Space' || e.code === 'ArrowRight') {
+          e.preventDefault();
+          mock.nextQuestion();
+        }
+      }
+      
+      // Global shortcut for bookmarking current question (B)
+      if (Object.keys(e).length && e.key.toLowerCase() === 'b') {
+         toggleBookmark(mock.currentQuestion!.id);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mock.phase, mock.currentQuestion, mock.showAnswer, mock.hasRatedCurrent, toggleBookmark]);
 
   const renderAnswer = (text: string) =>
     text
@@ -88,9 +141,10 @@ export function MockInterview() {
 
         <button
           onClick={mock.startSession}
-          className="w-full py-3 bg-[var(--color-accent)] text-white font-medium rounded-lg hover:bg-[#4a6ee8] transition-colors cursor-pointer"
+          className="w-full py-4 bg-[var(--color-accent)] text-white text-lg font-bold rounded-xl hover:bg-[#4a6ee8] hover:shadow-lg hover:shadow-[var(--color-accent)]/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer mt-8"
         >
-          Start Session →
+          <PlayIcon className="w-5 h-5 flex-shrink-0" />
+          Initialize Simulation
         </button>
       </PageWrapper>
     );
@@ -128,23 +182,39 @@ export function MockInterview() {
         )}
 
         {/* Question */}
-        <div className="text-center mb-10">
-          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest badge-${mock.currentQuestion.difficulty} mb-3 inline-block`}>
-            {mock.currentQuestion.difficulty}
+        <div className="text-center mb-10 pt-4 relative">
+          
+          <div className="absolute right-0 top-0">
+             <button 
+               onClick={() => toggleBookmark(mock.currentQuestion!.id)}
+               className="p-2 rounded-full hover:bg-[var(--color-bg2)] transition-colors group"
+               title="Bookmark Question (Press B)"
+             >
+               {isCurrentBookmarked ? (
+                 <BookmarkSolid className="w-6 h-6 text-yellow-500 transform group-hover:scale-110 transition-transform" />
+               ) : (
+                 <BookmarkOutline className="w-6 h-6 text-[var(--color-text2)] group-hover:text-[var(--color-text)] transform group-hover:scale-110 transition-transform" />
+               )}
+             </button>
+          </div>
+
+          <span className={`text-[11px] px-3 py-1 rounded-full font-bold uppercase tracking-widest badge-${mock.currentQuestion.difficulty} mb-4 inline-block font-mono`}>
+            {mock.currentQuestion.difficulty} Level
           </span>
-          <h2 className="font-heading text-2xl md:text-[28px] font-extrabold text-[var(--color-text)] leading-tight">
+          <h2 className="font-heading text-3xl md:text-[34px] font-extrabold text-[var(--color-text)] leading-tight max-w-3xl mx-auto">
             {mock.currentQuestion.question}
           </h2>
         </div>
 
         {/* Reveal / Answer */}
         {!mock.showAnswer ? (
-          <div className="text-center">
+          <div className="text-center mt-16">
             <button
               onClick={() => mock.setShowAnswer(true)}
-              className="px-6 py-3 bg-[var(--color-accent)] text-white font-medium rounded-lg hover:bg-[#4a6ee8] transition-colors cursor-pointer"
+              className="px-8 py-4 bg-[var(--color-bg2)] text-[var(--color-text)] border border-[var(--color-border)] font-bold rounded-2xl hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all cursor-pointer shadow-sm hover:shadow-md transform active:scale-95 group flex items-center justify-center gap-2 mx-auto"
             >
               Reveal Answer
+              <span className="group-hover:translate-y-1 transition-transform">👇</span>
             </button>
           </div>
         ) : (
@@ -153,18 +223,24 @@ export function MockInterview() {
               <div className="space-y-6">
                 {/* Interview Pitch */}
                 {mock.currentQuestion.interviewPitch && (
-                  <div className="bg-[var(--color-bg2)] border-l-4 border-l-[var(--color-accent)] border-[var(--color-border)] p-5 rounded-r-xl shadow-sm">
-                    <h3 className="text-[12px] font-bold uppercase tracking-wider text-[var(--color-text3)] mb-2">The Pitch (What to say)</h3>
+                  <div className="bg-[var(--color-bg)] border-l-4 border-l-[var(--color-accent)] border-[var(--color-border)] p-6 rounded-r-xl shadow-md">
+                    <h3 className="text-[13px] font-bold uppercase tracking-wider text-[var(--color-text3)] mb-3 flex items-center gap-2">
+                       <SpeakerWaveIcon className="w-4 h-4 text-[var(--color-accent)]" />
+                       The Script (What to say out loud)
+                    </h3>
                     <div
-                      className="text-[15px] leading-relaxed text-[var(--color-text)]"
+                      className="text-[16px] leading-[1.7] text-[var(--color-text)] font-medium"
                       dangerouslySetInnerHTML={{ __html: renderAnswer(mock.currentQuestion.interviewPitch) }}
                     />
                   </div>
                 )}
 
                 {/* Main Explanation */}
-                <div className="bg-[var(--color-bg2)] border border-[var(--color-border)] p-5 rounded-xl shadow-sm">
-                  <h3 className="text-[12px] font-bold uppercase tracking-wider text-[var(--color-text3)] mb-2">Deep Dive Explanation</h3>
+                <div className="bg-[var(--color-bg2)] border border-[var(--color-border)] p-6 rounded-xl shadow-sm">
+                  <h3 className="text-[13px] font-bold uppercase tracking-wider text-[var(--color-text3)] mb-3 flex items-center gap-2">
+                    <LightBulbIcon className="w-4 h-4 text-yellow-500" />
+                    Deep Dive & Trade-offs
+                  </h3>
                   <div
                     className="text-[15px] leading-[1.8] text-[var(--color-text)]"
                     dangerouslySetInnerHTML={{ __html: renderAnswer(mock.currentQuestion.explanation || mock.currentQuestion.answer) }}
@@ -173,15 +249,9 @@ export function MockInterview() {
 
                 {/* Code Example */}
                 {mock.currentQuestion.example && (
-                  <div className="bg-[var(--color-bg2)] border border-[var(--color-border)] p-4 rounded-xl shadow-sm overflow-x-auto nice-scrollbar">
-                    <h3 className="text-[12px] font-bold uppercase tracking-wider text-[var(--color-text3)] mb-3">Example</h3>
-                    <div
-                      className="font-mono text-[13px] text-[var(--color-text)] whitespace-pre-wrap"
-                      dangerouslySetInnerHTML={{ __html: mock.currentQuestion.example }}
-                    />
-                  </div>
-                )}
-
+                    <div className="mt-4">
+                      <CodeBlock codeString={mock.currentQuestion.example} defaultLanguage={mock.currentQuestion.sectionId} />                      </div>
+                  )}
                 {/* Follow Ups */}
                 {mock.currentQuestion.followUps && mock.currentQuestion.followUps.length > 0 && (
                   <div className="pt-4">
@@ -197,22 +267,38 @@ export function MockInterview() {
 
               {/* Rating Buttons */}
               {!mock.hasRatedCurrent ? (
-                <div className="flex justify-center gap-3">
-                  <button onClick={() => mock.rateQuestion('easy')}
-                    className="px-4 py-2 rounded-lg text-sm border border-[var(--color-green)]/30 text-[var(--color-green)] hover:bg-[var(--color-green)]/10 transition-colors cursor-pointer">
-                    Too Easy
-                  </button>
-                  <button onClick={() => mock.rateQuestion('got-it')}
-                    className="px-4 py-2 rounded-lg text-sm border border-[var(--color-accent)]/30 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 transition-colors cursor-pointer">
-                    Got It
-                  </button>
-                  <button onClick={() => mock.rateQuestion('needs-work')}
-                    className="px-4 py-2 rounded-lg text-sm border border-[var(--color-red)]/30 text-[var(--color-red)] hover:bg-[var(--color-red)]/10 transition-colors cursor-pointer">
-                    Needs Work
-                  </button>
+                <div className="pt-10 border-t border-[var(--color-border)] mt-8 text-center pb-4">
+                  <h4 className="text-sm font-bold text-[var(--color-text3)] uppercase tracking-wider mb-6 flex items-center justify-center gap-2">
+                    <FireIcon className="w-4 h-4" /> Grade Your Performance
+                  </h4>
+                  <div className="flex justify-center gap-4">
+                    <button onClick={() => mock.rateQuestion('easy')}
+                      title="Hotkey: 1"
+                      className="group flex flex-col items-center justify-center gap-2 w-28 h-24 rounded-2xl border-2 border-[var(--color-green)]/30 bg-[var(--color-green)]/5 text-[var(--color-green)] hover:bg-[var(--color-green)]/15 hover:border-[var(--color-green)]/50 transition-all cursor-pointer transform hover:-translate-y-1 relative">
+                      <div className="absolute top-1 right-2 text-[10px] opacity-50 font-mono">1</div>
+                      <CheckCircleIcon className="w-8 h-8" />
+                      <span className="text-[12px] font-bold">Too Easy</span>
+                    </button>
+                    <button onClick={() => mock.rateQuestion('got-it')}
+                      title="Hotkey: 2"
+                      className="group flex flex-col items-center justify-center gap-2 w-28 h-24 rounded-2xl border-2 border-[var(--color-accent)]/30 bg-[var(--color-accent)]/5 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/15 hover:border-[var(--color-accent)]/50 transition-all cursor-pointer transform hover:-translate-y-1 relative">
+                      <div className="absolute top-1 right-2 text-[10px] opacity-50 font-mono">2</div>
+                      <HandThumbUpIcon className="w-8 h-8" />
+                      <span className="text-[12px] font-bold">Got It</span>
+                    </button>
+                    <button onClick={() => mock.rateQuestion('needs-work')}
+                      title="Hotkey: 3"
+                      className="group flex flex-col items-center justify-center gap-2 w-28 h-24 rounded-2xl border-2 border-[var(--color-red)]/30 bg-[var(--color-red)]/5 text-[var(--color-red)] hover:bg-[var(--color-red)]/15 hover:border-[var(--color-red)]/50 transition-all cursor-pointer transform hover:-translate-y-1 relative">
+                      <div className="absolute top-1 right-2 text-[10px] opacity-50 font-mono">3</div>
+                      <HandThumbDownIcon className="w-8 h-8" />
+                      <span className="text-[12px] font-bold">Needs Work</span>
+                    </button>
+                  </div>
                 </div>
               ) : (
-                <p className="text-center text-xs text-[var(--color-text3)] font-mono">✓ Rated</p>
+                <p className="text-center text-[13px] text-[var(--color-text2)] font-bold mt-10 pt-4 border-t border-[var(--color-border)] flex items-center justify-center gap-2">
+                  <CheckCircleIcon className="w-5 h-5 text-green-500" /> Rated successfully
+                </p>
               )}
             </motion.div>
           </AnimatePresence>

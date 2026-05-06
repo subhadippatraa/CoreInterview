@@ -1,15 +1,30 @@
 [
   {
     "questionId": 79,
-    "followUps": []
+    "followUps": [
+      {
+        "question": "What if I asked you to find the Nth highest salary rather than just the second? Your query becomes nested and messy.",
+        "answer": "Absolutely. Once N > 2, the `MAX` subquery strategy breaks down. I would immediately switch to using the `DENSE_RANK()` window function ordered by salary descending in a CTE, and then filter for `WHERE rank = N`. Using `DENSE_RANK()` instead of `ROW_NUMBER()` is vital here so that tied salaries don't accidentally skip rank tiers."
+      }
+    ]
   },
   {
     "questionId": 80,
-    "followUps": []
+    "followUps": [
+      {
+        "question": "If the duplicates are on a table with 500 million rows, this CTE delete approach might bloat the transaction log and block other queries. How do you handle it safely?",
+        "answer": "For massive tables, large `DELETE` statements are dangerous because of log overhead and lock escalation. I would either batch the CTE deletes using `TOP/LIMIT` in a `WHILE` loop, or use the 'shadow table' pattern: Create a new temp table containing only the deduplicated data (WHERE rn = 1), Drop/Truncate the original table, and bulk insert the clean data back."
+      }
+    ]
   },
   {
     "questionId": 81,
-    "followUps": []
+    "followUps": [
+      {
+        "question": "Is there any performance impact or danger when using `COALESCE()` in a WHERE clause like `WHERE COALESCE(Status, 'Active') = 'Active'`?",
+        "answer": "Yes, it creates a massive performance penalty. Applying a function like `COALESCE` directly to a column in the `WHERE` clause makes the query non-sargable—meaning the database engine cannot use indexes on that column, forcing a full table scan. To keep index seeks active, it must be rewritten as `WHERE Status = 'Active' OR Status IS NULL`."
+      }
+    ]
   },
   {
     "questionId": 82,

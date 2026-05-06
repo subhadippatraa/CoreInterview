@@ -4,7 +4,7 @@
     "sectionId": "sql-queries",
     "difficulty": "easy",
     "question": "Write a query to find the second highest salary from a table.",
-    "answer": "SELECT MAX(salary) FROM employees WHERE salary &lt; (SELECT MAX(salary) FROM employees)",
+    "answer": "SELECT MAX(salary) FROM employees WHERE salary < (SELECT MAX(salary) FROM employees)",
     "whyAsked": "Commonly asked by TCS and Amazon in L1 rounds. Classic benchmark question.",
     "companies": [
       "TCS",
@@ -27,9 +27,9 @@
         "type": "practice"
       }
     ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: SELECT MAX(salary) FROM employees WHERE salary &lt; (SELECT MAX(salary) FROM employees)",
+    "interviewPitch": "In an interview, I prefer the `MAX() < MAX()` approach for finding the second highest salary because it handles identical salaries naturally and runs globally on any database engine without needing proprietary features like `LIMIT` or `TOP`.",
     "explanation": "**Quick Overview:**\nFinding the second highest value is a classic SQL benchmark question. It tests your knowledge of subqueries and aggregation.\n\nThe most standard, cross-database compatible way to solve this is to use a subquery that finds the absolute maximum salary, and then the outer query finds the maximum salary that is strictly less than that absolute maximum.",
-    "example": "```sql\n-- The standard ANSI SQL approach (works everywhere)\nSELECT MAX(salary) AS SecondHighestSalary\nFROM employees\nWHERE salary &lt; (SELECT MAX(salary) FROM employees);\n\n-- Alternative: Using LIMIT / OFFSET (PostgreSQL / MySQL)\nSELECT salary AS SecondHighestSalary\nFROM employees\nORDER BY salary DESC\nLIMIT 1 OFFSET 1;\n```",
+    "example": "```diff\n- SELECT salary FROM employees ORDER BY salary DESC LIMIT 1 OFFSET 1;\n- // Fails if the top two salaries are identical! It just skips a row.\n\n+ SELECT MAX(salary) AS SecondHighestSalary\n+ FROM employees\n+ WHERE salary < (SELECT MAX(salary) FROM employees);\n+ // Works perfectly, handles duplicates, returns NULL gracefully if only one row exists.\n```",
     "mistakes": [
       "Using `LIMIT 1 OFFSET 1` without accounting for duplicate salaries. If the top two salaries are both 100k, OFFSET 1 will incorrectly return 100k instead of the *actual* second highest. (You must use `DISTINCT` or `DENSE_RANK()`).",
       "Not handling the edge case where the table only has one row (the `MAX(&lt;MAX)` approach handles this gracefully by returning NULL)."
@@ -41,7 +41,7 @@
     "sectionId": "sql-queries",
     "difficulty": "medium",
     "question": "How would you remove duplicate rows from a table but keep one?",
-    "answer": "Use ROW_NUMBER() in a CTE, DELETE WHERE rn > 1. Never use DISTINCT for this \u2014 it only affects SELECT.",
+    "answer": "Use ROW_NUMBER() in a CTE, DELETE WHERE rn > 1. Never use DISTINCT for this — it only affects SELECT.",
     "whyAsked": "Paytm SQL assessment for Junior Data Analyst. Classic hands-on query round question.",
     "companies": [
       "Paytm",
@@ -63,9 +63,9 @@
         "type": "practice"
       }
     ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use ROW_NUMBER() in a CTE, DELETE WHERE rn > 1. Never use DISTINCT for this \u2014 it only affects SELECT.",
+    "interviewPitch": "When facing duplicate records in production, I completely avoid `DISTINCT` or self-joins because they are unreliable for writes or perform poorly. I always default to a Common Table Expression using `ROW_NUMBER()`. This gives precise deterministic control over exactly which duplicate survives.",
     "explanation": "**Quick Overview:**\nThis is a common data-cleanup question. You have a table with duplicate rows, and you need to permanently `DELETE` the duplicates while ensuring exactly one copy remains.\n\nThe safest and most professional way to do this is using the `ROW_NUMBER()` window function wrapped in a CTE.",
-    "example": "```sql\n-- Step 1: Assign a row number to duplicates\nWITH DuplicateCTE AS (\n    SELECT \n        id,\n        email,\n        ROW_NUMBER() OVER(\n            PARTITION BY email      -- Group by the duplicate column\n            ORDER BY id             -- Decide which one to keep (e.g., lowest ID)\n        ) as row_num\n    FROM users\n)\n-- Step 2: Delete everything that isn't row number 1\nDELETE FROM DuplicateCTE \nWHERE row_num > 1;\n```",
+    "example": "```diff\n- DELETE t1 FROM users t1 JOIN users t2 \n- WHERE t1.email = t2.email AND t1.id > t2.id;\n- // Slow, prone to locking issues, and engine-specific.\n\n+ WITH DuplicateCTE AS (\n+     SELECT id, email, \n+     ROW_NUMBER() OVER(PARTITION BY email ORDER BY id) as rn\n+     FROM users\n+ )\n+ DELETE FROM DuplicateCTE WHERE rn > 1;\n+ // Safe, fast, deterministic. Reads cleanly as steps.\n```",
     "mistakes": [
       "Using `DISTINCT` in your answer. `DISTINCT` only affects `SELECT` statements (reads), it does absolutely nothing for `DELETE` statements (writes).",
       "Using a self-join with a `&lt;` operator to delete duplicates. While it works in some engines like MySQL, it is notoriously slow and unreadable compared to the CTE approach."
@@ -99,9 +99,9 @@
         "type": "practice"
       }
     ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: NULL = unknown, not zero or empty. Use IS NULL / IS NOT NULL. COALESCE() or ISNULL() to replace NULLs.",
+    "interviewPitch": "It's critical to remember that NULL represents an 'unknown' state, not a zero or an empty string. Therefore, standard equality checks evaluate to unknown as well. I always enforce explicit `IS NULL` or `IS NOT NULL` checks, and wrap nullable numeric fields in `COALESCE()` during calculations to prevent silent mathematical skew.",
     "explanation": "**Quick Overview:**\nNULL is a special marker used in SQL to indicate that a data value does not exist in the database. It is **not** equal to zero, and it is **not** equal to an empty string. It represents \"Unknown\".\n\nBecause NULL is unknown, you cannot use standard comparison operators like `=` or `!=` against it. `NULL = NULL` evaluates to Unknown, not True.",
-    "example": "```sql\n-- WRONG: This will return exactly 0 rows, always.\nSELECT * FROM Employees WHERE PhoneNumber = NULL;\n\n-- CORRECT: You must use the IS NULL operator.\nSELECT * FROM Employees WHERE PhoneNumber IS NULL;\n\n-- CORRECT: Handling NULLs in calculations using COALESCE\nSELECT Name, Salary + COALESCE(Bonus, 0) as TotalCompensation \nFROM Employees;\n```",
+    "example": "```diff\n- SELECT * FROM Employees WHERE PhoneNumber = NULL;\n- SELECT Name, Salary + Bonus as TotalCompensation FROM Employees;\n- // Will incorrectly return 0 rows, or NULL total compensation if Bonus is NULL.\n\n+ SELECT * FROM Employees WHERE PhoneNumber IS NULL;\n+ SELECT Name, Salary + COALESCE(Bonus, 0) as TotalCompensation FROM Employees;\n+ // Will correctly treat a NULL bonus mathematically as zero.\n```",
     "mistakes": [
       "Using `=` or `!=` to check for NULLs.",
       "Forgetting that aggregate functions (like `AVG()`) automatically ignore NULL values, which can mathematically skew your results if you expected them to be counted as zeros."
@@ -312,7 +312,7 @@
     "sectionId": "sql-queries",
     "difficulty": "hard",
     "question": "What is Query Execution Plan and how do you use it to optimize?",
-    "answer": "Execution plan shows index usage, join types, row estimates. Look for table scans \u2014 replace with index seeks.",
+    "answer": "Execution plan shows index usage, join types, row estimates. Look for table scans — replace with index seeks.",
     "whyAsked": "Deloitte architecture-level interview. EXPLAIN / SET SHOWPLAN tools are the expected knowledge.",
     "companies": [
       "Deloitte",
@@ -328,7 +328,7 @@
         "type": "concept"
       }
     ],
-    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Execution plan shows index usage, join types, row estimates. Look for table scans \u2014 replace with index seeks.",
+    "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Execution plan shows index usage, join types, row estimates. Look for table scans — replace with index seeks.",
     "explanation": "**Quick Overview:**\nAn Execution Plan is a visual or text-based roadmap generated by the database optimizer. It shows exactly how the database engine decided to execute your SQL query step-by-step (e.g., which indexes it used, what kind of joins it performed, and where the CPU/IO bottlenecks are).\n\n**How to use it to optimize:**\n1. **Look for Table Scans / Clustered Index Scans:** These mean the database had to read every single row in the table. You usually want to replace these with **Index Seeks** by adding a proper index.\n2. **Look for Key Lookups:** This means the non-clustered index found the row, but didn't have all the columns requested in the `SELECT`, so it had to do an expensive jump back to the clustered index. Fix this by creating a **Covering Index** (`INCLUDE` columns).\n3. **Identify the highest cost percentage:** The plan will literally tell you \"This operation took 85% of the query cost\". Target that step.",
     "example": "```sql\n-- In SQL Server, you can view the plan by prefixing the query:\nSET STATISTICS IO ON;\nSET STATISTICS TIME ON;\n\n-- Or in PostgreSQL/MySQL, use EXPLAIN:\nEXPLAIN ANALYZE \nSELECT * FROM Orders WHERE CustomerId = 90210;\n```",
     "mistakes": [
@@ -359,10 +359,1201 @@
     ],
     "interviewPitch": "This is an essential concept tested frequently in interviews. The core takeaway is: Use NOT EXISTS self-join or LEFT JOIN on id+1 to find gaps. Works for sequential numeric IDs.",
     "explanation": "**Quick Overview:**\nFinding missing/skipped sequence numbers in an identity or invoice column is a common data validation challenge.\n\nThe cleanest way to find a gap is to take every ID, add `1` to it, and check if that new number exists in the table. If `ID + 1` does not exist (and it's not the maximum ID in the table), you have found the start of a gap.",
-    "example": "```sql\n-- Use a LEFT JOIN to find where the sequence breaks\nSELECT \n    (a.Id + 1) as MissingStartGap\nFROM Invoices a\nLEFT JOIN Invoices b \n  ON a.Id + 1 = b.Id\nWHERE b.Id IS NULL \n  AND a.Id &lt; (SELECT MAX(Id) FROM Invoices);\n```",
+    "example": "```sql\n-- Use a LEFT JOIN to find where the sequence breaks\nSELECT \n    (a.Id + 1) as MissingStartGap\nFROM Invoices a\nLEFT JOIN Invoices b \n  ON a.Id + 1 = b.Id\nWHERE b.Id IS NULL \n  AND a.Id < (SELECT MAX(Id) FROM Invoices);\n```",
     "mistakes": [
       "Writing a cursor or a `WHILE` loop to iterate from 1 to 1,000,000 checking for existence. This will lock up the database thread and is entirely against the set-based nature of SQL.",
       "Forgetting to filter out the maximum ID in the table. Without `a.Id &lt; MAX(Id)`, the query will incorrectly report a gap after the very last row in the table."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 119,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to find the second highest salary from an Employee table.",
+    "answer": "Use a subquery to exclude the MAX salary, then find the MAX of what's left.",
+    "whyAsked": "Classic warm-up question. Tests subquery knowledge and understanding of aggregation.",
+    "companies": [
+      "Amazon",
+      "Microsoft",
+      "Infosys",
+      "Wipro",
+      "TCS"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "LeetCode",
+        "url": "https://leetcode.com/problems/second-highest-salary/",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "Filter out the highest salary using a subquery, then apply MAX() to the remaining salaries.",
+    "explanation": "A subquery computes MAX(salary) for the whole table. The outer query then finds the MAX among all salaries strictly less than that value.",
+    "example": "```sql\nSELECT MAX(salary) AS SecondHighestSalary\nFROM Employee\nWHERE salary < (SELECT MAX(salary) FROM Employee);\n```",
+    "mistakes": [
+      "Using LIMIT 1 OFFSET 1 without ORDER BY — results are non-deterministic.",
+      "Not handling the case when there is no second highest salary (should return NULL)."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 120,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to find all duplicate email addresses in a table.",
+    "answer": "GROUP BY email + HAVING COUNT(*) > 1 to find emails that appear more than once.",
+    "whyAsked": "Fundamental deduplication pattern tested in almost every analyst interview.",
+    "companies": [
+      "Amazon",
+      "Google",
+      "Flipkart",
+      "Uber"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "LeetCode",
+        "url": "https://leetcode.com/problems/duplicate-emails/",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "GROUP BY the column and use HAVING COUNT(*) > 1 to surface duplicates.",
+    "explanation": "Grouping by the email column and filtering groups with more than one occurrence reveals all duplicates.",
+    "example": "```sql\nSELECT email, COUNT(*) AS cnt\nFROM Person\nGROUP BY email\nHAVING COUNT(*) > 1;\n```",
+    "mistakes": [
+      "Using DISTINCT instead of GROUP BY — DISTINCT removes duplicates rather than finding them.",
+      "Forgetting HAVING and trying to use WHERE COUNT(*) > 1 — WHERE cannot filter aggregates."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 121,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to retrieve all customers who have never placed an order.",
+    "answer": "Use LEFT JOIN and filter WHERE the order side is NULL, or use NOT IN / NOT EXISTS subquery.",
+    "whyAsked": "Tests LEFT JOIN + NULL filtering — a foundational join pattern.",
+    "companies": [
+      "Amazon",
+      "Microsoft",
+      "Oracle",
+      "Razorpay"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "LeetCode",
+        "url": "https://leetcode.com/problems/customers-who-never-order/",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "LEFT JOIN orders and keep only rows where the order side is NULL — those customers never ordered.",
+    "explanation": "A LEFT JOIN preserves all customers. When a customer has no matching order, the order columns are NULL. Filtering for NULL identifies the never-ordered customers.",
+    "example": "```sql\nSELECT c.customer_id, c.name\nFROM Customers c\nLEFT JOIN Orders o ON c.customer_id = o.customer_id\nWHERE o.customer_id IS NULL;\n```",
+    "mistakes": [
+      "Using INNER JOIN — this only returns customers who DO have orders.",
+      "Using NOT IN with a subquery that can return NULLs — NOT IN with NULLs returns no rows."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 122,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to get the current date and time in SQL.",
+    "answer": "Use GETDATE() in SQL Server, NOW() in MySQL, or CURRENT_TIMESTAMP in standard SQL.",
+    "whyAsked": "Basic SQL function knowledge check, often asked as a quick warm-up.",
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Capgemini"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Know the dialect difference: NOW() for MySQL, GETDATE() for SQL Server, CURRENT_TIMESTAMP is ANSI standard.",
+    "explanation": "Different SQL dialects have different functions for current datetime. CURRENT_TIMESTAMP is the ANSI standard supported by most databases.",
+    "example": "```sql\nSELECT GETDATE();            -- SQL Server\nSELECT NOW();               -- MySQL\nSELECT CURRENT_TIMESTAMP;   -- ANSI Standard\n```",
+    "mistakes": [
+      "Mixing up dialects — GETDATE() will fail on MySQL, NOW() will fail on SQL Server.",
+      "Confusing CURRENT_DATE (date only) with CURRENT_TIMESTAMP (date + time)."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 123,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to count the number of employees in each department.",
+    "answer": "Use GROUP BY department with COUNT(*) to aggregate employee count per department.",
+    "whyAsked": "Core GROUP BY + aggregation — covered in virtually every SQL interview.",
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Deloitte",
+      "Accenture"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "GROUP BY department_id and apply COUNT(*) — add ORDER BY to rank departments by size.",
+    "explanation": "GROUP BY collapses rows sharing the same department_id into one group, and COUNT(*) measures the size of each group.",
+    "example": "```sql\nSELECT department_id, COUNT(*) AS employee_count\nFROM Employees\nGROUP BY department_id\nORDER BY employee_count DESC;\n```",
+    "mistakes": [
+      "Using COUNT(column) instead of COUNT(*) — COUNT(column) ignores NULLs.",
+      "Forgetting GROUP BY and trying to mix aggregate and non-aggregate columns in SELECT."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 124,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to fetch employees whose name starts with 'A'.",
+    "answer": "Use LIKE 'A%' in the WHERE clause to pattern-match names starting with the letter A.",
+    "whyAsked": "Tests LIKE operator and wildcard usage — common in beginner screening rounds.",
+    "companies": [
+      "TCS",
+      "Wipro",
+      "Infosys",
+      "HCL"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Use LIKE 'A%' — the % wildcard matches any sequence of characters after A.",
+    "explanation": "The LIKE operator with the % wildcard performs pattern matching. 'A%' matches any string that starts with the letter A.",
+    "example": "```sql\nSELECT * FROM Employees\nWHERE first_name LIKE 'A%';\n```",
+    "mistakes": [
+      "Using = 'A' instead of LIKE 'A%' — this only matches names that are exactly 'A'.",
+      "Forgetting case sensitivity — in some databases LIKE is case-sensitive."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 125,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to find the total salary paid by each department.",
+    "answer": "Use SUM(salary) grouped by department_id.",
+    "whyAsked": "Core aggregation pattern repeated across all levels of SQL interviews.",
+    "companies": [
+      "Amazon",
+      "Flipkart",
+      "Swiggy",
+      "Zomato"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "SUM(salary) with GROUP BY department_id gives the payroll total per department.",
+    "explanation": "SUM() is an aggregate function that adds up all salary values within each department group.",
+    "example": "```sql\nSELECT department_id, SUM(salary) AS total_salary\nFROM Employees\nGROUP BY department_id;\n```",
+    "mistakes": [
+      "Using AVG instead of SUM when the question asks for total.",
+      "Not aliasing the SUM column — makes output harder to read."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 126,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to fetch the top 5 highest-paid employees.",
+    "answer": "Use ORDER BY salary DESC with LIMIT 5 (MySQL) or TOP 5 (SQL Server).",
+    "whyAsked": "Tests ORDER BY and LIMIT/TOP usage — a staple of beginner rounds.",
+    "companies": [
+      "Microsoft",
+      "Infosys",
+      "Capgemini",
+      "HCL"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "ORDER BY salary DESC then LIMIT 5 in MySQL, or TOP 5 in SQL Server — know both syntaxes.",
+    "explanation": "Sorting in descending order puts the highest salary first; limiting to 5 rows returns only the top 5.",
+    "example": "```sql\n-- MySQL / PostgreSQL\nSELECT * FROM Employees\nORDER BY salary DESC\nLIMIT 5;\n\n-- SQL Server\nSELECT TOP 5 * FROM Employees\nORDER BY salary DESC;\n```",
+    "mistakes": [
+      "Forgetting DESC — default ORDER BY is ascending, which gives the lowest salaries first.",
+      "Using LIMIT without ORDER BY — result set is undefined."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 127,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to delete all duplicate rows from a table, keeping only one.",
+    "answer": "Use a CTE with ROW_NUMBER() partitioned by duplicate columns, then DELETE where row_num > 1.",
+    "whyAsked": "Tests understanding of CTEs and window functions — asked in data engineering rounds.",
+    "companies": [
+      "Amazon",
+      "Microsoft",
+      "Razorpay",
+      "PhonePe"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "ROW_NUMBER() assigns 1 to the row you want to keep; delete all rows where rn > 1.",
+    "explanation": "A CTE with ROW_NUMBER() partitioned by the columns that define a duplicate labels each group. Deleting rows where rn > 1 removes all but the first occurrence.",
+    "example": "```sql\nWITH CTE AS (\n  SELECT *,\n    ROW_NUMBER() OVER (\n      PARTITION BY email\n      ORDER BY id\n    ) AS rn\n  FROM Employees\n)\nDELETE FROM CTE WHERE rn > 1;\n```",
+    "mistakes": [
+      "Using DELETE without a CTE and accidentally deleting all rows.",
+      "Not partitioning correctly — may treat non-duplicates as duplicates."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 128,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to fetch all products that have never been sold.",
+    "answer": "LEFT JOIN Products with Sales and filter WHERE sales.product_id IS NULL.",
+    "whyAsked": "Classic anti-join pattern — fundamental for business reporting queries.",
+    "companies": [
+      "Flipkart",
+      "Amazon",
+      "Meesho",
+      "Walmart"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "LEFT JOIN sales and keep rows where the sales side is NULL — those products were never sold.",
+    "explanation": "Products without any matching sales records will have NULL in all Sales columns after a LEFT JOIN. This is the anti-join pattern.",
+    "example": "```sql\nSELECT p.product_id, p.product_name\nFROM Products p\nLEFT JOIN Sales s ON p.product_id = s.product_id\nWHERE s.product_id IS NULL;\n```",
+    "mistakes": [
+      "Using INNER JOIN — only returns products that have been sold.",
+      "Using NOT IN with a nullable subquery — can silently return zero rows."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 129,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to find employees who earn more than the average salary.",
+    "answer": "Use a subquery with AVG(salary) in the WHERE clause.",
+    "whyAsked": "Tests subquery usage and comparison with aggregates — very common warm-up.",
+    "companies": [
+      "Amazon",
+      "Google",
+      "Accenture",
+      "Cognizant"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Compare each employee's salary to AVG(salary) in a subquery — scalar subquery returns a single value.",
+    "explanation": "A scalar subquery computing AVG(salary) is evaluated once. Each row's salary is then compared against this average.",
+    "example": "```sql\nSELECT * FROM Employees\nWHERE salary > (SELECT AVG(salary) FROM Employees);\n```",
+    "mistakes": [
+      "Trying to use AVG() directly in WHERE — aggregate functions are not allowed in WHERE clauses.",
+      "Not using a subquery and instead trying to join the table to itself unnecessarily."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 130,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to retrieve records from a table where the date is within the last 30 days.",
+    "answer": "Filter using WHERE date_column >= CURRENT_DATE - INTERVAL '30 days'.",
+    "whyAsked": "Date arithmetic is a must-know for data analyst roles in any company.",
+    "companies": [
+      "Amazon",
+      "Swiggy",
+      "Zomato",
+      "PhonePe",
+      "Razorpay"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Subtract an INTERVAL from CURRENT_DATE — syntax varies slightly across MySQL, PostgreSQL, and SQL Server.",
+    "explanation": "Date arithmetic with INTERVAL filters rows to a rolling window of the last N days from today.",
+    "example": "```sql\nSELECT * FROM Orders\nWHERE order_date >= CURRENT_DATE - INTERVAL '30 days';\n\n-- MySQL alternative:\nWHERE order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY);\n```",
+    "mistakes": [
+      "Using GETDATE() - 30 in MySQL — this subtracts 30 from the numeric date.",
+      "Not using >= which would exclude the boundary date."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 131,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to swap the values of male and female in a Salary table.",
+    "answer": "Use CASE WHEN to swap: WHEN sex = 'm' THEN 'f' ELSE 'm'.",
+    "whyAsked": "Tricky CASE WHEN update — tests in-place transformation logic.",
+    "companies": [
+      "Amazon",
+      "Microsoft",
+      "Meta"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "LeetCode",
+        "url": "https://leetcode.com/problems/swap-salary/",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "A CASE expression inside UPDATE SET handles conditional assignment — no temp variable needed.",
+    "explanation": "CASE WHEN evaluates the current value and returns the swapped value in one pass, avoiding the need for a temporary column.",
+    "example": "```sql\nUPDATE Salary\nSET sex = CASE\n  WHEN sex = 'm' THEN 'f'\n  ELSE 'm'\nEND;\n```",
+    "mistakes": [
+      "Trying to do it in two UPDATE statements — the second UPDATE will incorrectly flip already-swapped values.",
+      "Using a temp table unnecessarily when a single CASE expression suffices."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 132,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to display the Nth row from a table.",
+    "answer": "Use LIMIT 1 OFFSET (N-1) in MySQL, or ROW_NUMBER() window function.",
+    "whyAsked": "Pagination logic — commonly asked in backend and data engineering screens.",
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Wipro",
+      "Capgemini"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "OFFSET is the simplest method; ROW_NUMBER() is more portable and explicit.",
+    "explanation": "OFFSET skips the first N-1 rows and returns the next one. ROW_NUMBER() assigns a sequential number to each row so you can filter to any specific row.",
+    "example": "```sql\n-- MySQL (5th row)\nSELECT * FROM Employees\nLIMIT 1 OFFSET 4;\n\n-- Using ROW_NUMBER (any DB):\nSELECT * FROM (\n  SELECT *,\n    ROW_NUMBER() OVER (ORDER BY id) AS rn\n  FROM Employees\n) t WHERE rn = 5;\n```",
+    "mistakes": [
+      "Using OFFSET without ORDER BY — row order is not guaranteed.",
+      "Using OFFSET N instead of OFFSET N-1 — OFFSET is zero-indexed."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 133,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to find managers who manage more than 5 employees.",
+    "answer": "GROUP BY manager_id with HAVING COUNT(*) > 5.",
+    "whyAsked": "GROUP BY + HAVING filter — foundational aggregation pattern.",
+    "companies": [
+      "Amazon",
+      "Microsoft",
+      "Oracle",
+      "SAP"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Filter out NULL manager_id first, then GROUP BY and use HAVING to threshold the count.",
+    "explanation": "Grouping by manager_id counts how many employees report to each manager. HAVING filters groups exceeding the threshold.",
+    "example": "```sql\nSELECT manager_id, COUNT(*) AS direct_reports\nFROM Employees\nWHERE manager_id IS NOT NULL\nGROUP BY manager_id\nHAVING COUNT(*) > 5;\n```",
+    "mistakes": [
+      "Using WHERE COUNT(*) > 5 instead of HAVING — WHERE runs before aggregation.",
+      "Not filtering NULL manager_id — employees without managers form their own incorrect group."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 134,
+    "sectionId": "sql-queries",
+    "difficulty": "easy",
+    "question": "Write a query to calculate the average order value per customer.",
+    "answer": "GROUP BY customer_id with AVG(order_amount).",
+    "whyAsked": "Classic business metric query — asked in analyst roles across e-commerce companies.",
+    "companies": [
+      "Flipkart",
+      "Amazon",
+      "Myntra",
+      "Meesho"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "AVG(order_amount) grouped by customer_id — add ORDER BY to rank customers by spend.",
+    "explanation": "AVG() computes the mean order value per customer group. This is a core e-commerce KPI calculation.",
+    "example": "```sql\nSELECT customer_id,\n  AVG(order_amount) AS avg_order_value\nFROM Orders\nGROUP BY customer_id\nORDER BY avg_order_value DESC;\n```",
+    "mistakes": [
+      "Using SUM instead of AVG when the question asks for average.",
+      "Not handling customers with only one order — they still have a valid average."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 135,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to find the Nth highest salary using a window function.",
+    "answer": "Use DENSE_RANK() to rank salaries; filter WHERE rnk = N.",
+    "whyAsked": "Window functions are heavily tested at mid-senior levels across all FAANG companies.",
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta",
+      "Flipkart"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "LeetCode",
+        "url": "https://leetcode.com/problems/nth-highest-salary/",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "DENSE_RANK handles ties correctly — multiple employees sharing the same salary all get the same rank.",
+    "explanation": "DENSE_RANK() assigns ranks without gaps. If two employees tie for rank 2, the next distinct salary gets rank 3, not 4.",
+    "example": "```sql\nSELECT salary FROM (\n  SELECT salary,\n    DENSE_RANK() OVER (ORDER BY salary DESC) AS rnk\n  FROM Employee\n) ranked\nWHERE rnk = 3;  -- 3rd highest\n```",
+    "mistakes": [
+      "Using ROW_NUMBER instead of DENSE_RANK — ties get different ranks, may skip the Nth salary.",
+      "Using RANK instead of DENSE_RANK — RANK skips numbers after ties (1,1,3) which may skip target N."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 136,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to calculate a running total (cumulative sum) of sales by date.",
+    "answer": "Use SUM() as a window function with ORDER BY date and ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW.",
+    "whyAsked": "Running totals are a top ask in fintech and e-commerce analyst interviews.",
+    "companies": [
+      "Razorpay",
+      "PhonePe",
+      "Paytm",
+      "Amazon",
+      "Stripe"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "SUM() OVER (ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) accumulates from first row to current row.",
+    "explanation": "The window frame ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW includes all rows from the beginning up to and including the current row.",
+    "example": "```sql\nSELECT\n  order_date,\n  amount,\n  SUM(amount) OVER (\n    ORDER BY order_date\n    ROWS BETWEEN UNBOUNDED PRECEDING\n      AND CURRENT ROW\n  ) AS running_total\nFROM Sales;\n```",
+    "mistakes": [
+      "Omitting the ROWS frame clause — the default RANGE frame can give unexpected results with ties.",
+      "Using a correlated subquery with SUM(s2.amount) WHERE s2.date <= s1.date — this is O(n^2) and extremely slow."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 137,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to find employees who are also managers (self-join).",
+    "answer": "Self-join the Employees table: join on employee.id = manager.manager_id.",
+    "whyAsked": "Self-joins test hierarchical data understanding — common in HR data scenarios.",
+    "companies": [
+      "Amazon",
+      "Microsoft",
+      "Oracle",
+      "Infosys"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Alias the same table twice — join where one copy's id matches another copy's manager_id.",
+    "explanation": "A self-join treats the table as two separate entities. Matching employee IDs to manager IDs in the same table reveals who is a manager.",
+    "example": "```sql\nSELECT DISTINCT e.name AS employee_name\nFROM Employees e\nINNER JOIN Employees m\n  ON e.id = m.manager_id;\n```",
+    "mistakes": [
+      "Forgetting DISTINCT — a manager with multiple reports will appear multiple times.",
+      "Confusing which alias is the employee and which is the manager."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 138,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to pivot rows into columns (e.g., months as columns).",
+    "answer": "Use conditional aggregation: SUM(CASE WHEN month='Jan' THEN amount END) AS Jan.",
+    "whyAsked": "Pivot logic is core to reporting queries — tested heavily in BI/analyst roles.",
+    "companies": [
+      "Microsoft",
+      "Amazon",
+      "Walmart",
+      "Deloitte"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Conditional aggregation with CASE WHEN is the most portable pivot technique — works in all SQL databases.",
+    "explanation": "For each target column, a CASE expression returns the value only when the row matches that column's condition; the aggregate collapses all matching rows into one cell.",
+    "example": "```sql\nSELECT\n  product_id,\n  SUM(CASE WHEN month = 'Jan' THEN sales END) AS Jan,\n  SUM(CASE WHEN month = 'Feb' THEN sales END) AS Feb,\n  SUM(CASE WHEN month = 'Mar' THEN sales END) AS Mar\nFROM MonthlySales\nGROUP BY product_id;\n```",
+    "mistakes": [
+      "Using SQL Server PIVOT syntax in MySQL — PIVOT is not standard SQL.",
+      "Not wrapping the CASE in an aggregate — raw CASE without SUM/MAX returns multiple rows per group."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 139,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to find users who logged in on consecutive days.",
+    "answer": "Use LAG() window function to get the previous login date; filter where diff = 1 day.",
+    "whyAsked": "Consecutive-day logic tests LAG/LEAD window functions — asked at Swiggy, Uber, PhonePe.",
+    "companies": [
+      "Swiggy",
+      "Uber",
+      "PhonePe",
+      "Ola",
+      "Amazon"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "LAG(login_date) gives the prior login per user. A difference of exactly 1 day means consecutive logins.",
+    "explanation": "LAG() retrieves the previous row's value within the partition. Subtracting it from the current date tells you the gap between logins.",
+    "example": "```sql\nSELECT user_id FROM (\n  SELECT\n    user_id,\n    login_date,\n    LAG(login_date) OVER (\n      PARTITION BY user_id\n      ORDER BY login_date\n    ) AS prev_date\n  FROM Logins\n) t\nWHERE login_date - prev_date = 1;\n```",
+    "mistakes": [
+      "Not partitioning by user_id — LAG would bleed across users.",
+      "Not deduplicating logins first — multiple logins on the same day should count as one."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 140,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to rank employees within each department by salary.",
+    "answer": "Use RANK() or DENSE_RANK() with PARTITION BY department_id ORDER BY salary DESC.",
+    "whyAsked": "Partitioned ranking is a go-to window function question in every data interview.",
+    "companies": [
+      "Amazon",
+      "Google",
+      "Flipkart",
+      "Microsoft",
+      "Uber"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "PARTITION BY resets the rank counter for each department — the highest earner in each dept gets rank 1.",
+    "explanation": "Without PARTITION BY, RANK() would rank all employees globally. PARTITION BY department_id makes the ranking relative within each department.",
+    "example": "```sql\nSELECT\n  name,\n  department_id,\n  salary,\n  RANK() OVER (\n    PARTITION BY department_id\n    ORDER BY salary DESC\n  ) AS dept_rank\nFROM Employees;\n```",
+    "mistakes": [
+      "Forgetting PARTITION BY — ranks employees globally instead of per department.",
+      "Using ROW_NUMBER when ties should be handled — ROW_NUMBER gives different numbers to equal salaries."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 141,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to find the most recent order for each customer.",
+    "answer": "Use ROW_NUMBER() with PARTITION BY customer_id ORDER BY order_date DESC; keep rn = 1.",
+    "whyAsked": "Latest-record-per-group is one of the most frequently encountered real-world query patterns.",
+    "companies": [
+      "Amazon",
+      "Flipkart",
+      "Myntra",
+      "Meesho",
+      "Razorpay"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "ROW_NUMBER() partitioned by customer and ordered by date descending labels the latest order as 1.",
+    "explanation": "ROW_NUMBER() assigns 1 to the most recent order per customer. Filtering for rn = 1 returns exactly one row per customer.",
+    "example": "```sql\nSELECT customer_id, order_id, order_date\nFROM (\n  SELECT *,\n    ROW_NUMBER() OVER (\n      PARTITION BY customer_id\n      ORDER BY order_date DESC\n    ) AS rn\n  FROM Orders\n) t\nWHERE rn = 1;\n```",
+    "mistakes": [
+      "Using MAX(order_date) in a subquery and then joining back — works but is slower.",
+      "Using RANK() instead of ROW_NUMBER() — if two orders share the same date, both get rn=1."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 142,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to calculate month-over-month revenue growth percentage.",
+    "answer": "Use LAG() to get prior month revenue, then compute (current - prior) / prior * 100.",
+    "whyAsked": "MoM growth is the most common business metric query tested at product analytics roles.",
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta",
+      "Razorpay",
+      "Paytm"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "LAG(revenue) gives last month's value. Divide the difference by the prior value and multiply by 100 for the percentage.",
+    "explanation": "MoM growth = (current_month - previous_month) / previous_month * 100. LAG() fetches the prior month's revenue in the same query.",
+    "example": "```sql\nSELECT\n  month,\n  revenue,\n  LAG(revenue) OVER (ORDER BY month) AS prev_revenue,\n  ROUND(\n    (revenue - LAG(revenue) OVER (ORDER BY month)) * 100.0\n    / LAG(revenue) OVER (ORDER BY month), 2\n  ) AS mom_growth_pct\nFROM MonthlyRevenue;\n```",
+    "mistakes": [
+      "Dividing by zero — always handle cases where prior month revenue is 0 or NULL.",
+      "Using integer division — cast to DECIMAL or multiply by 100.0 before dividing."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 143,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to find the top-selling product in each category.",
+    "answer": "Use ROW_NUMBER() partitioned by category, ordered by total sales descending; keep rn = 1.",
+    "whyAsked": "Top-N-per-group is a staple pattern in e-commerce data interviews.",
+    "companies": [
+      "Flipkart",
+      "Amazon",
+      "Myntra",
+      "Walmart",
+      "Meesho"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Aggregate sales first with GROUP BY, then rank within each category using ROW_NUMBER() OVER (PARTITION BY category ORDER BY total_sales DESC).",
+    "explanation": "Aggregation computes total sales per product per category. ROW_NUMBER() then ranks products within each category so the top seller can be isolated.",
+    "example": "```sql\nSELECT category, product_id, total_sales\nFROM (\n  SELECT\n    category,\n    product_id,\n    SUM(quantity * price) AS total_sales,\n    ROW_NUMBER() OVER (\n      PARTITION BY category\n      ORDER BY SUM(quantity * price) DESC\n    ) AS rn\n  FROM Sales\n  JOIN Products USING (product_id)\n  GROUP BY category, product_id\n) t WHERE rn = 1;\n```",
+    "mistakes": [
+      "Using RANK() instead of ROW_NUMBER() — ties would return multiple rows per category.",
+      "Not aggregating before ranking — window function runs before GROUP BY collapse."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 144,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to calculate the retention rate of users month over month.",
+    "answer": "Self-join on user_id between consecutive months, then divide retained users by prior month cohort size.",
+    "whyAsked": "Retention queries are core to product analytics — asked in every growth-focused company.",
+    "companies": [
+      "Uber",
+      "Swiggy",
+      "Zomato",
+      "Amazon",
+      "Ola"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Join the current month's active users with the previous month's active users on user_id — the overlap is your retained users.",
+    "explanation": "Retention rate = users active in both month N and month N+1 / users active in month N. The self-join finds users present in consecutive months.",
+    "example": "```sql\nSELECT\n  a.month,\n  COUNT(DISTINCT b.user_id) * 100.0\n    / COUNT(DISTINCT a.user_id) AS retention_rate\nFROM monthly_active_users a\nLEFT JOIN monthly_active_users b\n  ON a.user_id = b.user_id\n  AND b.month = a.month + INTERVAL '1 month'\nGROUP BY a.month;\n```",
+    "mistakes": [
+      "Using INNER JOIN instead of LEFT JOIN — drops months where no users were retained.",
+      "Not accounting for new users vs retained users — distinguish cohorts correctly."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 145,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to fetch odd- or even-numbered rows from a table.",
+    "answer": "Use MOD(ROW_NUMBER() OVER (...), 2) = 1 for odd rows; = 0 for even rows.",
+    "whyAsked": "Classic trick question about row-number modulo — tests window function fundamentals.",
+    "companies": [
+      "TCS",
+      "Infosys",
+      "Amazon",
+      "Cognizant"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "ROW_NUMBER() generates sequential numbers; MOD by 2 separates odd and even rows cleanly.",
+    "explanation": "ROW_NUMBER() assigns 1-based sequential integers. MOD(rn, 2) = 1 selects odd-numbered rows; = 0 selects even-numbered rows.",
+    "example": "```sql\nSELECT * FROM (\n  SELECT *,\n    ROW_NUMBER() OVER (ORDER BY id) AS rn\n  FROM Employees\n) t\nWHERE MOD(rn, 2) = 1;  -- odd rows\n```",
+    "mistakes": [
+      "Using MOD(id, 2) instead of MOD(rn, 2) — IDs may not be sequential.",
+      "Using % instead of MOD in databases where % behaves differently with negative numbers."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 146,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to get the first and last order date for each customer.",
+    "answer": "Use MIN(order_date) and MAX(order_date) grouped by customer_id.",
+    "whyAsked": "Customer lifecycle analysis — core in CRM and e-commerce analyst roles.",
+    "companies": [
+      "Flipkart",
+      "Amazon",
+      "Myntra",
+      "Nykaa"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "MIN and MAX on date columns give the earliest and latest order — combine with DATEDIFF for customer lifespan.",
+    "explanation": "MIN(order_date) finds the first purchase; MAX(order_date) finds the most recent. Together they define the customer's purchase window.",
+    "example": "```sql\nSELECT\n  customer_id,\n  MIN(order_date) AS first_order,\n  MAX(order_date) AS last_order,\n  DATEDIFF(MAX(order_date), MIN(order_date))\n    AS customer_lifespan_days\nFROM Orders\nGROUP BY customer_id;\n```",
+    "mistakes": [
+      "Ordering by MIN(order_date) without grouping first.",
+      "Confusing MIN/MAX on dates with MIN/MAX on numeric IDs."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 147,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to calculate the percentage contribution of each product to total revenue.",
+    "answer": "Divide product revenue by total revenue using SUM() window function over all rows.",
+    "whyAsked": "Percentage-of-total is a common business analytics query across all industries.",
+    "companies": [
+      "Amazon",
+      "Microsoft",
+      "Deloitte",
+      "Accenture",
+      "PwC"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "SUM(revenue) OVER () computes the grand total in a single pass — no subquery needed.",
+    "explanation": "SUM() OVER () with no PARTITION BY sums across the entire result set. Dividing each product's revenue by this gives the percentage.",
+    "example": "```sql\nSELECT\n  product_id,\n  revenue,\n  ROUND(\n    revenue * 100.0 / SUM(revenue) OVER (), 2\n  ) AS pct_of_total\nFROM ProductRevenue\nORDER BY pct_of_total DESC;\n```",
+    "mistakes": [
+      "Using a subquery SELECT SUM(revenue) FROM ProductRevenue — works but less elegant than the window approach.",
+      "Integer division — ensure you cast to DECIMAL by using 100.0, not 100."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 148,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to find products with above-average sales in each category.",
+    "answer": "Use AVG() as a window function partitioned by category, then filter where sales > avg.",
+    "whyAsked": "Partitioned aggregation comparison — a key intermediate window function pattern.",
+    "companies": [
+      "Amazon",
+      "Flipkart",
+      "Walmart",
+      "Meesho"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "AVG(sales) OVER (PARTITION BY category) computes the category average alongside each row — no self-join needed.",
+    "explanation": "Window AVG partitioned by category gives each row its category's average as an additional column. Filtering in an outer query isolates above-average products.",
+    "example": "```sql\nSELECT product_id, category, sales\nFROM (\n  SELECT *,\n    AVG(sales) OVER (\n      PARTITION BY category\n    ) AS avg_cat_sales\n  FROM Products\n) t\nWHERE sales > avg_cat_sales;\n```",
+    "mistakes": [
+      "Trying to filter window function results directly in WHERE — window functions can only be filtered in an outer query.",
+      "Using a correlated subquery instead of a window function — works but is much slower."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 149,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to find customers who placed orders in both January and February.",
+    "answer": "Use INTERSECT or self-join on customer_id filtered by each month.",
+    "whyAsked": "Set operations (INTERSECT) are tested to validate cross-period cohort analysis.",
+    "companies": [
+      "Amazon",
+      "Google",
+      "Zomato",
+      "Swiggy"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "INTERSECT returns only customer_ids present in both monthly sets — clean and readable.",
+    "explanation": "INTERSECT finds the common customer_ids between January orders and February orders.",
+    "example": "```sql\nSELECT customer_id FROM Orders\nWHERE MONTH(order_date) = 1\nINTERSECT\nSELECT customer_id FROM Orders\nWHERE MONTH(order_date) = 2;\n```",
+    "mistakes": [
+      "Using UNION instead of INTERSECT — UNION combines, INTERSECT finds the overlap.",
+      "Not handling multiple orders per customer per month — INTERSECT on raw rows would require DISTINCT."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 150,
+    "sectionId": "sql-queries",
+    "difficulty": "medium",
+    "question": "Write a query to find the average monthly active users (MAU) over the year.",
+    "answer": "COUNT DISTINCT user_id per month, then AVG that in an outer query.",
+    "whyAsked": "MAU calculation is a key product metric query asked at all tech companies.",
+    "companies": [
+      "Meta",
+      "Google",
+      "Uber",
+      "Swiggy",
+      "PhonePe"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Two-step: compute MAU per month in an inner query, then AVG across months in the outer query.",
+    "explanation": "A subquery computes unique active users per month. The outer query averages those monthly counts to produce the annual average MAU.",
+    "example": "```sql\nSELECT AVG(mau) AS avg_mau FROM (\n  SELECT\n    DATE_FORMAT(login_date, '%Y-%m') AS month,\n    COUNT(DISTINCT user_id) AS mau\n  FROM Logins\n  GROUP BY month\n) monthly;\n```",
+    "mistakes": [
+      "Averaging at the wrong level — AVG(user_id) is meaningless; you need AVG of the monthly COUNT.",
+      "Not using DISTINCT — COUNT without DISTINCT counts logins, not unique users."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 151,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to find the median salary across all employees.",
+    "answer": "Use PERCENTILE_CONT(0.5) in databases that support it, or use a ROW_NUMBER trick for others.",
+    "whyAsked": "Median queries test statistical SQL knowledge — a top ask at Google, Stripe, Razorpay.",
+    "companies": [
+      "Google",
+      "Stripe",
+      "Razorpay",
+      "Amazon",
+      "Meta"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "PERCENTILE_CONT(0.5) is the cleanest solution where supported. For MySQL, use ROW_NUMBER to find the middle row(s).",
+    "explanation": "The median is the middle value in a sorted list. For even counts it is the average of the two middle values. PERCENTILE_CONT handles both cases automatically.",
+    "example": "```sql\n-- PostgreSQL / SQL Server\nSELECT PERCENTILE_CONT(0.5)\n  WITHIN GROUP (ORDER BY salary) AS median_salary\nFROM Employees;\n\n-- MySQL workaround\nSELECT AVG(salary) AS median_salary FROM (\n  SELECT salary,\n    ROW_NUMBER() OVER (ORDER BY salary) AS rn,\n    COUNT(*) OVER () AS total\n  FROM Employees\n) t\nWHERE rn IN (FLOOR((total+1)/2), CEIL((total+1)/2));\n```",
+    "mistakes": [
+      "Using AVG(salary) — that is the mean, not the median.",
+      "Not handling even-count datasets — for even N, median = average of the two middle values."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 152,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to identify users whose spending has increased every month for the past 3 months.",
+    "answer": "Use LAG() twice to get 3 consecutive months of spending, then filter for strictly increasing trend.",
+    "whyAsked": "Trend analysis with LAG is a key fintech and e-commerce analytics challenge.",
+    "companies": [
+      "Razorpay",
+      "PhonePe",
+      "Paytm",
+      "Amazon",
+      "Flipkart"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Two LAG calls give you month-2 and month-3 values. Filter where current > lag1 AND lag1 > lag2.",
+    "explanation": "LAG(spend, 1) gives last month, LAG(spend, 2) gives two months ago. A strict inequality chain confirms a monotonically increasing trend.",
+    "example": "```sql\nSELECT user_id FROM (\n  SELECT\n    user_id, month, total_spend,\n    LAG(total_spend,1) OVER (\n      PARTITION BY user_id ORDER BY month\n    ) AS m1,\n    LAG(total_spend,2) OVER (\n      PARTITION BY user_id ORDER BY month\n    ) AS m2\n  FROM MonthlySpend\n) t\nWHERE total_spend > m1 AND m1 > m2;\n```",
+    "mistakes": [
+      "Using >= instead of > — that allows flat months, not strictly increasing.",
+      "Not filtering out rows where m1 or m2 is NULL — users with fewer than 3 months data should be excluded."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 153,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to calculate a 7-day rolling average of daily sales.",
+    "answer": "Use AVG() with ROWS BETWEEN 6 PRECEDING AND CURRENT ROW window frame.",
+    "whyAsked": "Rolling averages are one of the most common time-series analytics queries in the industry.",
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta",
+      "Swiggy",
+      "Zomato"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "ROWS BETWEEN 6 PRECEDING AND CURRENT ROW includes the current day plus the 6 prior days — a 7-day window.",
+    "explanation": "The window frame specification tells the database exactly how many rows to include in the moving average. 6 PRECEDING + CURRENT ROW = 7 rows total.",
+    "example": "```sql\nSELECT\n  sale_date,\n  daily_sales,\n  ROUND(AVG(daily_sales) OVER (\n    ORDER BY sale_date\n    ROWS BETWEEN 6 PRECEDING AND CURRENT ROW\n  ), 2) AS rolling_7d_avg\nFROM DailySales;\n```",
+    "mistakes": [
+      "Using RANGE BETWEEN instead of ROWS BETWEEN — RANGE works on value ranges and behaves unexpectedly with duplicate dates.",
+      "Using 7 PRECEDING instead of 6 PRECEDING — that gives an 8-day window."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 154,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to find the longest streak of consecutive days a user was active.",
+    "answer": "Use date - ROW_NUMBER() trick to group consecutive dates into 'islands', then find the max island size.",
+    "whyAsked": "The islands-and-gaps pattern is a canonical hard SQL question asked at Uber, Ola, and PhonePe.",
+    "companies": [
+      "Uber",
+      "Ola",
+      "PhonePe",
+      "Amazon",
+      "Google"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Subtracting ROW_NUMBER() from the date produces the same group date for consecutive days. COUNT per group = streak length.",
+    "explanation": "For a consecutive date sequence, date minus a sequential row number yields a constant. This constant acts as a group key for each consecutive island of activity.",
+    "example": "```sql\nSELECT user_id, MAX(streak_len) AS longest_streak\nFROM (\n  SELECT user_id, COUNT(*) AS streak_len\n  FROM (\n    SELECT user_id, activity_date,\n      activity_date - ROW_NUMBER() OVER (\n        PARTITION BY user_id\n        ORDER BY activity_date\n      ) * INTERVAL '1 day' AS grp\n    FROM UserActivity\n  ) islands\n  GROUP BY user_id, grp\n) streaks\nGROUP BY user_id;\n```",
+    "mistakes": [
+      "Not deduplicating activity_date per user first — duplicate dates break the consecutive subtraction trick.",
+      "Subtracting ROW_NUMBER() as an integer directly from a DATE — cast or multiply by INTERVAL properly."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 155,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to find the first purchase date and category for each customer.",
+    "answer": "Use ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date ASC) and filter rn = 1.",
+    "whyAsked": "First-purchase analysis drives cohort attribution — core in e-commerce analytics.",
+    "companies": [
+      "Flipkart",
+      "Amazon",
+      "Myntra",
+      "Nykaa",
+      "Meesho"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Partition by customer and order by date ascending — the row numbered 1 is the first purchase.",
+    "explanation": "ROW_NUMBER() ascending by order_date assigns 1 to the earliest order. Joining with Products retrieves the category of that first purchase.",
+    "example": "```sql\nSELECT customer_id, order_id, category, order_date\nFROM (\n  SELECT o.*, c.category,\n    ROW_NUMBER() OVER (\n      PARTITION BY o.customer_id\n      ORDER BY o.order_date\n    ) AS rn\n  FROM Orders o\n  JOIN Products c USING (product_id)\n) t WHERE rn = 1;\n```",
+    "mistakes": [
+      "Using ORDER BY order_date DESC — that gives the most recent order, not the first.",
+      "Using RANK() or DENSE_RANK() — ties on the same date would return multiple rn=1 rows."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 156,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to detect fraudulent transactions: same card used in two different cities within 30 minutes.",
+    "answer": "Self-join on card_id where abs(time diff) < 30 mins and cities differ.",
+    "whyAsked": "Fraud detection queries are a top ask at fintech companies including Razorpay, PhonePe, Paytm.",
+    "companies": [
+      "Razorpay",
+      "PhonePe",
+      "Paytm",
+      "Visa",
+      "Mastercard"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Self-join on card_id with a.id < b.id to avoid duplicate pairs, then filter on time window and city mismatch.",
+    "explanation": "The self-join pairs every transaction with every other transaction on the same card. Filtering for different cities within 30 minutes flags impossible physical proximity.",
+    "example": "```sql\nSELECT a.transaction_id AS txn1,\n       b.transaction_id AS txn2,\n       a.card_id\nFROM Transactions a\nJOIN Transactions b\n  ON a.card_id = b.card_id\n  AND a.transaction_id < b.transaction_id\n  AND ABS(TIMESTAMPDIFF(\n    MINUTE, a.txn_time, b.txn_time)) <= 30\n  AND a.city <> b.city;\n```",
+    "mistakes": [
+      "Using a.id <> b.id instead of a.id < b.id — produces duplicate pairs (A,B) and (B,A).",
+      "Not using ABS on the time difference — negative differences would be filtered out incorrectly."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 157,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to calculate cohort retention: for each signup month, what % of users are still active 1, 3, and 6 months later?",
+    "answer": "Join cohort (signup month) to activity data and calculate retention at each milestone using conditional aggregation.",
+    "whyAsked": "Cohort retention analysis is the gold standard analytics question at product-led companies.",
+    "companies": [
+      "Uber",
+      "Swiggy",
+      "Zomato",
+      "Ola",
+      "Amazon",
+      "Google"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Use PERIOD_DIFF or DATEDIFF to compute months since signup, then CASE WHEN to flag each milestone — aggregate with COUNT DISTINCT.",
+    "explanation": "Each user's activity events are compared to their signup month. CASE WHEN marks which milestone each activity hits, and COUNT DISTINCT computes how many users reached each milestone.",
+    "example": "```sql\nSELECT\n  signup_month,\n  COUNT(DISTINCT user_id) AS cohort_size,\n  COUNT(DISTINCT CASE WHEN months_since >= 1\n    THEN user_id END) AS retained_m1,\n  COUNT(DISTINCT CASE WHEN months_since >= 3\n    THEN user_id END) AS retained_m3,\n  COUNT(DISTINCT CASE WHEN months_since >= 6\n    THEN user_id END) AS retained_m6\nFROM (\n  SELECT u.user_id,\n    DATE_FORMAT(u.signup_date,'%Y-%m') AS signup_month,\n    PERIOD_DIFF(\n      DATE_FORMAT(a.activity_date,'%Y%m'),\n      DATE_FORMAT(u.signup_date,'%Y%m')\n    ) AS months_since\n  FROM Users u\n  JOIN Activity a USING (user_id)\n) cohorts\nGROUP BY signup_month;\n```",
+    "mistakes": [
+      "Counting all activity rows instead of DISTINCT user_ids — inflates retention numbers.",
+      "Not joining Users to Activity — you need the signup date to define the cohort."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 158,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to find the employee with the highest salary in each department using a correlated subquery.",
+    "answer": "In a correlated subquery, compare each row's salary to MAX salary for the same department_id.",
+    "whyAsked": "Correlated subqueries are a fundamental concept tested at every experience level.",
+    "companies": [
+      "Amazon",
+      "Microsoft",
+      "Oracle",
+      "Infosys",
+      "Wipro"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "The correlated subquery references e1.department_id from the outer query — it re-executes for each row.",
+    "explanation": "A correlated subquery references a column from the outer query. Here it computes MAX(salary) scoped to each employee's own department.",
+    "example": "```sql\nSELECT name, department_id, salary\nFROM Employees e1\nWHERE salary = (\n  SELECT MAX(salary)\n  FROM Employees e2\n  WHERE e2.department_id = e1.department_id\n);\n```",
+    "mistakes": [
+      "Referencing the wrong alias — e2 must reference e1.department_id, not its own.",
+      "Not handling ties — if two employees share the max salary, both are returned (usually correct behavior)."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 159,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to transpose/unpivot columns into rows.",
+    "answer": "Use UNION ALL to stack each column as a separate row with a label column.",
+    "whyAsked": "Unpivoting is a key ETL transformation pattern asked in data engineering interviews.",
+    "companies": [
+      "Microsoft",
+      "Amazon",
+      "Deloitte",
+      "Accenture",
+      "IBM"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "UNION ALL with a literal string label per SELECT is the most portable unpivot method across all SQL databases.",
+    "explanation": "Each SELECT retrieves one column's values as rows, with a hardcoded label identifying the source column. UNION ALL stacks all these sets vertically.",
+    "example": "```sql\nSELECT product_id, 'Jan' AS month, jan_sales AS sales\nFROM MonthlySales\nUNION ALL\nSELECT product_id, 'Feb', feb_sales\nFROM MonthlySales\nUNION ALL\nSELECT product_id, 'Mar', mar_sales\nFROM MonthlySales;\n```",
+    "mistakes": [
+      "Using UNION instead of UNION ALL — UNION deduplicates rows, which can drop legitimate duplicate values.",
+      "Not including the product_id — without it, you lose the row identity during unpivot."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 160,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to find all pairs of employees in the same department who earn the same salary.",
+    "answer": "Self-join on department_id and salary where employee IDs are different (use < to avoid duplicates).",
+    "whyAsked": "Self-join with pair generation — tests understanding of Cartesian products and deduplication.",
+    "companies": [
+      "Google",
+      "Amazon",
+      "Microsoft",
+      "Uber"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Use a.id < b.id to ensure each pair appears only once — prevents (Alice, Bob) and (Bob, Alice) both appearing.",
+    "explanation": "Self-joining on department_id and salary finds all employees sharing those values. The a.id < b.id condition produces unique unordered pairs.",
+    "example": "```sql\nSELECT a.name AS emp1, b.name AS emp2,\n       a.department_id, a.salary\nFROM Employees a\nJOIN Employees b\n  ON a.department_id = b.department_id\n  AND a.salary = b.salary\n  AND a.id < b.id;\n```",
+    "mistakes": [
+      "Using a.id <> b.id — produces duplicate pairs (A,B) and (B,A).",
+      "Joining only on salary without department_id — returns pairs across different departments."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 161,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to calculate the average time between orders for each customer.",
+    "answer": "Use LAG() to get previous order date, compute diffs, then AVG the differences per customer.",
+    "whyAsked": "Inter-order time analysis drives supply chain and CRM decisions — common at Flipkart and Amazon.",
+    "companies": [
+      "Flipkart",
+      "Amazon",
+      "Myntra",
+      "Walmart",
+      "Target"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "LAG(order_date) gives the prior order. DATEDIFF computes the gap. AVG across all gaps gives the average inter-order time.",
+    "explanation": "The time between orders (inter-purchase interval) is a key customer behavior metric. LAG fetches each order's predecessor, DATEDIFF measures the gap, and AVG aggregates per customer.",
+    "example": "```sql\nSELECT customer_id,\n  AVG(days_since_prev) AS avg_days_between_orders\nFROM (\n  SELECT\n    customer_id, order_date,\n    DATEDIFF(order_date,\n      LAG(order_date) OVER (\n        PARTITION BY customer_id\n        ORDER BY order_date\n      )\n    ) AS days_since_prev\n  FROM Orders\n) t\nWHERE days_since_prev IS NOT NULL\nGROUP BY customer_id;\n```",
+    "mistakes": [
+      "Not filtering WHERE days_since_prev IS NOT NULL — the first order has no predecessor, LAG returns NULL.",
+      "Not partitioning by customer_id — LAG would compare orders across different customers."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 162,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to identify sessions from raw event logs (session = gap > 30 min means new session).",
+    "answer": "Use LAG() to detect gaps > 30 min, then SUM() of gap flags as cumulative session number.",
+    "whyAsked": "Sessionization is a canonical problem in product analytics — asked at Uber, Google, Meta.",
+    "companies": [
+      "Google",
+      "Meta",
+      "Uber",
+      "Amazon",
+      "Swiggy"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Flag each event as session start (1) or continuation (0), then cumulative SUM produces a monotonically increasing session ID.",
+    "explanation": "When the gap between events exceeds 30 minutes, a new session begins. Flagging these boundaries and taking a running SUM assigns each event a session number.",
+    "example": "```sql\nSELECT\n  user_id, event_time,\n  SUM(is_new_session) OVER (\n    PARTITION BY user_id\n    ORDER BY event_time\n  ) AS session_id\nFROM (\n  SELECT *,\n    CASE WHEN TIMESTAMPDIFF(MINUTE,\n        LAG(event_time) OVER (\n          PARTITION BY user_id\n          ORDER BY event_time),\n        event_time) > 30\n      OR LAG(event_time) OVER (\n        PARTITION BY user_id\n        ORDER BY event_time) IS NULL\n    THEN 1 ELSE 0 END AS is_new_session\n  FROM Events\n) t;\n```",
+    "mistakes": [
+      "Not handling the NULL case for the first event — the very first event is always a new session.",
+      "Not partitioning by user_id — sessions would bleed across users."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 163,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to find the product that generated the most revenue in each quarter.",
+    "answer": "Use QUARTER() to extract quarter, SUM revenue grouped by quarter + product, then ROW_NUMBER per quarter.",
+    "whyAsked": "Quarterly top-performer analysis is a standard business reporting question.",
+    "companies": [
+      "Amazon",
+      "Microsoft",
+      "Flipkart",
+      "Walmart",
+      "Adobe"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Aggregate first with GROUP BY, then rank within each quarter partition — two-step pattern.",
+    "explanation": "QUARTER() extracts the quarter number from a date. After aggregating revenue, ROW_NUMBER() partitioned by quarter selects the top product per quarter.",
+    "example": "```sql\nSELECT quarter, product_id, total_revenue\nFROM (\n  SELECT\n    QUARTER(order_date) AS quarter,\n    product_id,\n    SUM(quantity * price) AS total_revenue,\n    ROW_NUMBER() OVER (\n      PARTITION BY QUARTER(order_date)\n      ORDER BY SUM(quantity * price) DESC\n    ) AS rn\n  FROM Orders\n  GROUP BY QUARTER(order_date), product_id\n) t WHERE rn = 1;\n```",
+    "mistakes": [
+      "Not including the year in the quarter grouping — Q1 2024 and Q1 2025 would be merged.",
+      "Using RANK() instead of ROW_NUMBER() — ties would return multiple winners per quarter."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 164,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to implement a leaderboard with ties (same rank for equal scores, no rank skipped).",
+    "answer": "Use DENSE_RANK() — unlike RANK(), it assigns consecutive ranks even when there are ties.",
+    "whyAsked": "DENSE_RANK vs RANK vs ROW_NUMBER is a classic window function comparison question.",
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta",
+      "Microsoft",
+      "Uber"
+    ],
+    "practiceLinks": [
+      {
+        "platform": "LeetCode",
+        "url": "https://leetcode.com/problems/rank-scores/",
+        "type": "practice"
+      }
+    ],
+    "interviewPitch": "DENSE_RANK gives 1,1,2,2,3... whereas RANK gives 1,1,3,3,5... — know the difference cold.",
+    "explanation": "DENSE_RANK does not skip ranks after ties. If two players share rank 1, the next rank is 2, not 3. This is the expected leaderboard behavior.",
+    "example": "```sql\nSELECT\n  player_id,\n  score,\n  DENSE_RANK() OVER (\n    ORDER BY score DESC\n  ) AS rank\nFROM Scores\nORDER BY rank;\n```",
+    "mistakes": [
+      "Using RANK() — it skips ranks after ties (1,1,3 instead of 1,1,2).",
+      "Using ROW_NUMBER() — assigns unique ranks even to equal scores, breaking tie semantics."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 165,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to find the second most recent order for each customer.",
+    "answer": "Use ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date DESC) and filter rn = 2.",
+    "whyAsked": "Nth record per group is a very common extension question after 'find the latest order'.",
+    "companies": [
+      "Amazon",
+      "Flipkart",
+      "Myntra",
+      "Razorpay"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Identical to the most-recent query but filter for rn = 2 instead of rn = 1.",
+    "explanation": "ROW_NUMBER descending by order_date assigns 1 to the latest, 2 to the second latest, etc. Filtering for rn = 2 isolates the penultimate order.",
+    "example": "```sql\nSELECT customer_id, order_id, order_date\nFROM (\n  SELECT *,\n    ROW_NUMBER() OVER (\n      PARTITION BY customer_id\n      ORDER BY order_date DESC\n    ) AS rn\n  FROM Orders\n) t WHERE rn = 2;\n```",
+    "mistakes": [
+      "Customers with only one order will not appear — decide with the interviewer if that is acceptable.",
+      "Using RANK() instead of ROW_NUMBER() — if two orders share the same date, both get rn=1."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 166,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to generate a date series and fill in missing dates with zero sales.",
+    "answer": "Generate a full date range using a recursive CTE or calendar table, then LEFT JOIN with sales.",
+    "whyAsked": "Filling date gaps is essential for time-series dashboards — asked in data engineering rounds.",
+    "companies": [
+      "Amazon",
+      "Google",
+      "Razorpay",
+      "PhonePe",
+      "Microsoft"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "A recursive CTE generates every date in the range; LEFT JOIN with sales fills in actuals and COALESCE replaces NULLs with 0.",
+    "explanation": "Sales tables only have rows for days with transactions. A full date range from a recursive CTE ensures every day appears; LEFT JOIN + COALESCE fills zeros for missing days.",
+    "example": "```sql\nWITH RECURSIVE dates AS (\n  SELECT '2024-01-01' AS dt\n  UNION ALL\n  SELECT dt + INTERVAL '1 day'\n  FROM dates WHERE dt < '2024-01-31'\n)\nSELECT d.dt,\n  COALESCE(SUM(s.amount), 0) AS daily_sales\nFROM dates d\nLEFT JOIN Sales s ON s.sale_date = d.dt\nGROUP BY d.dt\nORDER BY d.dt;\n```",
+    "mistakes": [
+      "Using INNER JOIN instead of LEFT JOIN — missing dates are dropped instead of showing zero.",
+      "Forgetting COALESCE — NULL daily_sales instead of 0 breaks charts and downstream aggregations."
+    ],
+    "followUps": []
+  },
+  {
+    "id": 167,
+    "sectionId": "sql-queries",
+    "difficulty": "hard",
+    "question": "Write a query to find customers who bought item A but never bought item B (cross-selling analysis).",
+    "answer": "Filter customers who appear in orders with product A but NOT in orders with product B using NOT IN or NOT EXISTS.",
+    "whyAsked": "Cross-sell gap analysis is core in e-commerce recommendation strategy — asked at Flipkart, Amazon.",
+    "companies": [
+      "Flipkart",
+      "Amazon",
+      "Myntra",
+      "Meesho",
+      "Nykaa"
+    ],
+    "practiceLinks": [],
+    "interviewPitch": "Select customers who bought A, then exclude those who also bought B using NOT IN or NOT EXISTS.",
+    "explanation": "NOT IN with a subquery of customers who bought product B excludes them from the result. The remaining customers bought A but never B — the target cross-sell segment.",
+    "example": "```sql\nSELECT DISTINCT customer_id\nFROM Orders\nWHERE product_id = 'A'\n  AND customer_id NOT IN (\n    SELECT customer_id\n    FROM Orders\n    WHERE product_id = 'B'\n  );\n```",
+    "mistakes": [
+      "Using NOT IN with a subquery that can return NULLs — NOT IN with ANY NULL in the list returns zero rows.",
+      "Using LEFT JOIN and filtering on NULL instead of NOT EXISTS — both work but NOT EXISTS is safer with NULLs."
     ],
     "followUps": []
   }

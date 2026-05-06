@@ -38,9 +38,16 @@ export interface AppSettings {
   lastSection: string | null;
 }
 
+export interface StreakData {
+  current: number;
+  best: number;
+  lastActiveDate: string | null; // format: YYYY-MM-DD
+}
+
 export interface StorageData {
   reviewed: number[];
   bookmarks: number[];
   mockResults: MockResult[];
   settings: AppSettings;
+  streak: StreakData;
 }

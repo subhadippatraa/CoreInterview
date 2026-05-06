@@ -2,6 +2,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { PageWrapper } from '../components/layout/PageWrapper';
+import { CodeBlock } from '../components/ui/CodeBlock';
 import { InteractiveFollowUp } from '../components/ui/InteractiveFollowUp';
 import { DiagramRenderer } from '../components/diagrams/DiagramRenderer';
 import questions from '../data/questions';
@@ -229,7 +230,9 @@ export function SectionLayout() {
                           exit={{ height: 0, opacity: 0 }}
                           className="overflow-hidden"
                         >
-                          <div className="font-mono text-[13px] text-[var(--color-text)] whitespace-pre-wrap bg-[var(--color-bg)] p-4 rounded-lg border border-[var(--color-border)] overflow-x-auto nice-scrollbar mt-5" dangerouslySetInnerHTML={{ __html: activeQuestion.example }} />
+                            <div className="mt-5">
+                              <CodeBlock codeString={activeQuestion.example} defaultLanguage={activeQuestion.sectionId} />
+                            </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
